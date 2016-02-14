@@ -20,7 +20,7 @@ func main() {
 
 	cmd := cli.Lookup(cmdName)
 	if cmd != nil {
-		cmd(args.SubcommandArgs())
+		cmd(args.SubcommandArgs(cmdName))
 	} else {
 		exeName := args.ProgramName() + "-" + cmdName
 		results := utils.FindInPath(exeName, strings.Split(os.Getenv("PATH"), ":"))
