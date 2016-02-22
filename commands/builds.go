@@ -1,8 +1,6 @@
 package commands
 
 import (
-	"fmt"
-
 	"github.com/mislav/go-travis/client"
 	"github.com/mislav/go-travis/config"
 	"github.com/mislav/go-utils/cli"
@@ -26,7 +24,7 @@ type Branch struct {
 	Name string `json:"name"`
 }
 
-func buildsCmd(args *cli.Args) {
+func buildsCmd(cmd *cli.Cmd) {
 	params := map[string]string{
 		"repository.slug":  "github/hub",
 		"build.event_type": "push",
@@ -42,6 +40,6 @@ func buildsCmd(args *cli.Args) {
 	res.Unmarshal(&builds)
 
 	for _, build := range builds.Builds {
-		fmt.Printf("#%s: %s (%s)\n", build.Number, build.State, build.Branch.Name)
+		cmd.Stdout.Printf("#%s: %s (%s)\n", build.Number, build.State, build.Branch.Name)
 	}
 }

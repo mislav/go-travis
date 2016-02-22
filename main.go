@@ -18,9 +18,10 @@ func main() {
 		cmdName = "builds"
 	}
 
-	cmd := cli.Lookup(cmdName)
-	if cmd != nil {
-		cmd(args.SubcommandArgs(cmdName))
+	cmdFunc := cli.Lookup(cmdName)
+	if cmdFunc != nil {
+		cmd := cli.NewCmd(args.SubcommandArgs(cmdName))
+		cmdFunc(cmd)
 	} else {
 		exeName := args.ProgramName() + "-" + cmdName
 		results := utils.FindInPath(exeName, strings.Split(os.Getenv("PATH"), ":"))

@@ -54,14 +54,11 @@ func NewClient(logger *os.File, cacheDir string) *Client {
 			debugStream.PushColor("magenta")
 
 			t.RequestCallback = func(req *http.Request) {
-				fmt.Fprintf(debugStream, "> %s %s://%s%s\n", req.Method, req.URL.Scheme, req.Host, req.URL.RequestURI())
+				debugStream.Cprintf("> %s %C(bold)%s://%s%s%C(reset)\n", req.Method, req.URL.Scheme, req.Host, req.URL.RequestURI())
 			}
 
 			t.ResponseCallback = func(res *http.Response) {
-				fmt.Fprint(debugStream, "< ")
-				debugStream.PushColor("boldmagenta")
-				fmt.Fprintf(debugStream, "HTTP %d\n", res.StatusCode)
-				debugStream.PopColor()
+				debugStream.Cprintf("< %C(bold)HTTP %d%C(reset)\n", res.StatusCode)
 
 				for name, values := range res.Header {
 					if ignoreHeader(name) {

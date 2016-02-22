@@ -1,21 +1,20 @@
 package commands
 
 import (
-	"fmt"
 	"io"
-	"os"
 	"strings"
 
 	"github.com/mislav/go-travis/client"
 	"github.com/mislav/go-utils/cli"
+	"github.com/mislav/go-utils/utils"
 )
 
 func init() {
 	cli.Register("api", apiCmd)
 }
 
-func apiCmd(args *cli.Args) {
-	path := args.Word(0)
+func apiCmd(cmd *cli.Cmd) {
+	path := cmd.Args.Word(0)
 
 	res, err := client.Travis.PerformRequest("GET", path, nil, nil)
 	if err != nil {
@@ -23,14 +22,14 @@ func apiCmd(args *cli.Args) {
 	}
 	defer res.Body.Close()
 
-	if args.HasFlag("-i") {
-		fmt.Printf("%s %s\r\n", res.Proto, res.Status)
+	if cmd.Args.HasFlag("-i") {
+		cmd.Stdout.Printf("%s %s\r\n", res.Proto, res.Status)
 		for name, values := range res.Header {
 			value := strings.Join(values, ",")
-			fmt.Printf("%s: %s\r\n", name, value)
+			cmd.Stdout.Printf("%s: %s\r\n", name, value)
 		}
-		fmt.Print("\r\n")
+		cmd.Stdout.Print("\r\n")
 	}
 
-	io.Copy(os.Stdout, res.Body)
+	io.Copy(cmd.Stdout, res.Body)
 }
