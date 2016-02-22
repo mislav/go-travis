@@ -99,20 +99,31 @@ func (c *Client) PerformAction(resourceName, actionName string, params map[strin
 		return nil, fmt.Errorf("could not find %q resource", resourceName)
 	}
 
+	matchingActions := []ResourceAction{}
+
+	for _, action := range resource.AllActions() {
+		if actionName == action.Name {
+			matchingActions = append(matchingActions, action)
+		}
+	}
+
+	if len(matchingActions) == 0 {
+		return nil, fmt.Errorf("could not find %q action", actionName)
+	}
+
 	var path string
 	var method string
 	var err error
 
-	for _, action := range resource.NamedActions(actionName) {
-		p, err := utils.ExpandUriTemplate(action.UriTemplate, params)
+	for _, action := range matchingActions {
+		path, err = utils.ExpandUriTemplate(action.UriTemplate, params)
 		if err == nil {
-			path = p
 			method = action.RequestMethod
 			break
 		}
 	}
 
-	if path == "" {
+	if err != nil {
 		return nil, err
 	}
 
@@ -183,6 +194,15 @@ func (m *Manifest) GithubScopes() []string {
 	return m.Config.GithubConfig.Scopes
 }
 
+func (m *Manifest) AllResources() []Resource {
+	result := []Resource{}
+	for name, resource := range m.Resources {
+		resource.Name = name
+		result = append(result, resource)
+	}
+	return result
+}
+
 func (m *Manifest) Resource(target string) *Resource {
 	for name, resource := range m.Resources {
 		if name == target {
@@ -204,12 +224,13 @@ type GithubConfig struct {
 type Resource struct {
 	Name string
 	// Actions map[string][]ResourceAction `json:"actions"`
-	Actions    map[string]interface{} `json:"actions"`
-	Attributes []string               `json:"attributes"`
-	SortableBy []string               `json:"sortable_by"`
+	Actions     map[string]interface{} `json:"actions"`
+	Attributes  []string               `json:"attributes"`
+	SortableBy  []string               `json:"sortable_by"`
+	DefaultSort string                 `json:"default_sort"`
 }
 
-func (r *Resource) NamedActions(name string) []ResourceAction {
+func (r *Resource) AllActions() []ResourceAction {
 	result := []ResourceAction{}
 	for name, actions := range r.Actions {
 		switch a := actions.(type) {
