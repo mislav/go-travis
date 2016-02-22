@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -176,13 +175,8 @@ type Response struct {
 
 func (r *Response) Unmarshal(dest interface{}) error {
 	defer r.Body.Close()
-	data, err := ioutil.ReadAll(r.Body)
-
-	if err == nil {
-		err = json.Unmarshal(data, dest)
-	}
-
-	return err
+	decoder := json.NewDecoder(r.Body)
+	return decoder.Decode(dest)
 }
 
 type Manifest struct {
