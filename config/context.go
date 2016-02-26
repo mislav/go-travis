@@ -1,6 +1,7 @@
 package config
 
 import (
+	"os"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -43,4 +44,21 @@ func RepoSlugFromGit() string {
 	}
 
 	return ""
+}
+
+func RepoSlug() string {
+	if envSlug := os.Getenv("TRAVIS_REPO"); envSlug != "" {
+		return envSlug
+	} else {
+		return RepoSlugFromGit()
+	}
+}
+
+func TokenForHost(host string) string {
+	envToken := os.Getenv("TRAVIS_TOKEN")
+	if envToken != "" && (host == "api.travis-ci.org" || host == "api.travis-ci.com") {
+		return envToken
+	} else {
+		return ""
+	}
 }

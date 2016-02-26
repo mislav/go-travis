@@ -8,14 +8,32 @@ import (
 
 	_ "github.com/mislav/go-travis/commands"
 	"github.com/mislav/go-utils/cli"
-	"github.com/mislav/go-utils/utils"
+	"github.com/mislav/go-utils/pathname"
 )
 
 func main() {
 	args := cli.NewArgs(os.Args)
-	cmdName := args.At(0)
+	cmdName := args.Peek(0)
 	if cmdName == "" {
 		cmdName = "builds"
+	}
+
+	repoFlag, args := args.ExtractFlag("-r", "--repo", "REPOSITORY")
+	tokenFlag, args := args.ExtractFlag("-t", "--token", "TOKEN")
+	debugFlag, args := args.ExtractFlag("", "--debug", false)
+
+	if repoFlag.IsProvided() {
+		os.Setenv("TRAVIS_REPO", repoFlag.String())
+	}
+	if tokenFlag.IsProvided() {
+		os.Setenv("TRAVIS_TOKEN", tokenFlag.String())
+	}
+	if debugFlag.IsProvided() {
+		if debugFlag.Bool() {
+			os.Setenv("TRAVIS_DEBUG", "1")
+		} else {
+			os.Setenv("TRAVIS_DEBUG", "")
+		}
 	}
 
 	cmdFunc := cli.Lookup(cmdName)
@@ -24,7 +42,7 @@ func main() {
 		cmdFunc(cmd)
 	} else {
 		exeName := args.ProgramName() + "-" + cmdName
-		results := utils.FindInPath(exeName, strings.Split(os.Getenv("PATH"), ":"))
+		results := pathname.FindInPath(exeName, strings.Split(os.Getenv("PATH"), ":"))
 
 		if len(results) > 0 {
 			exeCmd := results[0]

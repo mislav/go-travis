@@ -9,8 +9,10 @@ import (
 	"os"
 	"strings"
 
+	"github.com/mislav/go-travis/config"
 	"github.com/mislav/go-utils/api"
 	"github.com/mislav/go-utils/cli"
+	"github.com/mislav/go-utils/pathname"
 	"github.com/mislav/go-utils/utils"
 )
 
@@ -26,16 +28,14 @@ var ignoredHeaders = []string{
 	"via",
 }
 
-var Travis *Client
-
-func init() {
+func Travis() *Client {
 	var logger *os.File
 	if os.Getenv("TRAVIS_DEBUG") != "" {
 		logger = os.Stderr
 	}
 
-	tmpdir := utils.TempDir().Join("travis")
-	Travis = NewClient(logger, tmpdir.String())
+	tmpdir := pathname.TempDir().Join("travis")
+	return NewClient(logger, tmpdir.String())
 }
 
 type Client struct {
@@ -79,6 +79,9 @@ func NewClient(logger *os.File, cacheDir string) *Client {
 func (c *Client) PerformRequest(method, path string, body io.Reader, configure func(*http.Request)) (*Response, error) {
 	res, err := c.http.PerformRequest(method, path, nil, func(req *http.Request) {
 		req.Header.Set("Travis-API-Version", "3")
+		if token := config.TokenForHost(req.Host); token != "" {
+			req.Header.Set("Authorization", "token "+token)
+		}
 		if configure != nil {
 			configure(req)
 		}
@@ -137,7 +140,7 @@ func (c *Client) Manifest() (*Manifest, error) {
 	var res *Response
 	var err error
 
-	cache := utils.NewPathname(c.cacheDir, "manifest.json")
+	cache := pathname.NewPathname(c.cacheDir, "manifest.json")
 	if cache.Exists() {
 		file, err := os.Open(cache.String())
 		if err != nil {

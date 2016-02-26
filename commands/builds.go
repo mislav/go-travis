@@ -26,12 +26,12 @@ type Branch struct {
 
 func buildsCmd(cmd *cli.Cmd) {
 	params := map[string]string{
-		"repository.slug":  "github/hub",
+		"repository.slug":  config.RepoSlug(),
 		"build.event_type": "push",
 		"limit":            "10",
 	}
 
-	res, err := client.Travis.PerformAction("builds", "find", params)
+	res, err := client.Travis().PerformAction("builds", "find", params)
 	if err != nil {
 		panic(err)
 	}
