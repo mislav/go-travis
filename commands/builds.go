@@ -35,6 +35,10 @@ func buildsCmd(cmd *cli.Cmd) {
 	if err != nil {
 		panic(err)
 	}
+	if res.StatusCode > 299 {
+		cmd.Stderr.Printf("unexpected HTTP status: %d\n", res.StatusCode)
+		cmd.Exit(1)
+	}
 
 	builds := Builds{}
 	res.Unmarshal(&builds)
