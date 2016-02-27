@@ -7,6 +7,7 @@ import (
 	"syscall"
 
 	_ "github.com/mislav/go-travis/commands"
+	"github.com/mislav/go-travis/config"
 	"github.com/mislav/go-utils/cli"
 	"github.com/mislav/go-utils/pathname"
 )
@@ -48,7 +49,14 @@ func main() {
 			exeCmd := results[0]
 
 			argv := []string{exeName}
-			argv = append(argv, os.Args[2:]...)
+			argv = append(argv, args.Slice(1)...)
+
+			if !repoFlag.IsProvided() && os.Getenv("TRAVIS_REPO") == "" {
+				os.Setenv("TRAVIS_REPO", config.RepoSlugFromGit())
+			}
+			if !tokenFlag.IsProvided() && os.Getenv("TRAVIS_TOKEN") == "" {
+				os.Setenv("TRAVIS_TOKEN", config.TokenForHost("api.travis-ci.org"))
+			}
 
 			err := syscall.Exec(exeCmd.String(), argv, os.Environ())
 			if err != nil {
