@@ -29,9 +29,14 @@ func createTokenFile() {
 	ioutil.WriteFile(tokenFilePath, []byte(token), 0x644)
 }
 
+func DeleteTokenFile() {
+	tokenFilePath := tokenFilePath()
+	os.Remove(tokenFilePath)
+}
+
 func promptForToken() string {
 	token := ""
-	println("I need your travis access token to log you in. Please paste it here:")
+	println("I need your github access token to log you in. Please paste it here:")
 	fmt.Scanln(&token)
 	return token
 }

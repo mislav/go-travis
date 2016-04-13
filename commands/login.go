@@ -2,7 +2,10 @@ package commands
 
 import (
 	"github.com/HPI-BP2015H/go-travis/client"
+	"github.com/fatih/color"
+	"github.com/google/go-github/github"
 	"github.com/mislav/go-utils/cli"
+	"golang.org/x/oauth2"
 )
 
 func init() {
@@ -10,22 +13,20 @@ func init() {
 }
 
 func loginCmd(cmd *cli.Cmd) {
-	token := client.Travis().Token
-	println("this is the token: " + token)
-	/*
-		params := map[string]string{
-			"repository.slug":  config.RepoSlug(),
-			"build.event_type": "push",
-			"limit":            "10",
-		}
+	github := Login()
+	user, _, err := github.Users.Get("")
+	if err != nil {
+		color.Red("Error: Could not connect to Github!")
+	}
+	color.Green("Success! You are now logged into the account " + *(user.Login) + ".\n")
 
-		res, err := client.Travis().PerformAction("builds", "find", params)
-		if err != nil {
-			panic(err)
-		}
-		if res.StatusCode > 299 {
-			cmd.Stderr.Printf("unexpected HTTP status: %d\n", res.StatusCode)
-			cmd.Exit(1)
-		}
-	*/
+}
+
+func Login() *github.Client {
+	token := client.Travis().Token
+	ts := oauth2.StaticTokenSource(
+		&oauth2.Token{AccessToken: token},
+	)
+	tc := oauth2.NewClient(oauth2.NoContext, ts)
+	return github.NewClient(tc)
 }
