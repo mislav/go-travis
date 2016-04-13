@@ -1,13 +1,17 @@
 package commands
 
 import (
+	"strings"
+
 	"github.com/HPI-BP2015H/go-travis/client"
 	"github.com/HPI-BP2015H/go-travis/config"
+	"github.com/fatih/color"
 	"github.com/mislav/go-utils/cli"
 )
 
 func init() {
 	cli.Register("builds", buildsCmd)
+	cli.Register("history", buildsCmd)
 }
 
 type Builds struct {
@@ -18,6 +22,11 @@ type Build struct {
 	Number string  `json:"number"`
 	State  string  `json:"state"`
 	Branch *Branch `json:"branch"`
+	Commit *Commit `json:"commit"`
+}
+
+type Commit struct {
+	Message string `json:"message"`
 }
 
 func buildsCmd(cmd *cli.Cmd) {
@@ -40,6 +49,18 @@ func buildsCmd(cmd *cli.Cmd) {
 	res.Unmarshal(&builds)
 
 	for _, build := range builds.Builds {
-		cmd.Stdout.Printf("#%s: %s (%s)\n", build.Number, build.State, build.Branch.Name)
+		printBuildColorful(build)
 	}
+}
+
+func printBuildColorful(build Build) {
+	y := color.New(color.FgYellow).PrintfFunc()
+	c := color.New(color.FgRed, color.Bold).PrintfFunc()
+	if build.State == "passed" {
+		c = color.New(color.FgGreen, color.Bold).PrintfFunc()
+	}
+	c("#%s %s  ", build.Number, build.State)
+	y("(%s) ", build.Branch.Name)
+	commitMessage := strings.Replace(build.Commit.Message, "\n", " ", -1)
+	print(commitMessage + "\n")
 }

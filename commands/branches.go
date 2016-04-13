@@ -3,6 +3,7 @@ package commands
 import (
 	"github.com/HPI-BP2015H/go-travis/client"
 	"github.com/HPI-BP2015H/go-travis/config"
+	"github.com/fatih/color"
 	"github.com/mislav/go-utils/cli"
 )
 
@@ -44,6 +45,15 @@ func branchesCmd(cmd *cli.Cmd) {
 	res.Unmarshal(&branches)
 
 	for _, branch := range branches.Branches {
-		cmd.Stdout.Printf("%s: #%s %s\n", branch.Name, branch.LastBuild.Number, branch.LastBuild.State)
+		printBranchColorful(branch)
 	}
+}
+
+func printBranchColorful(branch Branch) {
+	color.Yellow("%s:  ", branch.Name)
+	c := color.New(color.FgRed, color.Bold).PrintfFunc()
+	if branch.LastBuild.State == "passed" {
+		c = color.New(color.FgGreen, color.Bold).PrintfFunc()
+	}
+	c("  #%s  %s\n", branch.LastBuild.Number, branch.LastBuild.State)
 }
