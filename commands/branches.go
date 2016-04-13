@@ -28,8 +28,6 @@ type Repository struct {
 func branchesCmd(cmd *cli.Cmd) {
 	params := map[string]string{
 		"repository.slug": config.RepoSlug(),
-		//"build.event_type": "push",
-		//"limit":            "10",
 	}
 
 	res, err := client.Travis().PerformAction("branches", "find", params)

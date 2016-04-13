@@ -42,11 +42,12 @@ type Client struct {
 	cacheDir string
 	manifest *Manifest
 	http     *api.Client
+	Token    string
 }
 
 func NewClient(logger *os.File, cacheDir string) *Client {
 	rootUrl, _ := url.Parse("https://api.travis-ci.org")
-
+	token := loadToken()
 	http := api.NewClient(rootUrl, func(t *api.Transport) {
 		if logger != nil {
 			debugStream := cli.NewColoredWriter(logger)
@@ -73,6 +74,7 @@ func NewClient(logger *os.File, cacheDir string) *Client {
 	return &Client{
 		http:     http,
 		cacheDir: cacheDir,
+		Token:    token,
 	}
 }
 

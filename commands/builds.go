@@ -54,6 +54,7 @@ func buildsCmd(cmd *cli.Cmd) {
 }
 
 func printBuildColorful(build Build) {
+	commitMessage := strings.Replace(build.Commit.Message, "\n", " ", -1)
 	y := color.New(color.FgYellow).PrintfFunc()
 	c := color.New(color.FgRed, color.Bold).PrintfFunc()
 	if build.State == "passed" {
@@ -61,6 +62,5 @@ func printBuildColorful(build Build) {
 	}
 	c("#%s %s  ", build.Number, build.State)
 	y("(%s) ", build.Branch.Name)
-	commitMessage := strings.Replace(build.Commit.Message, "\n", " ", -1)
 	print(commitMessage + "\n")
 }
