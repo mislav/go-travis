@@ -1,8 +1,8 @@
 package commands
 
 import (
-	"github.com/mislav/go-travis/client"
-	"github.com/mislav/go-travis/config"
+	"github.com/HPI-BP2015H/go-travis-1/client"
+	"github.com/HPI-BP2015H/go-travis-1/config"
 	"github.com/mislav/go-utils/cli"
 )
 
@@ -18,10 +18,6 @@ type Build struct {
 	Number string  `json:"number"`
 	State  string  `json:"state"`
 	Branch *Branch `json:"branch"`
-}
-
-type Branch struct {
-	Name string `json:"name"`
 }
 
 func buildsCmd(cmd *cli.Cmd) {

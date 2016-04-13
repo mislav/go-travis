@@ -6,8 +6,8 @@ import (
 	"strings"
 	"syscall"
 
-	_ "github.com/mislav/go-travis/commands"
-	"github.com/mislav/go-travis/config"
+	_ "github.com/HPI-BP2015H/go-travis-1/commands"
+	"github.com/HPI-BP2015H/go-travis-1/config"
 	"github.com/mislav/go-utils/cli"
 	"github.com/mislav/go-utils/pathname"
 )

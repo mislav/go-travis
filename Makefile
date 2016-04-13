@@ -1,5 +1,5 @@
 GO = go
-NAMESPACE = github.com/mislav/go-travis
+NAMESPACE = github.com/HPI-BP2015H/go-travis-1
 
 SOURCES = $(shell find . -name '*.go' -maxdepth 2)
 MODULES = $(shell find . -name '*.go' -depth 2 | cut -d/ -f1-2 | sort -u)
