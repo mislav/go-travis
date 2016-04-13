@@ -1,13 +1,13 @@
 package commands
 
 import (
-	"github.com/HPI-BP2015H/go-travis-1/client"
-	"github.com/HPI-BP2015H/go-travis-1/config"
+	"github.com/HPI-BP2015H/go-travis/client"
+	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/mislav/go-utils/cli"
 )
 
 func init() {
-	cli.Register("builds", buildsCmd)
+	cli.Register("branches", branchesCmd)
 }
 
 type Branches struct {
@@ -16,7 +16,7 @@ type Branches struct {
 
 type Branch struct {
 	Name       string      `json:"name"`
-	LastBuild  Build       `json:"build"`
+	LastBuild  Build       `json:"last_build"`
 	Repository *Repository `json:"repo"`
 }
 

@@ -4,7 +4,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/HPI-BP2015H/go-travis-1/client"
+	"github.com/HPI-BP2015H/go-travis/client"
 	"github.com/mislav/go-utils/cli"
 	"github.com/mislav/go-utils/utils"
 )

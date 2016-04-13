@@ -3,8 +3,8 @@ package commands
 import (
 	"io"
 
-	"github.com/HPI-BP2015H/go-travis-1/client"
-	"github.com/HPI-BP2015H/go-travis-1/config"
+	"github.com/HPI-BP2015H/go-travis/client"
+	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/mislav/go-utils/cli"
 )
 

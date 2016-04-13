@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/HPI-BP2015H/go-travis-1/config"
+	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/mislav/go-utils/api"
 	"github.com/mislav/go-utils/cli"
 	"github.com/mislav/go-utils/pathname"
