@@ -12,7 +12,8 @@ import (
 func loadToken() string {
 	tokenFilePath := tokenFilePath()
 	if _, err := os.Stat(tokenFilePath); os.IsNotExist(err) {
-		createTokenFile()
+		token := promptForToken()
+		ChangeTokenTo(token)
 	}
 	token, err := ioutil.ReadFile(tokenFilePath)
 	if err != nil {
@@ -22,16 +23,16 @@ func loadToken() string {
 	return string(token[:])
 }
 
-func createTokenFile() {
-	tokenFilePath := tokenFilePath()
-	os.Create(tokenFilePath)
-	token := promptForToken()
-	ioutil.WriteFile(tokenFilePath, []byte(token), 0x644)
-}
-
 func DeleteTokenFile() {
 	tokenFilePath := tokenFilePath()
 	os.Remove(tokenFilePath)
+}
+
+func ChangeTokenTo(token string) {
+	tokenFilePath := tokenFilePath()
+	DeleteTokenFile()
+	os.Create(tokenFilePath)
+	ioutil.WriteFile(tokenFilePath, []byte(token), 0x644)
 }
 
 func promptForToken() string {

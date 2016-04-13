@@ -13,7 +13,7 @@ func whoamiCmd(cmd *cli.Cmd) {
 	github := Login()
 	user, _, err := github.Users.Get("")
 	if err != nil {
-		color.Red("Error: Could not get user info from Github!")
+		color.Red("Error: Could not connect to Github! \n" + err.Error())
 		return
 	}
 	color.Green("You are logged into the account " + *(user.Login) + ".\n")
