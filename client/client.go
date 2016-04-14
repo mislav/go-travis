@@ -47,7 +47,7 @@ type Client struct {
 
 func NewClient(logger *os.File, cacheDir string) *Client {
 	rootUrl, _ := url.Parse("https://api.travis-ci.org")
-	token := loadToken()
+	token := LoadTokenFromPath(GithubTokenFilePath())
 	http := api.NewClient(rootUrl, func(t *api.Transport) {
 		if logger != nil {
 			debugStream := cli.NewColoredWriter(logger)

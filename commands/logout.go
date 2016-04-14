@@ -10,5 +10,5 @@ func init() {
 }
 
 func logoutCmd(cmd *cli.Cmd) {
-	client.DeleteTokenFile()
+	client.DeleteGithubTokenFile()
 }

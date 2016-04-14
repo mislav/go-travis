@@ -10,7 +10,7 @@ func init() {
 }
 
 func reposCmd(cmd *cli.Cmd) {
-	github := Login()
+	github := LoginToGitHub()
 	repos, _, err := github.Repositories.List("", nil)
 	if err != nil {
 		color.Red("Error: Could not connect to Github! \n" + err.Error())
