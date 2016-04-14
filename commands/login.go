@@ -50,18 +50,12 @@ func LoginToTravis() {
 }
 
 func getTravisToken() {
-
 	type AccessToken struct {
-		Access_token string `json:"access_token,omitempty"`
+		AccessToken string `json:"access_token,omitempty"`
 	}
 	var token AccessToken
 	httpClient := http.DefaultClient
-	body := []byte("{\"github_token\":\"" + client.LoadGithubToken() + "\"}")
-	req, err := http.NewRequest("POST", "https://api.travis-ci.org/auth/github", bytes.NewBuffer(body))
-	req.Header.Add("Accept", "application/vnd.travis-ci.2+json")
-	req.Header.Add("User-Agent", "MyClient/1.0.0")
-	req.Header.Add("Content-Type", "application/json")
-
+	req := travisTokenRequest()
 	resp, err := httpClient.Do(req)
 	bytes, err := ioutil.ReadAll(resp.Body)
 	err = json.Unmarshal(bytes, &token)
@@ -69,6 +63,19 @@ func getTravisToken() {
 		color.Red("Error in getTravisToken().")
 		return
 	}
-	client.ChangeTravisTokenTo(token.Access_token)
+	client.ChangeTravisTokenTo(token.AccessToken)
 
+}
+func travisTokenRequest() *http.Request {
+	body := []byte("{\"github_token\":\"" + client.LoadGithubToken() + "\"}")
+	travisTokenRequest, err := http.NewRequest("POST", "https://api.travis-ci.org/auth/github", bytes.NewBuffer(body))
+	if err != nil {
+		color.Red("Error: Could not create the travis token request.")
+		return nil
+	}
+	travisTokenRequest.Header.Add("Accept", "application/vnd.travis-ci.2+json")
+	travisTokenRequest.Header.Add("User-Agent", "MyClient/1.0.0")
+	travisTokenRequest.Header.Add("Content-Type", "application/json")
+
+	return travisTokenRequest
 }
