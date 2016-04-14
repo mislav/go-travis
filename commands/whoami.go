@@ -18,7 +18,7 @@ func whoamiCmd(cmd *cli.Cmd) {
 	defer res.Body.Close()
 	if err != nil {
 		color.Red("Error: Could not connect to Travis! \n" + err.Error())
-		color.Yellow("Fall back to asking github.")
+		color.Yellow("Fall back to asking Github:")
 		whoamiGithub()
 		return
 	}
