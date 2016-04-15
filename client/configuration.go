@@ -36,45 +36,35 @@ const TravisOrgEndpoint = "https://api.travis-ci.org/"
 // TravisProEndpoint is the endpoint of Travis CI for private projects
 const TravisProEndpoint = "https://api.travis-ci.com/"
 
-// DeleteDefaultTravisEndpoint deletes the default travis endpoint from the configuration
-// and saves the configuration file
-func (c *Configuration) DeleteDefaultTravisEndpoint() {
+func (c Configuration) DeleteDefaultTravisEndpoint() {
 	c.configurationYML.DefaultEndpoint = ""
 	c.saveConfigurationYML()
 }
 
-// StoreDefaultTravisEndpoint overrides the default travis endpoint in the configuration
-// and saves the configuration file
-func (c *Configuration) StoreDefaultTravisEndpoint(url string) {
+func (c Configuration) StoreDefaultTravisEndpoint(url string) {
 	c.configurationYML.DefaultEndpoint = url
 	c.saveConfigurationYML()
 }
 
-// GetDefaultTravisEndpoint gets the default travis endpoint from the configuration,
-// falls back to TravisOrgEndpoint in case no default is set
-func (c *Configuration) GetDefaultTravisEndpoint() string {
-	endpoint := c.configurationYML.DefaultEndpoint
-	if endpoint != "" {
-		return endpoint
-	}
-	return TravisOrgEndpoint
+func (c Configuration) GetDefaultTravisEndpoint() string {
+	return c.configurationYML.DefaultEndpoint
 }
 
-// GetTravisTokenForEndpoint gets the travis access token for the given endpoint
-func (c *Configuration) GetTravisTokenForEndpoint(url string) string {
+func (c Configuration) GetTravisTokenForEndpoint(url string) string {
+	//print(url)
+
+	print(c.configurationYML.DefaultEndpoint)
 	return c.configurationYML.Endpoints[url].AccessToken
 }
 
-// StoreTravisTokenForEndpoint save the given travis access token for the endpoint
-// and saves the configuration file
-func (c *Configuration) StoreTravisTokenForEndpoint(token, url string) {
+func (c Configuration) StoreTravisTokenForEndpoint(token, url string) {
 	t := new(accessToken)
 	t.AccessToken = token
 	c.configurationYML.Endpoints[url] = *t
 	c.saveConfigurationYML()
 }
 
-func (c *Configuration) loadConfigurationYML() {
+func (c Configuration) loadConfigurationYML() {
 	token, err := ioutil.ReadFile(c.filePath)
 	if os.IsNotExist(err) {
 		color.Yellow("Warning: No configuration file found!")
@@ -87,9 +77,11 @@ func (c *Configuration) loadConfigurationYML() {
 	if err != nil {
 		color.Red("Error: Could not parse configuration file!")
 	}
+
+	print(c.configurationYML.DefaultEndpoint)
 }
 
-func (c *Configuration) saveConfigurationYML() {
+func (c Configuration) saveConfigurationYML() {
 	out, err := yaml.Marshal(c.configurationYML)
 	if err != nil {
 		color.Red("Error: Could not marshall configuration!")
@@ -100,7 +92,7 @@ func (c *Configuration) saveConfigurationYML() {
 	}
 }
 
-// DefaultConfiguration creates a new configuration from the default file path
+// DefaultConfiguration create a new configuration from the default file path
 func DefaultConfiguration() *Configuration {
 	c := new(Configuration)
 	c.filePath = defaultConfigurationFilePath()
