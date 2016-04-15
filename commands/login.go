@@ -27,7 +27,7 @@ func loginCmd(cmd *cli.Cmd) {
 		username, password := promptForGithubCredentials()
 		github := loginToGitHubWithUsernameAndPassword(username, password)
 		authorization := getGithubAuthorization(github)
-		if *authorization.Token == "" {
+		if authorization == nil {
 			color.Red("Error: Your credentials or token were wrong. Aborting.")
 			return
 		}
@@ -96,7 +96,6 @@ func LoginToGithub(token string) *github.Client {
 	if token == "" {
 		username, password := promptForGithubCredentials()
 		github = loginToGitHubWithUsernameAndPassword(username, password)
-
 	} else {
 		github = loginToGithubWithToken(token)
 	}

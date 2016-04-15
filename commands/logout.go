@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"os"
+
 	"github.com/HPI-BP2015H/go-travis/client"
 	"github.com/HPI-BP2015H/go-utils/cli"
 )
@@ -10,5 +12,6 @@ func init() {
 }
 
 func logoutCmd(cmd *cli.Cmd) {
-	client.DeleteGithubTokenFile()
+	config := client.DefaultConfiguration()
+	config.DeleteTravisTokenForEndpoint(os.Getenv("TRAVIS_ENDPOINT"))
 }
