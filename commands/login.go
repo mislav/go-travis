@@ -112,9 +112,9 @@ func LoginToGithub(token string) *github.Client {
 	return github
 }
 
-func promptForGithubCredentials() (username string, password string) {
+func promptForGithubCredentials() (string, string) {
+	var username string
 	showGithubLoginDisclaimer()
-	username = ""
 	print("Username: ")
 	fmt.Scan(&username)
 	print("Password for " + username + ": ")
