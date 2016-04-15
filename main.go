@@ -21,8 +21,11 @@ func main() {
 		cmdName = "builds"
 	}
 
+	configuration := client.DefaultConfiguration()
+
 	repoFlag, args := args.ExtractFlag("-r", "--repo", "REPOSITORY")
 	tokenFlag, args := args.ExtractFlag("-t", "--token", "TOKEN")
+	endpointFlag, args := args.ExtractFlag("-e", "--api-endpoint", "URL")
 	debugFlag, args := args.ExtractFlag("", "--debug", false)
 
 	if repoFlag.IsProvided() {
@@ -30,6 +33,11 @@ func main() {
 	}
 	if tokenFlag.IsProvided() {
 		os.Setenv("TRAVIS_TOKEN", tokenFlag.String())
+	}
+	if endpointFlag.IsProvided() {
+		os.Setenv("TRAVIS_ENDPOINT", endpointFlag.String())
+	} else {
+		os.Setenv("TRAVIS_ENDPOINT", configuration.GetDefaultTravisEndpoint())
 	}
 	if debugFlag.IsProvided() {
 		if debugFlag.Bool() {
@@ -57,7 +65,6 @@ func main() {
 				os.Setenv("TRAVIS_REPO", config.RepoSlugFromGit())
 			}
 			if !tokenFlag.IsProvided() && os.Getenv("TRAVIS_TOKEN") == "" {
-				configuration := client.DefaultConfiguration()
 				os.Setenv("TRAVIS_TOKEN", configuration.GetTravisTokenForEndpoint(client.TravisOrgEndpoint))
 			}
 
