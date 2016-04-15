@@ -68,6 +68,9 @@ func (c *Configuration) GetTravisTokenForEndpoint(url string) string {
 // StoreTravisTokenForEndpoint save the given travis access token for the endpoint
 // and saves the configuration file
 func (c *Configuration) StoreTravisTokenForEndpoint(token, url string) {
+	if c.configurationYML.Endpoints == nil {
+		c.configurationYML.Endpoints = make(map[string]accessToken)
+	}
 	t := new(accessToken)
 	t.AccessToken = token
 	c.configurationYML.Endpoints[url] = *t
