@@ -36,35 +36,32 @@ const TravisOrgEndpoint = "https://api.travis-ci.org/"
 // TravisProEndpoint is the endpoint of Travis CI for private projects
 const TravisProEndpoint = "https://api.travis-ci.com/"
 
-func (c Configuration) DeleteDefaultTravisEndpoint() {
+func (c *Configuration) DeleteDefaultTravisEndpoint() {
 	c.configurationYML.DefaultEndpoint = ""
 	c.saveConfigurationYML()
 }
 
-func (c Configuration) StoreDefaultTravisEndpoint(url string) {
+func (c *Configuration) StoreDefaultTravisEndpoint(url string) {
 	c.configurationYML.DefaultEndpoint = url
 	c.saveConfigurationYML()
 }
 
-func (c Configuration) GetDefaultTravisEndpoint() string {
+func (c *Configuration) GetDefaultTravisEndpoint() string {
 	return c.configurationYML.DefaultEndpoint
 }
 
-func (c Configuration) GetTravisTokenForEndpoint(url string) string {
-	//print(url)
-
-	print(c.configurationYML.DefaultEndpoint)
+func (c *Configuration) GetTravisTokenForEndpoint(url string) string {
 	return c.configurationYML.Endpoints[url].AccessToken
 }
 
-func (c Configuration) StoreTravisTokenForEndpoint(token, url string) {
+func (c *Configuration) StoreTravisTokenForEndpoint(token, url string) {
 	t := new(accessToken)
 	t.AccessToken = token
 	c.configurationYML.Endpoints[url] = *t
 	c.saveConfigurationYML()
 }
 
-func (c Configuration) loadConfigurationYML() {
+func (c *Configuration) loadConfigurationYML() {
 	token, err := ioutil.ReadFile(c.filePath)
 	if os.IsNotExist(err) {
 		color.Yellow("Warning: No configuration file found!")
@@ -77,11 +74,9 @@ func (c Configuration) loadConfigurationYML() {
 	if err != nil {
 		color.Red("Error: Could not parse configuration file!")
 	}
-
-	print(c.configurationYML.DefaultEndpoint)
 }
 
-func (c Configuration) saveConfigurationYML() {
+func (c *Configuration) saveConfigurationYML() {
 	out, err := yaml.Marshal(c.configurationYML)
 	if err != nil {
 		color.Red("Error: Could not marshall configuration!")
