@@ -31,14 +31,19 @@ func main() {
 	if repoFlag.IsProvided() {
 		os.Setenv("TRAVIS_REPO", repoFlag.String())
 	}
-	if tokenFlag.IsProvided() {
-		os.Setenv("TRAVIS_TOKEN", tokenFlag.String())
-	}
+
+	endpoint := configuration.GetDefaultTravisEndpoint()
 	if endpointFlag.IsProvided() {
-		os.Setenv("TRAVIS_ENDPOINT", endpointFlag.String())
-	} else {
-		os.Setenv("TRAVIS_ENDPOINT", configuration.GetDefaultTravisEndpoint())
+		endpoint = endpointFlag.String()
 	}
+	os.Setenv("TRAVIS_ENDPOINT", endpoint)
+
+	token := configuration.GetTravisTokenForEndpoint(endpoint)
+	if tokenFlag.IsProvided() {
+		token = tokenFlag.String()
+	}
+	os.Setenv("TRAVIS_TOKEN", token)
+
 	if debugFlag.IsProvided() {
 		if debugFlag.Bool() {
 			os.Setenv("TRAVIS_DEBUG", "1")
@@ -63,9 +68,6 @@ func main() {
 
 			if !repoFlag.IsProvided() && os.Getenv("TRAVIS_REPO") == "" {
 				os.Setenv("TRAVIS_REPO", config.RepoSlugFromGit())
-			}
-			if !tokenFlag.IsProvided() && os.Getenv("TRAVIS_TOKEN") == "" {
-				os.Setenv("TRAVIS_TOKEN", configuration.GetTravisTokenForEndpoint(client.TravisOrgEndpoint))
 			}
 
 			err := syscall.Exec(exeCmd.String(), argv, os.Environ())
