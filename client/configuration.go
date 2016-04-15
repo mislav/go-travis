@@ -77,6 +77,12 @@ func (c *Configuration) StoreTravisTokenForEndpoint(token, url string) {
 	c.saveConfigurationYML()
 }
 
+// DeleteTravisTokenForEndpoint removes the travis access token for the given endpoint
+func (c *Configuration) DeleteTravisTokenForEndpoint(url string) {
+	delete(c.configurationYML.Endpoints, url)
+	c.saveConfigurationYML()
+}
+
 func (c *Configuration) loadConfigurationYML() {
 	token, err := ioutil.ReadFile(c.filePath)
 	if os.IsNotExist(err) {
