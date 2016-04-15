@@ -6,8 +6,10 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/HPI-BP2015H/go-travis/client"
 	_ "github.com/HPI-BP2015H/go-travis/commands"
 	"github.com/HPI-BP2015H/go-travis/config"
+
 	"github.com/mislav/go-utils/cli"
 	"github.com/mislav/go-utils/pathname"
 )
@@ -55,7 +57,8 @@ func main() {
 				os.Setenv("TRAVIS_REPO", config.RepoSlugFromGit())
 			}
 			if !tokenFlag.IsProvided() && os.Getenv("TRAVIS_TOKEN") == "" {
-				os.Setenv("TRAVIS_TOKEN", config.TokenForHost("api.travis-ci.org"))
+				configuration := client.DefaultConfiguration()
+				os.Setenv("TRAVIS_TOKEN", configuration.GetTravisTokenForEndpoint(client.TravisOrgEndpoint))
 			}
 
 			err := syscall.Exec(exeCmd.String(), argv, os.Environ())

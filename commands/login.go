@@ -36,7 +36,7 @@ func loginCmd(cmd *cli.Cmd) {
 }
 
 func LoginToGitHub() *github.Client {
-	token := client.Travis().Token
+	token := "" // TODO client.Travis().Token
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)

@@ -9,7 +9,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/mislav/go-utils/api"
 	"github.com/mislav/go-utils/cli"
 	"github.com/mislav/go-utils/pathname"
@@ -42,12 +41,11 @@ type Client struct {
 	cacheDir string
 	manifest *Manifest
 	http     *api.Client
-	Token    string
+	config   *Configuration
 }
 
 func NewClient(logger *os.File, cacheDir string) *Client {
 	rootUrl, _ := url.Parse("https://api.travis-ci.org")
-	token := LoadTokenFromPath(GithubTokenFilePath())
 	http := api.NewClient(rootUrl, func(t *api.Transport) {
 		if logger != nil {
 			debugStream := cli.NewColoredWriter(logger)
@@ -71,17 +69,19 @@ func NewClient(logger *os.File, cacheDir string) *Client {
 		}
 	})
 
+	config := DefaultConfiguration()
+
 	return &Client{
 		http:     http,
 		cacheDir: cacheDir,
-		Token:    token,
+		config:   config,
 	}
 }
 
 func (c *Client) PerformRequest(method, path string, body io.Reader, configure func(*http.Request)) (*Response, error) {
 	res, err := c.http.PerformRequest(method, path, nil, func(req *http.Request) {
 		req.Header.Set("Travis-API-Version", "3")
-		if token := config.TokenForHost(req.Host); token != "" {
+		if token := c.config.GetTravisTokenForEndpoint(req.URL.Scheme + "://" + req.URL.Host + "/"); token != "" {
 			req.Header.Set("Authorization", "token "+token)
 		}
 		if configure != nil {

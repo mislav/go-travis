@@ -1,8 +1,6 @@
 package config
 
 import (
-	"bufio"
-	"net/url"
 	"os"
 	"os/exec"
 	"regexp"
@@ -54,40 +52,4 @@ func RepoSlug() string {
 	} else {
 		return RepoSlugFromGit()
 	}
-}
-
-func TokenForHost(host string) string {
-	envToken := os.Getenv("TRAVIS_TOKEN")
-	if envToken != "" && (host == "api.travis-ci.org" || host == "api.travis-ci.com") {
-		return envToken
-	}
-
-	file, err := os.Open(os.Getenv("HOME") + "/.travis/config.yml")
-	if err == nil {
-		defer file.Close()
-		scanner := bufio.NewScanner(file)
-		atEndpoints := false
-		var endpointUrl *url.URL
-
-		for scanner.Scan() {
-			line := scanner.Text()
-			if line == "endpoints:" {
-				atEndpoints = true
-				continue
-			} else if atEndpoints {
-				if strings.HasPrefix(line, "    ") {
-					if host == endpointUrl.Host {
-						parts := strings.Split(line, " ")
-						return parts[len(parts)-1]
-					}
-				} else if strings.HasPrefix(line, "  ") {
-					endpointUrl, _ = url.Parse(strings.TrimSpace(line))
-				} else {
-					atEndpoints = false
-				}
-			}
-		}
-	}
-
-	return ""
 }
