@@ -36,24 +36,37 @@ const TravisOrgEndpoint = "https://api.travis-ci.org/"
 // TravisProEndpoint is the endpoint of Travis CI for private projects
 const TravisProEndpoint = "https://api.travis-ci.com/"
 
+// DeleteDefaultTravisEndpoint deletes the default travis endpoint from the configuration
+// and saves the configuration file
 func (c *Configuration) DeleteDefaultTravisEndpoint() {
 	c.configurationYML.DefaultEndpoint = ""
 	c.saveConfigurationYML()
 }
 
+// StoreDefaultTravisEndpoint overrides the default travis endpoint in the configuration
+// and saves the configuration file
 func (c *Configuration) StoreDefaultTravisEndpoint(url string) {
 	c.configurationYML.DefaultEndpoint = url
 	c.saveConfigurationYML()
 }
 
+// GetDefaultTravisEndpoint gets the default travis endpoint from the configuration,
+// falls back to TravisOrgEndpoint in case no default is set
 func (c *Configuration) GetDefaultTravisEndpoint() string {
-	return c.configurationYML.DefaultEndpoint
+	endpoint := c.configurationYML.DefaultEndpoint
+	if endpoint != "" {
+		return endpoint
+	}
+	return TravisOrgEndpoint
 }
 
+// GetTravisTokenForEndpoint gets the travis access token for the given endpoint
 func (c *Configuration) GetTravisTokenForEndpoint(url string) string {
 	return c.configurationYML.Endpoints[url].AccessToken
 }
 
+// StoreTravisTokenForEndpoint save the given travis access token for the endpoint
+// and saves the configuration file
 func (c *Configuration) StoreTravisTokenForEndpoint(token, url string) {
 	t := new(accessToken)
 	t.AccessToken = token
@@ -87,7 +100,7 @@ func (c *Configuration) saveConfigurationYML() {
 	}
 }
 
-// DefaultConfiguration create a new configuration from the default file path
+// DefaultConfiguration creates a new configuration from the default file path
 func DefaultConfiguration() *Configuration {
 	c := new(Configuration)
 	c.filePath = defaultConfigurationFilePath()
