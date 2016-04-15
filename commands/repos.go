@@ -2,7 +2,7 @@ package commands
 
 import (
 	"github.com/fatih/color"
-	"github.com/mislav/go-utils/cli"
+	"github.com/HPI-BP2015H/go-utils/cli"
 )
 
 func init() {

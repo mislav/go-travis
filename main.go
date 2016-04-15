@@ -10,8 +10,8 @@ import (
 	_ "github.com/HPI-BP2015H/go-travis/commands"
 	"github.com/HPI-BP2015H/go-travis/config"
 
-	"github.com/mislav/go-utils/cli"
-	"github.com/mislav/go-utils/pathname"
+	"github.com/HPI-BP2015H/go-utils/cli"
+	"github.com/HPI-BP2015H/go-utils/pathname"
 )
 
 func main() {

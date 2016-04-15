@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/HPI-BP2015H/go-travis/client"
-	"github.com/mislav/go-utils/cli"
-	"github.com/mislav/go-utils/utils"
+	"github.com/HPI-BP2015H/go-utils/cli"
+	"github.com/HPI-BP2015H/go-utils/utils"
 )
 
 func init() {
