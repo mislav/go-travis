@@ -22,10 +22,6 @@ type Branch struct {
 	Repository *Repository `json:"repo"`
 }
 
-type Repository struct {
-	Name string `json:"name"`
-}
-
 func branchesCmd(cmd *cli.Cmd) {
 	params := map[string]string{
 		"repository.slug": os.Getenv("TRAVIS_REPO"),

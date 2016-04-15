@@ -1,8 +1,6 @@
 package commands
 
 import (
-	"io"
-
 	"github.com/HPI-BP2015H/go-travis/client"
 	"github.com/HPI-BP2015H/go-utils/cli"
 	"github.com/fatih/color"
@@ -12,17 +10,34 @@ func init() {
 	cli.Register("whoami", "outputs the current user", whoamiCmd)
 }
 
+type User struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
 func whoamiCmd(cmd *cli.Cmd) {
+	user := getCurrentUser()
+	println("Your %s", user.Name)
+}
+
+func getCurrentUser() User {
 	params := map[string]string{}
 	res, err := client.Travis().PerformAction("user", "current", params)
 	defer res.Body.Close()
 	if err != nil {
-		color.Red("Error: Could not connect to Travis! \n" + err.Error())
-		color.Yellow("Fall back to asking Github:")
-		whoamiGithub()
-		return
+		color.Red("Error: Could not get current user! \n" + err.Error() + "\n Answering with User named Error.")
+		//color.Yellow("Fall back to asking Github:")
+		//whoamiGithub()
+		return User{Name: "Error"}
 	}
-	io.Copy(cmd.Stdout, res.Body)
+	// unclear why this is not working...
+	// if res.StatusCode > 299 {
+	// 	cmd.Stderr.Printf("Error: Unexpected HTTP status: %d\n", res.StatusCode)
+	// 	cmd.Exit(1)
+	// }
+	user := User{}
+	res.Unmarshal(&user)
+	return user
 }
 
 func whoamiGithub() {
