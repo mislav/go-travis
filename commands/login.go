@@ -10,7 +10,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/HPI-BP2015H/go-travis/client"
+	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
 	"github.com/fatih/color"
 	"github.com/google/go-github/github"
@@ -33,7 +33,7 @@ func loginCmd(cmd *cli.Cmd) {
 		}
 		token := getTravisToken(*authorization.Token)
 		github.Authorizations.Delete(*authorization.ID)
-		config := client.DefaultConfiguration()
+		config := config.DefaultConfiguration()
 		println(os.Getenv("TRAVIS_ENDPOINT"))
 		config.StoreTravisTokenForEndpoint(token, os.Getenv("TRAVIS_ENDPOINT"))
 	}

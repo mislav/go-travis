@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/api"
 	"github.com/HPI-BP2015H/go-utils/cli"
 	"github.com/HPI-BP2015H/go-utils/pathname"
@@ -41,7 +42,7 @@ type Client struct {
 	cacheDir string
 	manifest *Manifest
 	http     *api.Client
-	config   *Configuration
+	config   *config.Configuration
 }
 
 func NewClient(logger *os.File, cacheDir string) *Client {
@@ -69,7 +70,7 @@ func NewClient(logger *os.File, cacheDir string) *Client {
 		}
 	})
 
-	config := DefaultConfiguration()
+	config := config.DefaultConfiguration()
 
 	return &Client{
 		http:     http,

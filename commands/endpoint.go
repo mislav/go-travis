@@ -3,7 +3,7 @@ package commands
 import (
 	"os"
 
-	"github.com/HPI-BP2015H/go-travis/client"
+	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
 	"github.com/fatih/color"
 )
@@ -16,7 +16,7 @@ func endpointCmd(cmd *cli.Cmd) {
 	setDefaultFlag, args := cmd.Args.ExtractFlag("", "--set-default", false)
 	dropDefaultFlag, args := args.ExtractFlag("", "--drop-default", false)
 
-	configuration := client.DefaultConfiguration()
+	configuration := config.DefaultConfiguration()
 	endpoint := os.Getenv("TRAVIS_ENDPOINT")
 
 	if setDefaultFlag.IsProvided() {

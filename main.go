@@ -6,7 +6,6 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/HPI-BP2015H/go-travis/client"
 	_ "github.com/HPI-BP2015H/go-travis/commands"
 	"github.com/HPI-BP2015H/go-travis/config"
 
@@ -23,7 +22,7 @@ func main() {
 		cmdName = defaultCommand
 	}
 
-	configuration := client.DefaultConfiguration()
+	configuration := config.DefaultConfiguration()
 
 	repoFlag, args := args.ExtractFlag("-r", "--repo", "REPOSITORY")
 	tokenFlag, args := args.ExtractFlag("-t", "--token", "TOKEN")
@@ -41,13 +40,13 @@ func main() {
 
 	endpoint := configuration.GetDefaultTravisEndpoint()
 	if orgEndpointFlag.IsProvided() {
-		endpoint = client.TravisOrgEndpoint
+		endpoint = config.TravisOrgEndpoint
 	}
 	if proEndpointFlag.IsProvided() {
-		endpoint = client.TravisProEndpoint
+		endpoint = config.TravisProEndpoint
 	}
 	if stagingEndpointFlag.IsProvided() {
-		endpoint = client.TravisStagingEndpoint
+		endpoint = config.TravisStagingEndpoint
 	}
 	if endpointFlag.IsProvided() {
 		endpoint = endpointFlag.String()
