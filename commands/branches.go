@@ -3,12 +3,12 @@ package commands
 import (
 	"github.com/HPI-BP2015H/go-travis/client"
 	"github.com/HPI-BP2015H/go-travis/config"
+	"github.com/HPI-BP2015H/go-utils/cli"
 	"github.com/fatih/color"
-	"github.com/mislav/go-utils/cli"
 )
 
 func init() {
-	cli.Register("branches", branchesCmd)
+	cli.Register("branches", "displays the most recent build for each branch", branchesCmd)
 }
 
 type Branches struct {

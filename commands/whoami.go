@@ -4,12 +4,12 @@ import (
 	"io"
 
 	"github.com/HPI-BP2015H/go-travis/client"
+	"github.com/HPI-BP2015H/go-utils/cli"
 	"github.com/fatih/color"
-	"github.com/mislav/go-utils/cli"
 )
 
 func init() {
-	cli.Register("whoami", whoamiCmd)
+	cli.Register("whoami", "outputs the current user", whoamiCmd)
 }
 
 func whoamiCmd(cmd *cli.Cmd) {

@@ -11,15 +11,15 @@ import (
 	"strings"
 
 	"github.com/HPI-BP2015H/go-travis/client"
+	"github.com/HPI-BP2015H/go-utils/cli"
 	"github.com/fatih/color"
 	"github.com/google/go-github/github"
 	"github.com/howeyc/gopass"
-	"github.com/mislav/go-utils/cli"
 	"golang.org/x/oauth2"
 )
 
 func init() {
-	cli.Register("login", loginCmd)
+	cli.Register("login", "authenticates against the API and stores the token", loginCmd)
 }
 
 func loginCmd(cmd *cli.Cmd) {

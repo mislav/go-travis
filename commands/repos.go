@@ -1,12 +1,12 @@
 package commands
 
 import (
+	"github.com/HPI-BP2015H/go-utils/cli"
 	"github.com/fatih/color"
-	"github.com/mislav/go-utils/cli"
 )
 
 func init() {
-	cli.Register("repos", reposCmd)
+	cli.Register("repos", "lists repositories the user has certain permissions on", reposCmd)
 }
 
 func reposCmd(cmd *cli.Cmd) {

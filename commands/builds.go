@@ -5,13 +5,13 @@ import (
 
 	"github.com/HPI-BP2015H/go-travis/client"
 	"github.com/HPI-BP2015H/go-travis/config"
+	"github.com/HPI-BP2015H/go-utils/cli"
 	"github.com/fatih/color"
-	"github.com/mislav/go-utils/cli"
 )
 
 func init() {
-	cli.Register("builds", buildsCmd)
-	cli.Register("history", buildsCmd)
+	cli.Register("builds", "alias for history", buildsCmd)
+	cli.Register("history", "displays a projects build history", buildsCmd)
 }
 
 type Builds struct {

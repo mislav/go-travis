@@ -9,10 +9,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/mislav/go-utils/api"
-	"github.com/mislav/go-utils/cli"
-	"github.com/mislav/go-utils/pathname"
-	"github.com/mislav/go-utils/utils"
+	"github.com/HPI-BP2015H/go-utils/api"
+	"github.com/HPI-BP2015H/go-utils/cli"
+	"github.com/HPI-BP2015H/go-utils/pathname"
+	"github.com/HPI-BP2015H/go-utils/utils"
 )
 
 var ignoredHeaders = []string{

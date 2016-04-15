@@ -5,11 +5,11 @@ import (
 
 	"github.com/HPI-BP2015H/go-travis/client"
 	"github.com/HPI-BP2015H/go-travis/config"
-	"github.com/mislav/go-utils/cli"
+	"github.com/HPI-BP2015H/go-utils/cli"
 )
 
 func init() {
-	cli.Register("enable", enableCmd)
+	cli.Register("enable", "enables a project", enableCmd)
 }
 
 func enableCmd(cmd *cli.Cmd) {

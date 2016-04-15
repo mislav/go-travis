@@ -2,11 +2,11 @@ package commands
 
 import (
 	"github.com/HPI-BP2015H/go-travis/client"
-	"github.com/mislav/go-utils/cli"
+	"github.com/HPI-BP2015H/go-utils/cli"
 )
 
 func init() {
-	cli.Register("logout", logoutCmd)
+	cli.Register("logout", "deletes the stored API token", logoutCmd)
 }
 
 func logoutCmd(cmd *cli.Cmd) {

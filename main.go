@@ -10,15 +10,17 @@ import (
 	_ "github.com/HPI-BP2015H/go-travis/commands"
 	"github.com/HPI-BP2015H/go-travis/config"
 
-	"github.com/mislav/go-utils/cli"
-	"github.com/mislav/go-utils/pathname"
+	"github.com/HPI-BP2015H/go-utils/cli"
+	"github.com/HPI-BP2015H/go-utils/pathname"
 )
+
+const defaultCommand = "help"
 
 func main() {
 	args := cli.NewArgs(os.Args)
 	cmdName := args.Peek(0)
 	if cmdName == "" {
-		cmdName = "builds"
+		cmdName = defaultCommand
 	}
 
 	configuration := client.DefaultConfiguration()
@@ -26,19 +28,36 @@ func main() {
 	repoFlag, args := args.ExtractFlag("-r", "--repo", "REPOSITORY")
 	tokenFlag, args := args.ExtractFlag("-t", "--token", "TOKEN")
 	endpointFlag, args := args.ExtractFlag("-e", "--api-endpoint", "URL")
+	orgEndpointFlag, args := args.ExtractFlag("", "--org", false)
+	proEndpointFlag, args := args.ExtractFlag("", "--pro", false)
+	stagingEndpointFlag, args := args.ExtractFlag("", "--staging", false)
 	debugFlag, args := args.ExtractFlag("", "--debug", false)
 
 	if repoFlag.IsProvided() {
 		os.Setenv("TRAVIS_REPO", repoFlag.String())
 	}
-	if tokenFlag.IsProvided() {
-		os.Setenv("TRAVIS_TOKEN", tokenFlag.String())
+
+	endpoint := configuration.GetDefaultTravisEndpoint()
+	if orgEndpointFlag.IsProvided() {
+		endpoint = client.TravisOrgEndpoint
+	}
+	if proEndpointFlag.IsProvided() {
+		endpoint = client.TravisProEndpoint
+	}
+	if stagingEndpointFlag.IsProvided() {
+		endpoint = client.TravisStagingEndpoint
 	}
 	if endpointFlag.IsProvided() {
-		os.Setenv("TRAVIS_ENDPOINT", endpointFlag.String())
-	} else {
-		os.Setenv("TRAVIS_ENDPOINT", configuration.GetDefaultTravisEndpoint())
+		endpoint = endpointFlag.String()
 	}
+	os.Setenv("TRAVIS_ENDPOINT", endpoint)
+
+	token := configuration.GetTravisTokenForEndpoint(endpoint)
+	if tokenFlag.IsProvided() {
+		token = tokenFlag.String()
+	}
+	os.Setenv("TRAVIS_TOKEN", token)
+
 	if debugFlag.IsProvided() {
 		if debugFlag.Bool() {
 			os.Setenv("TRAVIS_DEBUG", "1")
@@ -63,9 +82,6 @@ func main() {
 
 			if !repoFlag.IsProvided() && os.Getenv("TRAVIS_REPO") == "" {
 				os.Setenv("TRAVIS_REPO", config.RepoSlugFromGit())
-			}
-			if !tokenFlag.IsProvided() && os.Getenv("TRAVIS_TOKEN") == "" {
-				os.Setenv("TRAVIS_TOKEN", configuration.GetTravisTokenForEndpoint(client.TravisOrgEndpoint))
 			}
 
 			err := syscall.Exec(exeCmd.String(), argv, os.Environ())
