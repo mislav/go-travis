@@ -2,9 +2,9 @@ package commands
 
 import (
 	"io"
+	"os"
 
 	"github.com/HPI-BP2015H/go-travis/client"
-	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
 )
 
@@ -14,7 +14,7 @@ func init() {
 
 func enableCmd(cmd *cli.Cmd) {
 	params := map[string]string{
-		"repository.slug": config.RepoSlug(),
+		"repository.slug": os.Getenv("TRAVIS_REPO"),
 	}
 
 	res, err := client.Travis().PerformAction("repository", "enable", params)
