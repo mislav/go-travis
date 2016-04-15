@@ -26,7 +26,7 @@ func whoamiCmd(cmd *cli.Cmd) {
 }
 
 func whoamiGithub() {
-	github := LoginToGitHub()
+	github := LoginToGithub("")
 	user, _, err := github.Users.Get("")
 	if err != nil {
 		color.Red("Error: Could not connect to Github! \n" + err.Error())
