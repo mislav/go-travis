@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	cli.Register("endpoint", endpointCmd)
+	cli.Register("endpoint", "displays or changes the API endpoint", endpointCmd)
 }
 
 func endpointCmd(cmd *cli.Cmd) {

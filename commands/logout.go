@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	cli.Register("logout", logoutCmd)
+	cli.Register("logout", "deletes the stored API token", logoutCmd)
 }
 
 func logoutCmd(cmd *cli.Cmd) {

@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	cli.Register("enable", enableCmd)
+	cli.Register("enable", "enables a project", enableCmd)
 }
 
 func enableCmd(cmd *cli.Cmd) {
