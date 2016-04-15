@@ -14,11 +14,13 @@ import (
 	"github.com/HPI-BP2015H/go-utils/pathname"
 )
 
+const defaultCommand = "help"
+
 func main() {
 	args := cli.NewArgs(os.Args)
 	cmdName := args.Peek(0)
 	if cmdName == "" {
-		cmdName = "builds"
+		cmdName = defaultCommand
 	}
 
 	configuration := client.DefaultConfiguration()
