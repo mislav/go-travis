@@ -33,7 +33,7 @@ func helpCmd(cmd *cli.Cmd) {
 	maxLength := len(cmdNames[0])
 	sort.Strings(cmdNames)
 	for _, name := range cmdNames {
-		format := "\t%-" + strconv.Itoa(maxLength+1) + "s"
+		format := "\t%-" + strconv.Itoa(maxLength+3) + "s"
 		fmt.Printf(format, name)
 		color.Yellow(cli.LookupHelp(name))
 	}

@@ -28,7 +28,7 @@ func loginCmd(cmd *cli.Cmd) {
 		github := loginToGitHubWithUsernameAndPassword(username, password)
 		authorization := getGithubAuthorization(github)
 		if authorization == nil {
-			color.Red("Error: Your credentials or token were wrong. Aborting.")
+			color.Red("Error: The given credentials/token are not valid. Aborting.")
 			return
 		}
 		token := getTravisToken(*authorization.Token)
@@ -90,8 +90,9 @@ func travisTokenRequest(githubToken string) *http.Request {
 	return travisTokenRequest
 }
 
+//LoginToGithub takes a githubtoken to log into github. If an empty string is
+//provided, the user will be prompted for username and password.
 func LoginToGithub(token string) *github.Client {
-	//if you want to login with username and password just put give an empty string
 	var github *github.Client
 	if token == "" {
 		username, password := promptForGithubCredentials()
@@ -105,7 +106,7 @@ func LoginToGithub(token string) *github.Client {
 			color.Red("Error: The given credentials/token are not valid. \n")
 			return nil
 		}
-		color.Red("Error: Could not connect to Github! \n" + err.Error())
+		color.Red("Error: Could not connect to github! \n" + err.Error())
 		return nil
 	}
 
@@ -120,7 +121,7 @@ func promptForGithubCredentials() (string, string) {
 	print("Password for " + username + ": ")
 	pw, err := gopass.GetPasswd()
 	if err != nil {
-		color.Red("Error: could not read Password.\n " + err.Error())
+		color.Red("Error: could not read password.\n " + err.Error())
 		return "", ""
 	}
 	return username, string(pw)
@@ -142,7 +143,7 @@ func loginToGitHubWithUsernameAndPassword(username string, password string) *git
 	client := github.NewClient(tp.Client())
 	_, _, err := client.Users.Get("")
 	if _, ok := err.(*github.TwoFactorAuthError); err != nil && ok {
-		fmt.Print("\nGitHub OTP: ")
+		fmt.Print("Two-factor authentication code for " + username + ": ")
 		otp, _ := bufio.NewReader(os.Stdin).ReadString('\n')
 		tp.OTP = strings.TrimSpace(otp)
 	}
