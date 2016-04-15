@@ -26,6 +26,9 @@ func main() {
 	repoFlag, args := args.ExtractFlag("-r", "--repo", "REPOSITORY")
 	tokenFlag, args := args.ExtractFlag("-t", "--token", "TOKEN")
 	endpointFlag, args := args.ExtractFlag("-e", "--api-endpoint", "URL")
+	orgEndpointFlag, args := args.ExtractFlag("", "--org", false)
+	proEndpointFlag, args := args.ExtractFlag("", "--pro", false)
+	stagingEndpointFlag, args := args.ExtractFlag("", "--staging", false)
 	debugFlag, args := args.ExtractFlag("", "--debug", false)
 
 	if repoFlag.IsProvided() {
@@ -33,6 +36,15 @@ func main() {
 	}
 
 	endpoint := configuration.GetDefaultTravisEndpoint()
+	if orgEndpointFlag.IsProvided() {
+		endpoint = client.TravisOrgEndpoint
+	}
+	if proEndpointFlag.IsProvided() {
+		endpoint = client.TravisProEndpoint
+	}
+	if stagingEndpointFlag.IsProvided() {
+		endpoint = client.TravisStagingEndpoint
+	}
 	if endpointFlag.IsProvided() {
 		endpoint = endpointFlag.String()
 	}
