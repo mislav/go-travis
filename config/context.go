@@ -1,7 +1,6 @@
 package config
 
 import (
-	"os"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -9,6 +8,8 @@ import (
 
 var originNames = []string{"upstream", "github", "origin"}
 
+// RepoSlugFromGit executes git remotes command to get the correct slug of the
+// repository in the current folder
 func RepoSlugFromGit() string {
 	out, err := exec.Command("git", "remote", "-v").CombinedOutput()
 	if err != nil {
@@ -23,8 +24,8 @@ func RepoSlugFromGit() string {
 		matches := remoteRe.FindAllStringSubmatch(line, -1)
 		if matches != nil {
 			remoteName := matches[0][1]
-			remoteUrl := matches[0][2]
-			matches = githubRe.FindAllStringSubmatch(remoteUrl, -1)
+			remoteURL := matches[0][2]
+			matches = githubRe.FindAllStringSubmatch(remoteURL, -1)
 			if matches != nil {
 				repoOwner := matches[0][3]
 				repoName := strings.TrimSuffix(matches[0][4], ".git")
@@ -44,12 +45,4 @@ func RepoSlugFromGit() string {
 	}
 
 	return ""
-}
-
-func RepoSlug() string {
-	if envSlug := os.Getenv("TRAVIS_REPO"); envSlug != "" {
-		return envSlug
-	} else {
-		return RepoSlugFromGit()
-	}
 }

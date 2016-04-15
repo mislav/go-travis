@@ -1,8 +1,9 @@
 package commands
 
 import (
+	"os"
+
 	"github.com/HPI-BP2015H/go-travis/client"
-	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
 	"github.com/fatih/color"
 )
@@ -27,7 +28,7 @@ type Repository struct {
 
 func branchesCmd(cmd *cli.Cmd) {
 	params := map[string]string{
-		"repository.slug": config.RepoSlug(),
+		"repository.slug": os.Getenv("TRAVIS_REPO"),
 	}
 
 	res, err := client.Travis().PerformAction("branches", "find", params)

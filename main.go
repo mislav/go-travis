@@ -35,6 +35,8 @@ func main() {
 
 	if repoFlag.IsProvided() {
 		os.Setenv("TRAVIS_REPO", repoFlag.String())
+	} else {
+		os.Setenv("TRAVIS_REPO", config.RepoSlugFromGit())
 	}
 
 	endpoint := configuration.GetDefaultTravisEndpoint()
@@ -79,10 +81,6 @@ func main() {
 
 			argv := []string{exeName}
 			argv = append(argv, args.Slice(1)...)
-
-			if !repoFlag.IsProvided() && os.Getenv("TRAVIS_REPO") == "" {
-				os.Setenv("TRAVIS_REPO", config.RepoSlugFromGit())
-			}
 
 			err := syscall.Exec(exeCmd.String(), argv, os.Environ())
 			if err != nil {
