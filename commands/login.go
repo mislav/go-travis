@@ -23,7 +23,8 @@ func init() {
 }
 
 func loginCmd(cmd *cli.Cmd) {
-	gitHubTokenFlag, _ := cmd.Args.ExtractFlag("-g", "--github-token", "GITHUBTOKEN")
+	gitHubTokenFlag, args := cmd.Args.ExtractFlag("-g", "--github-token", "GITHUBTOKEN")
+	userFlag, args := args.ExtractFlag("-u", "--user", "LOGIN")
 	travisToken := os.Getenv("TRAVIS_TOKEN")
 	config := config.DefaultConfiguration()
 
@@ -31,7 +32,7 @@ func loginCmd(cmd *cli.Cmd) {
 		var gitHubAuthorization *github.Authorization
 
 		gitHubToken := gitHubTokenFlag.String()
-		github, err := LoginToGitHub(gitHubToken)
+		github, err := LoginToGitHub(gitHubToken, userFlag.String())
 		if err != nil {
 			if strings.Contains(err.Error(), "401") {
 				color.Red("Error: The given credentials are not valid.\n")
@@ -66,14 +67,14 @@ func loginCmd(cmd *cli.Cmd) {
 
 // LoginToGitHub takes a GitHub token to log into GitHub. If an empty string is
 // provided, the user will be prompted for username and password.
-func LoginToGitHub(token string) (*github.Client, error) {
+func LoginToGitHub(token, user string) (*github.Client, error) {
 	var github *github.Client
 	if token == "" {
-		username, password, err := promptForGitHubCredentials()
+		userName, password, err := promptForGitHubCredentials(user)
 		if err != nil {
 			return nil, err
 		}
-		github = loginToGitHubWithUsernameAndPassword(username, password)
+		github = loginToGitHubWithUsernameAndPassword(userName, password)
 	} else {
 		github = loginToGitHubWithToken(token)
 	}
@@ -170,17 +171,18 @@ func showGitHubLoginDisclaimer() {
 	println(" if you do not want to enter your password anyway.\n ")
 }
 
-func promptForGitHubCredentials() (string, string, error) {
-	var username string
+func promptForGitHubCredentials(userName string) (string, string, error) {
 	showGitHubLoginDisclaimer()
-	print("Username: ")
-	fmt.Scan(&username)
-	print("Password for " + username + ": ")
+	if userName == "" {
+		print("Username: ")
+		fmt.Scan(&userName)
+	}
+	print("Password for " + userName + ": ")
 	pw, err := gopass.GetPasswd()
 	if err != nil {
 		return "", "", err
 	}
-	return username, string(pw), nil
+	return userName, string(pw), nil
 }
 
 func createGitHubAuthorizationRequest() *github.AuthorizationRequest {

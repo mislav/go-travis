@@ -43,7 +43,7 @@ func getCurrentUser() User {
 }
 
 func whoamiGithub() {
-	github, _ := LoginToGitHub("")
+	github, _ := LoginToGitHub("", "")
 	user, _, err := github.Users.Get("")
 	if err != nil {
 		color.Red("Error: Could not connect to Github! \n" + err.Error())
