@@ -30,7 +30,7 @@ func (r *Repository) HasDescription() bool {
 
 type Owner struct {
 	ID   int    `json:"id"`
-	Name string `json:"name"`
+	Name string `json:"login"`
 }
 
 func reposCmd(cmd *cli.Cmd) {
@@ -50,19 +50,17 @@ func reposCmd(cmd *cli.Cmd) {
 
 	repositories := Repositories{}
 	res.Unmarshal(&repositories)
-	user := getCurrentUser()
 	for _, repo := range repositories.Repositories {
-		printRepoColorful(repo, user)
+		printRepoColorful(repo)
 	}
 
 }
 
-func printRepoColorful(repo Repository, user User) {
-	admin := (repo.Owner.Name == user.Name)
+func printRepoColorful(repo Repository) {
+
 	y := color.New(color.FgYellow, color.Bold).PrintfFunc()
-	y(repo.Slug + " of owner: " + repo.Owner.Name + " with ID " + string(repo.Owner.ID)) //only debug
-	// y(repo.Slug)
-	color.Yellow(" (active: %v, private: %v, admin: %v)", repo.Active, repo.Private, admin)
+	y(repo.Slug)
+	color.Yellow(" (active: %v, private: %v)", repo.Active, repo.Private)
 	if repo.HasDescription() {
 		color.Green("Description: %s ", repo.Description)
 	}
