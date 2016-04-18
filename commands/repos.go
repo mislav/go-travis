@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"fmt"
+
 	"github.com/HPI-BP2015H/go-travis/client"
 	"github.com/HPI-BP2015H/go-utils/cli"
 	"github.com/fatih/color"
@@ -15,13 +17,14 @@ type Repositories struct {
 }
 
 type Repository struct {
-	ID          int    `json:"id"`
-	Name        string `json:"name"`
-	Slug        string `json:"slug"`
-	Description string `json:"description"`
-	Active      bool   `json:"active"`
-	Private     bool   `json:"private"`
-	Owner       *Owner `json:"owner"`
+	ID            int     `json:"id"`
+	Name          string  `json:"name"`
+	Slug          string  `json:"slug"`
+	Description   string  `json:"description"`
+	Active        bool    `json:"active"`
+	Private       bool    `json:"private"`
+	Owner         *Owner  `json:"owner"`
+	DefaultBranch *Branch `json:"default_branch"`
 }
 
 func (r *Repository) HasDescription() bool {
@@ -34,49 +37,56 @@ type Owner struct {
 }
 
 func reposCmd(cmd *cli.Cmd) {
+	repositories, err := GetAllRepositories()
+	if err != nil {
+		color.Red("Error: Could not get Repositories.")
+		cmd.Exit(1)
+	}
+	for _, repo := range repositories.Repositories {
+		printRepo(repo)
+	}
+}
+
+//GetAllRepositories returns all the repositories (also those not active in travis)
+//of the currently logged in user
+func GetAllRepositories() (Repositories, error) {
 	params := map[string]string{}
+	repositories := Repositories{}
 	res, err := client.Travis().PerformAction("repositories", "for_current_user", params)
 	defer res.Body.Close()
 	if err != nil {
-		color.Red("Error: Could not connect to Travis! \n" + err.Error())
-		color.Yellow("Fall back to asking Github:")
-		reposGithub()
-		return
+		return repositories, err
 	}
 	if res.StatusCode > 299 {
-		color.Red("Error: Unexpected HTTP status: %d\n", res.StatusCode)
-		cmd.Exit(1)
+		return repositories, fmt.Errorf("Error: Unexpected HTTP status: %d\n", res.StatusCode)
 	}
-
-	repositories := Repositories{}
 	res.Unmarshal(&repositories)
-	for _, repo := range repositories.Repositories {
-		printRepoColorful(repo)
-	}
-
+	return repositories, nil
 }
 
-func printRepoColorful(repo Repository) {
+func GetAllRepositoriesWithLastBuild() (Repositories, error) {
+	params := map[string]string{
+		"include": "branch.last_build",
+	}
+	repositories := Repositories{}
+	res, err := client.Travis().PerformAction("repositories", "for_current_user", params)
+	defer res.Body.Close()
+	if err != nil {
+		return repositories, err
+	}
+	if res.StatusCode > 299 {
+		return repositories, fmt.Errorf("Error: Unexpected HTTP status: %d\n", res.StatusCode)
+	}
+	res.Unmarshal(&repositories)
+	return repositories, nil
+}
 
+func printRepo(repo Repository) {
 	y := color.New(color.FgYellow, color.Bold).PrintfFunc()
 	y(repo.Slug)
 	color.Yellow(" (active: %v, private: %v)", repo.Active, repo.Private)
 	if repo.HasDescription() {
-		color.Green("Description: %s ", repo.Description)
+		color.Green("   Description: %s ", repo.Description)
 	}
 	println("")
-
-}
-
-func reposGithub() {
-	github := LoginToGithub("")
-	repos, _, err := github.Repositories.List("", nil)
-	if err != nil {
-		color.Red("Error: Could not connect to Github! \n" + err.Error())
-		return
-	}
-	println("These are your current Repositories:")
-	for _, repo := range repos {
-		color.Blue("     " + *repo.FullName)
-	}
 }

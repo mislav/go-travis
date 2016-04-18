@@ -13,10 +13,10 @@ func init() {
 }
 
 func logoutCmd(cmd *cli.Cmd) {
-	user := getCurrentUser().Name
+	user, _ := getCurrentUser()
 	config := config.DefaultConfiguration()
 	config.DeleteTravisTokenForEndpoint(os.Getenv("TRAVIS_ENDPOINT"))
 	gb := color.New(color.FgGreen, color.Bold).PrintfFunc()
-	gb(user)
+	gb(user.Name)
 	color.Green(" is now logged out.")
 }

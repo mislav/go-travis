@@ -18,7 +18,7 @@ type Branches struct {
 
 type Branch struct {
 	Name       string      `json:"name"`
-	LastBuild  Build       `json:"last_build"`
+	LastBuild  *Build      `json:"last_build"`
 	Repository *Repository `json:"repo"`
 }
 
@@ -40,11 +40,11 @@ func branchesCmd(cmd *cli.Cmd) {
 	res.Unmarshal(&branches)
 
 	for _, branch := range branches.Branches {
-		printBranchColorful(branch)
+		printBranch(branch)
 	}
 }
 
-func printBranchColorful(branch Branch) {
+func printBranch(branch Branch) {
 	color.Yellow("%s:  ", branch.Name)
 	c := color.New(color.FgRed, color.Bold).PrintfFunc()
 	if branch.LastBuild.State == "passed" {

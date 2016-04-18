@@ -49,18 +49,18 @@ func buildsCmd(cmd *cli.Cmd) {
 	res.Unmarshal(&builds)
 
 	for _, build := range builds.Builds {
-		printBuildColorful(build)
+		printBuild(build)
 	}
 }
 
-func printBuildColorful(build Build) {
+func printBuild(build Build) {
 	commitMessage := strings.Replace(build.Commit.Message, "\n", " ", -1)
 	y := color.New(color.FgYellow).PrintfFunc()
 	c := color.New(color.FgRed, color.Bold).PrintfFunc()
 	if build.State == "passed" {
 		c = color.New(color.FgGreen, color.Bold).PrintfFunc()
 	}
-	c("#%s %s  ", build.Number, build.State)
+	c("#%s %s ", build.Number, build.State)
 	y("(%s) ", build.Branch.Name)
 	print(commitMessage + "\n")
 }
