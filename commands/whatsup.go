@@ -10,13 +10,16 @@ func init() {
 }
 
 func whatsupCmd(cmd *cli.Cmd) {
-	repositories, err := GetAllRepositories()
+	params := map[string]string{
+		"include": "branch.last_build",
+	}
+	repositories, err := GetAllRepositories(params)
 	if err != nil {
 		color.Red("Error: Could not get Repositories.")
 		cmd.Exit(1)
 	}
 	for _, repo := range repositories.Repositories {
-		if repo.Active {
+		if repo.Active && (repo.DefaultBranch.LastBuild != nil) {
 			printRepoStatus(repo)
 		}
 	}
@@ -25,13 +28,11 @@ func whatsupCmd(cmd *cli.Cmd) {
 func printRepoStatus(repo Repository) {
 	c := color.New(color.FgRed).PrintfFunc()
 	cb := color.New(color.FgRed, color.Bold).PrintfFunc()
-	color.Yellow(repo.DefaultBranch.LastBuild.Number)
 	build := repo.DefaultBranch.LastBuild
-	color.Yellow(build.State + build.Number + build.Commit.Message)
 	if build.State == "passed" {
-		c = color.New(color.FgRed).PrintfFunc()
-		cb = color.New(color.FgRed, color.Bold).PrintfFunc()
+		c = color.New(color.FgGreen).PrintfFunc()
+		cb = color.New(color.FgGreen, color.Bold).PrintfFunc()
 	}
-	cb("%s ", repo.Name)
-	c(build.State+": %d \n", build.Number)
+	cb("%s ", repo.Slug)
+	c(build.State+": #%s \n", build.Number)
 }

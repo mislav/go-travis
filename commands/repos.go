@@ -37,7 +37,7 @@ type Owner struct {
 }
 
 func reposCmd(cmd *cli.Cmd) {
-	repositories, err := GetAllRepositories()
+	repositories, err := GetAllRepositories(nil)
 	if err != nil {
 		color.Red("Error: Could not get Repositories.")
 		cmd.Exit(1)
@@ -48,25 +48,10 @@ func reposCmd(cmd *cli.Cmd) {
 }
 
 //GetAllRepositories returns all the repositories (also those not active in travis)
-//of the currently logged in user
-func GetAllRepositories() (Repositories, error) {
-	params := map[string]string{}
-	repositories := Repositories{}
-	res, err := client.Travis().PerformAction("repositories", "for_current_user", params)
-	defer res.Body.Close()
-	if err != nil {
-		return repositories, err
-	}
-	if res.StatusCode > 299 {
-		return repositories, fmt.Errorf("Error: Unexpected HTTP status: %d\n", res.StatusCode)
-	}
-	res.Unmarshal(&repositories)
-	return repositories, nil
-}
-
-func GetAllRepositoriesWithLastBuild() (Repositories, error) {
-	params := map[string]string{
-		"include": "branch.last_build",
+//of the currently logged in user. also takes params
+func GetAllRepositories(params map[string]string) (Repositories, error) {
+	if params == nil {
+		params = map[string]string{}
 	}
 	repositories := Repositories{}
 	res, err := client.Travis().PerformAction("repositories", "for_current_user", params)
