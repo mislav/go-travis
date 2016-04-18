@@ -10,6 +10,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/HPI-BP2015H/go-travis/commands/helper"
 	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
 	"github.com/fatih/color"
@@ -64,12 +65,17 @@ func loginCmd(cmd *cli.Cmd) {
 		if gitHubAuthorization != nil {
 			github.Authorizations.Delete(*gitHubAuthorization.ID)
 		}
-		color.Green("Successfully logged in as X!") // TODO: Display user
 	} else {
 		// TODO: Test Travis Token
-		color.Green("Your are currently logged in as X, please run travis logout first!") // TODO: Display user
 	}
 	config.StoreTravisTokenForEndpoint(travisToken, os.Getenv("TRAVIS_ENDPOINT"))
+	os.Setenv("TRAVIS_TOKEN", travisToken)
+	user, err := user.CurrentUser()
+	if err != nil {
+		color.Red("Error:\n" + err.Error())
+		return
+	}
+	color.Green("Successfully logged in as %s! To logout run travis logout.", user)
 }
 
 // LoginToGitHub takes a GitHub token to log into GitHub. If an empty string is
