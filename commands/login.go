@@ -34,7 +34,6 @@ func loginCmd(cmd *cli.Cmd) {
 		token := getTravisToken(*authorization.Token)
 		github.Authorizations.Delete(*authorization.ID)
 		config := config.DefaultConfiguration()
-		println(os.Getenv("TRAVIS_ENDPOINT"))
 		config.StoreTravisTokenForEndpoint(token, os.Getenv("TRAVIS_ENDPOINT"))
 	}
 	whoamiCmd(cmd)

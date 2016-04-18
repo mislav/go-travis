@@ -11,13 +11,14 @@ func init() {
 }
 
 type User struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
+	ID    int    `json:"id"`
+	Name  string `json:"name"`
+	Login string `json:"login"`
 }
 
 func whoamiCmd(cmd *cli.Cmd) {
 	user := getCurrentUser()
-	println("Your %s", user.Name)
+	printUserColorful(user)
 }
 
 func getCurrentUser() User {
@@ -30,11 +31,12 @@ func getCurrentUser() User {
 		//whoamiGithub()
 		return User{Name: "Error"}
 	}
-	// unclear why this is not working...
-	// if res.StatusCode > 299 {
-	// 	cmd.Stderr.Printf("Error: Unexpected HTTP status: %d\n", res.StatusCode)
-	// 	cmd.Exit(1)
-	// }
+
+	if res.StatusCode > 299 {
+		color.Red("Error: Unexpected HTTP status: %d\n", res.StatusCode)
+		return User{Name: "HTTPError"}
+		//cmd.Exit(1)
+	}
 	user := User{}
 	res.Unmarshal(&user)
 	return user
@@ -48,4 +50,16 @@ func whoamiGithub() {
 		return
 	}
 	color.Green("You are logged into the account " + *(user.Login) + ".\n")
+}
+
+func printUserColorful(user User) {
+	g := color.New(color.FgGreen).PrintfFunc()
+	gb := color.New(color.FgGreen, color.Bold).PrintfFunc()
+	g("You are ")
+	gb(user.Name)
+	if (user.Name != user.Login) && (user.Login != "") {
+		color.Green(" (%s).", user.Login)
+	} else {
+		color.Green(".")
+	}
 }

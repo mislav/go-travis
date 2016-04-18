@@ -24,7 +24,12 @@ type Repository struct {
 	Owner       *Owner `json:"owner"`
 }
 
+func (r *Repository) HasDescription() bool {
+	return r.Description != ""
+}
+
 type Owner struct {
+	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 
@@ -39,7 +44,7 @@ func reposCmd(cmd *cli.Cmd) {
 		return
 	}
 	if res.StatusCode > 299 {
-		cmd.Stderr.Printf("Error: Unexpected HTTP status: %d\n", res.StatusCode)
+		color.Red("Error: Unexpected HTTP status: %d\n", res.StatusCode)
 		cmd.Exit(1)
 	}
 
@@ -55,10 +60,10 @@ func reposCmd(cmd *cli.Cmd) {
 func printRepoColorful(repo Repository, user User) {
 	admin := (repo.Owner.Name == user.Name)
 	y := color.New(color.FgYellow, color.Bold).PrintfFunc()
-	y(repo.Slug + " of owner: " + repo.Owner.Name) //only debug
+	y(repo.Slug + " of owner: " + repo.Owner.Name + " with ID " + string(repo.Owner.ID)) //only debug
 	// y(repo.Slug)
 	color.Yellow(" (active: %v, private: %v, admin: %v)", repo.Active, repo.Private, admin)
-	if repo.Description != "" {
+	if repo.HasDescription() {
 		color.Green("Description: %s ", repo.Description)
 	}
 	println("")
