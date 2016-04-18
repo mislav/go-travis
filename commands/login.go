@@ -35,6 +35,7 @@ func loginCmd(cmd *cli.Cmd) {
 	userFlag, args := args.ExtractFlag("-u", "--user", "LOGIN")
 	travisToken := os.Getenv("TRAVIS_TOKEN")
 	config := config.DefaultConfiguration()
+	message := "Successfully logged in as %s!"
 
 	if travisToken == "" {
 		var gitHubAuthorization *github.Authorization
@@ -77,6 +78,8 @@ func loginCmd(cmd *cli.Cmd) {
 				color.Red(err.Error())
 				return
 			}
+		} else {
+			message = "You are currently already logged in as %s! To logout run travis logout."
 		}
 	}
 	config.StoreTravisTokenForEndpoint(travisToken, os.Getenv("TRAVIS_ENDPOINT"))
@@ -86,7 +89,7 @@ func loginCmd(cmd *cli.Cmd) {
 		color.Red("Error:\n" + err.Error())
 		return
 	}
-	color.Green("Successfully logged in as %s! To logout run travis logout.", user)
+	color.Green(message, user)
 }
 
 // LoginToGitHub takes a GitHub token to log into GitHub. If an empty string is
