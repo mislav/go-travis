@@ -21,11 +21,11 @@ func statusCmd(cmd *cli.Cmd) {
 
 	res, err := client.Travis().PerformAction("builds", "find", params)
 	if err != nil {
-		color.Red("build not found")
+		color.Red("Build not found.")
 		return
 	}
 	if res.StatusCode > 299 {
-		color.Red("unexpected HTTP status: %d\n", res.StatusCode)
+		color.Red("Unexpected HTTP status: %d\n", res.StatusCode)
 		cmd.Exit(1)
 	}
 
@@ -34,7 +34,7 @@ func statusCmd(cmd *cli.Cmd) {
 	if len(builds.Builds) > 0 {
 		printStatus(builds.Builds[0])
 	} else {
-		color.Red("no builds on this repo")
+		color.Red("This repository has no builds yet.")
 	}
 }
 

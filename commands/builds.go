@@ -41,7 +41,7 @@ func buildsCmd(cmd *cli.Cmd) {
 		panic(err)
 	}
 	if res.StatusCode > 299 {
-		color.Red("unexpected HTTP status: %d\n", res.StatusCode)
+		color.Red("Unexpected HTTP status: %d\n", res.StatusCode)
 		cmd.Exit(1)
 	}
 
