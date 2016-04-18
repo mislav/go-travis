@@ -46,7 +46,7 @@ type Client struct {
 }
 
 func NewClient(logger *os.File, cacheDir string) *Client {
-	rootUrl, _ := url.Parse("https://api.travis-ci.org")
+	rootUrl, _ := url.Parse(os.Getenv("TRAVIS_ENDPOINT"))
 	http := api.NewClient(rootUrl, func(t *api.Transport) {
 		if logger != nil {
 			debugStream := cli.NewColoredWriter(logger)
@@ -82,7 +82,7 @@ func NewClient(logger *os.File, cacheDir string) *Client {
 func (c *Client) PerformRequest(method, path string, body io.Reader, configure func(*http.Request)) (*Response, error) {
 	res, err := c.http.PerformRequest(method, path, nil, func(req *http.Request) {
 		req.Header.Set("Travis-API-Version", "3")
-		if token := c.config.GetTravisTokenForEndpoint(req.URL.Scheme + "://" + req.URL.Host + "/"); token != "" {
+		if token := os.Getenv("TRAVIS_TOKEN"); token != "" {
 			req.Header.Set("Authorization", "token "+token)
 		}
 		if configure != nil {
