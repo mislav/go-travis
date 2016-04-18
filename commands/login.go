@@ -66,7 +66,18 @@ func loginCmd(cmd *cli.Cmd) {
 			github.Authorizations.Delete(*gitHubAuthorization.ID)
 		}
 	} else {
-		// TODO: Test Travis Token
+		if travisToken != config.GetTravisTokenForEndpoint(os.Getenv("TRAVIS_ENDPOINT")) {
+			// test travis token if a new one should be set
+			_, err := user.CurrentUser()
+			if err != nil {
+				if strings.Contains(err.Error(), "403") {
+					color.Red("Error: The given token is not valid.\n")
+					return
+				}
+				color.Red(err.Error())
+				return
+			}
+		}
 	}
 	config.StoreTravisTokenForEndpoint(travisToken, os.Getenv("TRAVIS_ENDPOINT"))
 	os.Setenv("TRAVIS_TOKEN", travisToken)
