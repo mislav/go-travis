@@ -23,86 +23,48 @@ func init() {
 }
 
 func loginCmd(cmd *cli.Cmd) {
+	gitHubTokenFlag, _ := cmd.Args.ExtractFlag("-g", "--github-token", "GITHUBTOKEN")
+
 	if os.Getenv("TRAVIS_TOKEN") == "" {
-		username, password := promptForGithubCredentials()
-		github := loginToGitHubWithUsernameAndPassword(username, password)
-		authorization := getGithubAuthorization(github)
-		if authorization == nil {
-			color.Red("Error: The given credentials/token are not valid. Aborting.")
-			return
+		var gitHubAuthorization *github.Authorization
+
+		gitHubToken := gitHubTokenFlag.String()
+		github := LoginToGitHub(gitHubToken)
+		if gitHubToken == "" {
+			gitHubAuthorization = getGitHubAuthorization(github)
+			if gitHubAuthorization == nil {
+				color.Red("Error: The given credentials/token are not valid. Aborting.")
+				return
+			}
+			gitHubToken = *gitHubAuthorization.Token
 		}
-		token := getTravisToken(*authorization.Token)
-		github.Authorizations.Delete(*authorization.ID)
+		travisToken := getTravisTokenFromGitHubToken(gitHubToken)
+		if gitHubAuthorization != nil {
+			github.Authorizations.Delete(*gitHubAuthorization.ID)
+		}
 		config := config.DefaultConfiguration()
-		config.StoreTravisTokenForEndpoint(token, os.Getenv("TRAVIS_ENDPOINT"))
+		config.StoreTravisTokenForEndpoint(travisToken, os.Getenv("TRAVIS_ENDPOINT"))
+		color.Green("Successfully logged in as Nef10!")
+	} else {
+		/// TODO test Travis token
+		color.Green("Your are currently logged in, please run travis logout first!")
 	}
-	whoamiCmd(cmd)
 }
 
-func getGithubAuthorization(github *github.Client) *github.Authorization {
-	req := createAuthorizationrequest()
-	authorization, _, err := github.Authorizations.Create(req)
-	if err != nil {
-		color.Red(err.Error())
-		return authorization
-	}
-	return authorization
-}
-
-func createAuthorizationrequest() *github.AuthorizationRequest {
-	note := "Temporary Token"
-	req := &github.AuthorizationRequest{
-		Note:   &note,
-		Scopes: []github.Scope{github.Scope("user"), github.Scope("user:email"), github.Scope("repo")},
-	}
-	return req
-}
-
-func getTravisToken(githubToken string) string {
-	type accessToken struct {
-		AccessToken string `json:"access_token,omitempty"`
-	}
-	var token accessToken
-	httpClient := http.DefaultClient
-	req := travisTokenRequest(githubToken)
-	resp, err := httpClient.Do(req)
-	bytes, err := ioutil.ReadAll(resp.Body)
-	err = json.Unmarshal(bytes, &token)
-	if err != nil {
-		color.Red("Error: Could not get travis token.\n " + err.Error())
-		return ""
-	}
-	return token.AccessToken
-}
-
-func travisTokenRequest(githubToken string) *http.Request {
-	body := []byte("{\"github_token\":\"" + githubToken + "\"}")
-	travisTokenRequest, err := http.NewRequest("POST", "https://api.travis-ci.org/auth/github", bytes.NewBuffer(body))
-	if err != nil {
-		color.Red("Error: Could not create the travis token request.")
-		return nil
-	}
-	travisTokenRequest.Header.Add("Accept", "application/vnd.travis-ci.2+json")
-	travisTokenRequest.Header.Add("User-Agent", "MyClient/1.0.0")
-	travisTokenRequest.Header.Add("Content-Type", "application/json")
-
-	return travisTokenRequest
-}
-
-//LoginToGithub takes a githubtoken to log into github. If an empty string is
-//provided, the user will be prompted for username and password.
-func LoginToGithub(token string) *github.Client {
+// LoginToGitHub takes a GitHub token to log into GitHub. If an empty string is
+// provided, the user will be prompted for username and password.
+func LoginToGitHub(token string) *github.Client {
 	var github *github.Client
 	if token == "" {
-		username, password := promptForGithubCredentials()
+		username, password := promptForGitHubCredentials()
 		github = loginToGitHubWithUsernameAndPassword(username, password)
 	} else {
-		github = loginToGithubWithToken(token)
+		github = loginToGitHubWithToken(token)
 	}
 	_, _, err := github.Users.Get("")
 	if err != nil {
 		if strings.Contains(err.Error(), "401") {
-			color.Red("Error: The given credentials/token are not valid. \n")
+			color.Red("Error: The given credentials are not valid. \n")
 			return nil
 		}
 		color.Red("Error: Could not connect to github! \n" + err.Error())
@@ -112,21 +74,7 @@ func LoginToGithub(token string) *github.Client {
 	return github
 }
 
-func promptForGithubCredentials() (string, string) {
-	var username string
-	showGithubLoginDisclaimer()
-	print("Username: ")
-	fmt.Scan(&username)
-	print("Password for " + username + ": ")
-	pw, err := gopass.GetPasswd()
-	if err != nil {
-		color.Red("Error: could not read password.\n " + err.Error())
-		return "", ""
-	}
-	return username, string(pw)
-}
-
-func loginToGithubWithToken(token string) *github.Client {
+func loginToGitHubWithToken(token string) *github.Client {
 	ts := oauth2.StaticTokenSource(
 		&oauth2.Token{AccessToken: token},
 	)
@@ -149,7 +97,48 @@ func loginToGitHubWithUsernameAndPassword(username string, password string) *git
 	return client
 }
 
-func showGithubLoginDisclaimer() {
+func getGitHubAuthorization(github *github.Client) *github.Authorization {
+	req := createGitHubAuthorizationRequest()
+	authorization, _, err := github.Authorizations.Create(req)
+	if err != nil {
+		color.Red(err.Error())
+		return authorization
+	}
+	return authorization
+}
+
+func getTravisTokenFromGitHubToken(githubToken string) string {
+	type accessToken struct {
+		AccessToken string `json:"access_token,omitempty"`
+	}
+	var token accessToken
+	httpClient := http.DefaultClient
+	req := createTravisTokenRequest(githubToken)
+	resp, err := httpClient.Do(req)
+	bytes, err := ioutil.ReadAll(resp.Body)
+	err = json.Unmarshal(bytes, &token)
+	if err != nil {
+		color.Red("Error: Could not get travis token.\n " + err.Error())
+		return ""
+	}
+	return token.AccessToken
+}
+
+func createTravisTokenRequest(githubToken string) *http.Request {
+	body := []byte("{\"github_token\":\"" + githubToken + "\"}")
+	travisTokenRequest, err := http.NewRequest("POST", "https://api.travis-ci.org/auth/github", bytes.NewBuffer(body))
+	if err != nil {
+		color.Red("Error: Could not create the travis token request.")
+		return nil
+	}
+	travisTokenRequest.Header.Add("Accept", "application/vnd.travis-ci.2+json")
+	travisTokenRequest.Header.Add("User-Agent", "MyClient/1.0.0")
+	travisTokenRequest.Header.Add("Content-Type", "application/json")
+
+	return travisTokenRequest
+}
+
+func showGitHubLoginDisclaimer() {
 	y := color.New(color.FgYellow).PrintfFunc()
 	b := color.New(color.Bold, color.Underline).PrintfFunc()
 	print("We need your ")
@@ -163,5 +152,28 @@ func showGithubLoginDisclaimer() {
 	y("--github-token")
 	print(" or ")
 	y("--auto")
-	println(" if you don not want to enter your password anyway.\n ")
+	println(" if you do not want to enter your password anyway.\n ")
+}
+
+func promptForGitHubCredentials() (string, string) {
+	var username string
+	showGitHubLoginDisclaimer()
+	print("Username: ")
+	fmt.Scan(&username)
+	print("Password for " + username + ": ")
+	pw, err := gopass.GetPasswd()
+	if err != nil {
+		color.Red("Error: could not read password.\n " + err.Error())
+		return "", ""
+	}
+	return username, string(pw)
+}
+
+func createGitHubAuthorizationRequest() *github.AuthorizationRequest {
+	note := "Temporary Token for the Travis CI CLI"
+	req := &github.AuthorizationRequest{
+		Note:   &note,
+		Scopes: []github.Scope{github.Scope("user"), github.Scope("user:email"), github.Scope("repo")},
+	}
+	return req
 }
