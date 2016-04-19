@@ -10,7 +10,13 @@ import (
 )
 
 func init() {
-	cli.Register("show", "displays a build or a job", showCmd) //TODO a job?
+	cli.AppInstance().RegisterCommand(
+		cli.Command{
+			Name:     "show",
+			Help:     "displays a build or a job", //TODO a job?
+			Function: showCmd,
+		},
+	)
 }
 
 func showCmd(cmd *cli.Cmd) {

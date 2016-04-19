@@ -6,7 +6,13 @@ import (
 )
 
 func init() {
-	cli.Register("whoami", "outputs the current user", whoamiCmd)
+	cli.AppInstance().RegisterCommand(
+		cli.Command{
+			Name:     "whoami",
+			Help:     "outputs the current user",
+			Function: whoamiCmd,
+		},
+	)
 }
 
 func whoamiCmd(cmd *cli.Cmd) {

@@ -10,8 +10,20 @@ import (
 )
 
 func init() {
-	cli.Register("builds", "alias for history", buildsCmd)
-	cli.Register("history", "displays a projects build history", buildsCmd)
+	cli.AppInstance().RegisterCommand(
+		cli.Command{
+			Name:     "builds",
+			Help:     "alias for history",
+			Function: buildsCmd,
+		},
+	)
+	cli.AppInstance().RegisterCommand(
+		cli.Command{
+			Name:     "history",
+			Help:     "displays a projects build history",
+			Function: buildsCmd,
+		},
+	)
 }
 
 type Builds struct {

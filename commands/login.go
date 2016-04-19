@@ -20,7 +20,26 @@ import (
 )
 
 func init() {
-	cli.Register("login", "authenticates against the API and stores the token", loginCmd)
+	cmd := cli.Command{
+		Name:     "login",
+		Help:     "authenticates against the API and stores the token",
+		Function: loginCmd,
+	}
+	cmd.RegisterFlag(
+		cli.Flag{
+			Short: "-g",
+			Long:  "--github-token",
+			Ftype: "GITHUBTOKEN",
+		},
+	)
+	cmd.RegisterFlag(
+		cli.Flag{
+			Short: "-u",
+			Long:  "--user",
+			Ftype: "LOGIN",
+		},
+	)
+	cli.AppInstance().RegisterCommand(cmd)
 }
 
 // loginCmd is currently mising the following args of the original travis cli:
@@ -31,17 +50,16 @@ func init() {
 //     --list-github-token          instead of actually logging in, list found GitHub tokens
 //     --skip-token-check           don't verify the token with github
 func loginCmd(cmd *cli.Cmd) {
-	gitHubTokenFlag, args := cmd.Args.ExtractFlag("-g", "--github-token", "GITHUBTOKEN")
-	userFlag, args := args.ExtractFlag("-u", "--user", "LOGIN")
-	travisToken := os.Getenv("TRAVIS_TOKEN")
+
+	travisToken := cmd.Env["TRAVIS_TOKEN"]
 	config := config.DefaultConfiguration()
 	message := "Successfully logged in as %s!"
 
 	if travisToken == "" {
 		var gitHubAuthorization *github.Authorization
 
-		gitHubToken := gitHubTokenFlag.String()
-		github, err := LoginToGitHub(gitHubToken, userFlag.String())
+		gitHubToken := cmd.Flags.String("--github-token")
+		github, err := LoginToGitHub(gitHubToken, cmd.Flags.String("--user"))
 		if err != nil {
 			if strings.Contains(err.Error(), "401") {
 				color.Red("Error: The given credentials are not valid.\n")

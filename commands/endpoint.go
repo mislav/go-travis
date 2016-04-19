@@ -1,34 +1,46 @@
 package commands
 
 import (
-	"os"
-
 	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
 	"github.com/fatih/color"
 )
 
 func init() {
-	cli.Register("endpoint", "displays or changes the API endpoint", endpointCmd)
+	cmd := cli.Command{
+		Name:     "endpoint",
+		Help:     "displays or changes the API endpoint",
+		Function: endpointCmd,
+	}
+	cmd.RegisterFlag(
+		cli.Flag{
+			Long:  "--set-default",
+			Ftype: false,
+		},
+	)
+	cmd.RegisterFlag(
+		cli.Flag{
+			Long:  "--drop-default",
+			Ftype: false,
+		},
+	)
+	cli.AppInstance().RegisterCommand(cmd)
 }
 
 func endpointCmd(cmd *cli.Cmd) {
-	setDefaultFlag, args := cmd.Args.ExtractFlag("", "--set-default", false)
-	dropDefaultFlag, args := args.ExtractFlag("", "--drop-default", false)
 
 	configuration := config.DefaultConfiguration()
-	endpoint := os.Getenv("TRAVIS_ENDPOINT")
+	endpoint := cmd.Env["TRAVIS_ENDPOINT"]
 
-	if setDefaultFlag.IsProvided() {
+	if cmd.Flags.IsProvided("--set-default") {
 		configuration.StoreDefaultTravisEndpoint(endpoint)
 		color.Green("Stored default Travis endpoint" + "\n")
 	}
 
-	if dropDefaultFlag.IsProvided() {
+	if cmd.Flags.IsProvided("--drop-default") {
 		configuration.DeleteDefaultTravisEndpoint()
 		color.Green("Deleted default Travis endpoint" + "\n")
 	}
 
 	println("API endpoint: " + endpoint)
-
 }

@@ -6,7 +6,13 @@ import (
 )
 
 func init() {
-	cli.Register("whatsup", "lists most recent builds", whatsupCmd)
+	cli.AppInstance().RegisterCommand(
+		cli.Command{
+			Name:     "whatsup",
+			Help:     "lists most recent builds",
+			Function: whatsupCmd,
+		},
+	)
 }
 
 func whatsupCmd(cmd *cli.Cmd) {

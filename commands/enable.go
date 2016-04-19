@@ -9,7 +9,13 @@ import (
 )
 
 func init() {
-	cli.Register("enable", "enables a project", enableCmd)
+	cli.AppInstance().RegisterCommand(
+		cli.Command{
+			Name:     "enable",
+			Help:     "enables a project",
+			Function: enableCmd,
+		},
+	)
 }
 
 func enableCmd(cmd *cli.Cmd) {

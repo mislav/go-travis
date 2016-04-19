@@ -9,7 +9,13 @@ import (
 )
 
 func init() {
-	cli.Register("repos", "lists repositories the user has certain permissions on", reposCmd)
+	cli.AppInstance().RegisterCommand(
+		cli.Command{
+			Name:     "repos",
+			Help:     "lists repositories the user has certain permissions on",
+			Function: reposCmd,
+		},
+	)
 }
 
 type Repositories struct {

@@ -13,8 +13,6 @@ import (
 	"github.com/HPI-BP2015H/go-utils/pathname"
 )
 
-const defaultCommand = "help"
-
 // main the current implementation is not respection the debug flag
 // The following arguments from the original travis cli are missing:
 // -i, --[no-]interactive           be interactive and colorful
@@ -25,70 +23,104 @@ const defaultCommand = "help"
 //     --debug-http                 show HTTP(S) exchange
 // -X, --enterprise [NAME]          use enterprise setup (optionally takes name for multiple setups)
 func main() {
-	args := cli.NewArgs(os.Args)
-	cmdName := args.Peek(0)
-	if cmdName == "" {
-		cmdName = defaultCommand
-	}
 
-	configuration := config.DefaultConfiguration()
+	app := cli.AppInstance()
+	app.Name = "go-travis"
+	app.DefaultCommandName = "help"
 
-	repoFlag, args := args.ExtractFlag("-r", "--repo", "REPOSITORY")
-	tokenFlag, args := args.ExtractFlag("-t", "--token", "TOKEN")
-	endpointFlag, args := args.ExtractFlag("-e", "--api-endpoint", "URL")
-	orgEndpointFlag, args := args.ExtractFlag("", "--org", false)
-	proEndpointFlag, args := args.ExtractFlag("", "--pro", false)
-	stagingEndpointFlag, args := args.ExtractFlag("", "--staging", false)
-	debugFlag, args := args.ExtractFlag("", "--debug", false)
+	app.RegisterFlag(
+		cli.Flag{
+			Short: "-r",
+			Long:  "--repo",
+			Ftype: "REPOSITORY",
+		},
+	)
+	app.RegisterFlag(
+		cli.Flag{
+			Short: "-t",
+			Long:  "--token",
+			Ftype: "TOKEN",
+		},
+	)
+	app.RegisterFlag(
+		cli.Flag{
+			Short: "-e",
+			Long:  "--api-endpoint",
+			Ftype: "URL",
+		},
+	)
+	app.RegisterFlag(
+		cli.Flag{
+			Long:  "--org",
+			Ftype: false,
+		},
+	)
+	app.RegisterFlag(
+		cli.Flag{
+			Long:  "--pro",
+			Ftype: false,
+		},
+	)
+	app.RegisterFlag(
+		cli.Flag{
+			Long:  "--staging",
+			Ftype: false,
+		},
+	)
+	app.RegisterFlag(
+		cli.Flag{
+			Long:  "--debug",
+			Ftype: false,
+		},
+	)
 
-	if repoFlag.IsProvided() {
-		os.Setenv("TRAVIS_REPO", repoFlag.String())
-	} else {
-		os.Setenv("TRAVIS_REPO", config.RepoSlugFromGit())
-	}
+	app.Before = func(cmd *cli.Cmd) {
+		configuration := config.DefaultConfiguration()
 
-	endpoint := configuration.GetDefaultTravisEndpoint()
-	if orgEndpointFlag.IsProvided() {
-		endpoint = config.TravisOrgEndpoint
-	}
-	if proEndpointFlag.IsProvided() {
-		endpoint = config.TravisProEndpoint
-	}
-	if stagingEndpointFlag.IsProvided() {
-		endpoint = config.TravisStagingEndpoint
-	}
-	if endpointFlag.IsProvided() {
-		endpoint = endpointFlag.String()
-	}
-	os.Setenv("TRAVIS_ENDPOINT", endpoint)
-
-	token := configuration.GetTravisTokenForEndpoint(endpoint)
-	if tokenFlag.IsProvided() {
-		token = tokenFlag.String()
-	}
-	os.Setenv("TRAVIS_TOKEN", token)
-
-	if debugFlag.IsProvided() {
-		if debugFlag.Bool() {
-			os.Setenv("TRAVIS_DEBUG", "1")
+		if cmd.Flags.IsProvided("--repo") {
+			cmd.Env["TRAVIS_REPO"] = cmd.Flags.String("--repo")
 		} else {
-			os.Setenv("TRAVIS_DEBUG", "")
+			cmd.Env["TRAVIS_REPO"] = config.RepoSlugFromGit()
+		}
+
+		endpoint := configuration.GetDefaultTravisEndpoint()
+		if cmd.Flags.IsProvided("--org") {
+			endpoint = config.TravisOrgEndpoint
+		}
+		if cmd.Flags.IsProvided("--pro") {
+			endpoint = config.TravisProEndpoint
+		}
+		if cmd.Flags.IsProvided("--staging") {
+			endpoint = config.TravisStagingEndpoint
+		}
+		if cmd.Flags.IsProvided("--api-endpoint") {
+			endpoint = cmd.Flags.String("--api-endpoint")
+		}
+		cmd.Env["TRAVIS_ENDPOINT"] = endpoint
+
+		token := configuration.GetTravisTokenForEndpoint(endpoint)
+		if cmd.Flags.IsProvided("--token") {
+			token = cmd.Flags.String("--token")
+		}
+		cmd.Env["TRAVIS_TOKEN"] = token
+
+		if cmd.Flags.IsProvided("--debug") {
+			cmd.Env["TRAVIS_DEBUG"] = "true"
 		}
 	}
 
-	cmdFunc := cli.Lookup(cmdName)
-	if cmdFunc != nil {
-		cmd := cli.NewCmd(args.SubcommandArgs(cmdName))
-		cmdFunc(cmd)
-	} else {
-		exeName := args.ProgramName() + "-" + cmdName
+	app.Fallback = func(c *cli.Cmd, cmdName string) {
+		for key, value := range c.Env {
+			os.Setenv(key, value)
+		}
+		exeName := c.Args.ProgramName() + "-" + cmdName
 		results := pathname.FindInPath(exeName, strings.Split(os.Getenv("PATH"), ":"))
 
 		if len(results) > 0 {
 			exeCmd := results[0]
 
 			argv := []string{exeName}
-			argv = append(argv, args.Slice(1)...)
+			argv = append(argv, c.Args.Slice(1)...)
 
 			err := syscall.Exec(exeCmd.String(), argv, os.Environ())
 			if err != nil {
@@ -100,4 +132,7 @@ func main() {
 			os.Exit(1)
 		}
 	}
+
+	app.Run(os.Args)
+
 }

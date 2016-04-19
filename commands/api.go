@@ -10,8 +10,28 @@ import (
 )
 
 func init() {
-	cli.Register("api", "makes an (authenticated) API call and prints out the raw result (old \"raw\" command)", apiCmd)
-	cli.Register("raw", "makes an (authenticated) API call and prints out the raw result", apiCmd)
+	cmd1 := cli.Command{
+		Name:     "api",
+		Help:     "makes an (authenticated) API call and prints out the raw result",
+		Function: apiCmd,
+	}
+	cmd2 := cli.Command{
+		Name:     "raw",
+		Help:     "alias for api",
+		Function: apiCmd,
+	}
+	flag := cli.Flag{
+		Short: "-i",
+		Long:  "--include-headers",
+		Ftype: false,
+	}
+
+	cmd1.RegisterFlag(flag)
+	cmd2.RegisterFlag(flag)
+
+	cli.AppInstance().RegisterCommand(cmd1)
+	cli.AppInstance().RegisterCommand(cmd2)
+
 }
 
 func checkUnusedArgs(cmd *cli.Cmd, args *cli.Args) {
@@ -22,8 +42,8 @@ func checkUnusedArgs(cmd *cli.Cmd, args *cli.Args) {
 }
 
 func apiCmd(cmd *cli.Cmd) {
-	includeHeadersFlag, args := cmd.Args.ExtractFlag("-i", "", false)
 	path := ""
+	args := cmd.Args
 	if args.Length() > 0 {
 		path, args = args.Shift()
 	}
@@ -50,7 +70,7 @@ func apiCmd(cmd *cli.Cmd) {
 	}
 	defer res.Body.Close()
 
-	if includeHeadersFlag.Bool() {
+	if cmd.Flags.Bool("--include-headers") {
 		cmd.Stdout.Printf("%s %s\r\n", res.Proto, res.Status)
 		for name, values := range res.Header {
 			value := strings.Join(values, ",")

@@ -11,7 +11,13 @@ import (
 )
 
 func init() {
-	cli.Register("branches", "displays the most recent build for each branch", branchesCmd)
+	cli.AppInstance().RegisterCommand(
+		cli.Command{
+			Name:     "branches",
+			Help:     "displays the most recent build for each branch",
+			Function: branchesCmd,
+		},
+	)
 }
 
 type Branches struct {

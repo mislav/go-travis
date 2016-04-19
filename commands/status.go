@@ -9,7 +9,13 @@ import (
 )
 
 func init() {
-	cli.Register("status", "checks status of the latest build", statusCmd)
+	cli.AppInstance().RegisterCommand(
+		cli.Command{
+			Name:     "status",
+			Help:     "checks status of the latest build",
+			Function: statusCmd,
+		},
+	)
 }
 
 func statusCmd(cmd *cli.Cmd) {

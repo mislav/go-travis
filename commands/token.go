@@ -7,7 +7,13 @@ import (
 )
 
 func init() {
-	cli.Register("token", "outputs the secret API token", tokenCmd)
+	cli.AppInstance().RegisterCommand(
+		cli.Command{
+			Name:     "token",
+			Help:     "outputs the secret API token",
+			Function: tokenCmd,
+		},
+	)
 }
 
 func tokenCmd(cmd *cli.Cmd) {
