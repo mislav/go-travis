@@ -2,24 +2,22 @@ package commands
 
 import (
 	"bytes"
-	"strings"
+	"fmt"
+	"log"
+	"os/exec"
 	"testing"
-
-	"github.com/HPI-BP2015H/go-utils/cli"
 )
 
 func TestHelpCmd(t *testing.T) {
-	var outBuffer, errBuffer bytes.Buffer
-	cmd := cli.Cmd{
-		Stdout: cli.NewWriter(&outBuffer),
-		Stderr: cli.NewWriter(&errBuffer),
+	cmd := exec.Command("go-travis", "help")
+	//cmd.Stdin = strings.NewReader("some input") //if we need to supply input to the command
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	err := cmd.Run()
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	helpCmd(&cmd)
-
-	if !strings.Contains(outBuffer.String(), "Available commands:") {
-		t.Error("Output: " + outBuffer.String())
-		t.Error("Error:  " + errBuffer.String())
-	}
+	fmt.Printf("THIS IS OUTPUT!!!: %s\n", out.String())
 
 }
