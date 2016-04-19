@@ -20,11 +20,11 @@ func whoamiCmd(cmd *cli.Cmd) {
 
 func printUser(user user.User, cmd *cli.Cmd) {
 	cmd.Stdout.PushColor("green")
-	cmd.Stdout.Printf("You are ")
-	cmd.Stdout.Cprintf("boldgreen", user.Login)
+	cmd.Stdout.Print("You are ")
+	cmd.Stdout.Cprint("boldgreen", user.Login)
 	if (user.Name != user.Login) && (user.Name != "") {
 		cmd.Stdout.Printf(" (%s)", user.Name)
 	}
-	cmd.Stdout.Printf(".")
+	cmd.Stdout.Print(".\n")
 	cmd.Stdout.PopColor()
 }

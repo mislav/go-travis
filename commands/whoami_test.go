@@ -3,6 +3,7 @@ package commands
 import (
 	"bytes"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/HPI-BP2015H/go-travis/config"
@@ -17,10 +18,14 @@ func TestWhoAmI(t *testing.T) {
 	}
 	configuration := config.DefaultConfiguration()
 	endpoint := configuration.GetDefaultTravisEndpoint()
-	os.Setenv("TRAVIS_ENDPOINT", configuration.GetDefaultTravisEndpoint())
-	os.Setenv("TRAVIS_TOKEN", configuration.GetTravisTokenForEndpoint(endpoint))
+	os.Setenv("TRAVIS_ENDPOINT", endpoint)
+	//os.Setenv("TRAVIS_TOKEN", configuration.GetTravisTokenForEndpoint(endpoint) )
+	os.Setenv("TRAVIS_TOKEN", "wrongToken")
 	whoamiCmd(&cmd)
 
-	t.Error("Output: " + outBuffer.String())
-	t.Error("Error:  " + errBuffer.String())
+	if !strings.Contains(errBuffer.String(), "Error") {
+		t.Error("Output: " + outBuffer.String())
+		t.Error("Error:  " + errBuffer.String())
+	}
+
 }
