@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"fmt"
 	"sort"
 	"strconv"
 
@@ -25,15 +24,15 @@ func (s byLength) Less(i, j int) bool {
 }
 
 func helpCmd(cmd *cli.Cmd) {
-	println("Usage: travis COMMAND ...\n ")
-	println("Available commands: \n ")
+	cmd.Stdout.Println("Usage: travis COMMAND ...\n ")
+	cmd.Stdout.Println("Available commands: \n ")
 	cmdNames := cli.CommandNames()
 	sort.Sort(byLength(cmdNames))
 	maxLength := len(cmdNames[0])
 	sort.Strings(cmdNames)
 	for _, name := range cmdNames {
 		format := "\t%-" + strconv.Itoa(maxLength+3) + "s"
-		fmt.Printf(format, name)
+		cmd.Stdout.Printf(format, name)
 		cmd.Stdout.Cprintln("yellow", cli.LookupHelp(name))
 	}
 	println("\nrun travis help COMMAND for more infos")
