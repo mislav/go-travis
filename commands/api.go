@@ -10,7 +10,8 @@ import (
 )
 
 func init() {
-	cli.Register("api", "use for own requests against the Travis API", apiCmd)
+	cli.Register("api", "makes an (authenticated) API call and prints out the raw result (old \"raw\" command)", apiCmd)
+	cli.Register("raw", "makes an (authenticated) API call and prints out the raw result", apiCmd)
 }
 
 func checkUnusedArgs(cmd *cli.Cmd, args *cli.Args) {
