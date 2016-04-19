@@ -6,7 +6,6 @@ import (
 
 	"github.com/HPI-BP2015H/go-travis/client"
 	"github.com/HPI-BP2015H/go-utils/cli"
-	"github.com/fatih/color"
 )
 
 func init() {
@@ -28,6 +27,10 @@ type Build struct {
 	Branch     *Branch `json:"branch"`
 	Commit     *Commit `json:"commit"`
 	Jobs       Jobs    `json:"jobs"`
+}
+
+func (b *Build) HasPassed() bool {
+	return b.State == "passed"
 }
 
 type Commit struct {
@@ -55,7 +58,7 @@ func buildsCmd(cmd *cli.Cmd) {
 		panic(err)
 	}
 	if res.StatusCode > 299 {
-		color.Red("Unexpected HTTP status: %d\n", res.StatusCode)
+		cmd.Stderr.Printf("Unexpected HTTP status: %d\n", res.StatusCode)
 		cmd.Exit(1)
 	}
 
@@ -63,18 +66,19 @@ func buildsCmd(cmd *cli.Cmd) {
 	res.Unmarshal(&builds)
 
 	for _, build := range builds.Builds {
-		printBuild(build)
+		printBuild(build, cmd)
 	}
 }
 
-func printBuild(build Build) {
+func printBuild(build Build, cmd *cli.Cmd) {
 	commitMessage := strings.Replace(build.Commit.Message, "\n", " ", -1)
-	y := color.New(color.FgYellow).PrintfFunc()
-	c := color.New(color.FgRed, color.Bold).PrintfFunc()
-	if build.State == "passed" {
-		c = color.New(color.FgGreen, color.Bold).PrintfFunc()
+	if build.HasPassed() {
+		cmd.Stdout.PushColor("boldgreen")
+	} else {
+		cmd.Stdout.PushColor("boldred")
 	}
-	c("#%s %s ", build.Number, build.State)
-	y("(%s) ", build.Branch.Name)
-	print(commitMessage + "\n")
+	cmd.Stdout.Print("#" + build.Number + " " + build.State)
+	cmd.Stdout.PopColor()
+	cmd.Stdout.Cprint("yellow", "(%s) ", build.Branch.Name)
+	cmd.Stdout.Println(commitMessage)
 }

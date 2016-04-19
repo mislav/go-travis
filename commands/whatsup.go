@@ -29,7 +29,7 @@ func printRepoStatus(repo Repository) {
 	c := color.New(color.FgRed).PrintfFunc()
 	cb := color.New(color.FgRed, color.Bold).PrintfFunc()
 	build := repo.DefaultBranch.LastBuild
-	if build.State == "passed" {
+	if build.HasPassed() {
 		c = color.New(color.FgGreen).PrintfFunc()
 		cb = color.New(color.FgGreen, color.Bold).PrintfFunc()
 	}

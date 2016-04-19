@@ -76,7 +76,7 @@ func printBranch(branch Branch, format string, maxLengthNumber int) {
 	y := color.New(color.FgYellow, color.Bold).PrintfFunc()
 	y(format, branch.Name)
 	c := color.New(color.FgRed).PrintfFunc()
-	if branch.LastBuild.State == "passed" {
+	if branch.LastBuild.HasPassed() {
 		c = color.New(color.FgGreen).PrintfFunc()
 	}
 	c("#%-"+strconv.Itoa(maxLengthNumber)+"s %s\n", branch.LastBuild.Number, branch.LastBuild.State)

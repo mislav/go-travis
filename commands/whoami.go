@@ -12,7 +12,7 @@ func init() {
 func whoamiCmd(cmd *cli.Cmd) {
 	user, err := user.CurrentUser()
 	if err != nil {
-		cmd.Stderr.Cprintln("red", "Error: Could not get the current user! \n"+err.Error())
+		cmd.Stderr.Println("Error: Could not get the current user! \n" + err.Error())
 		return
 	}
 	printUser(user, cmd)

@@ -44,7 +44,7 @@ func showCmd(cmd *cli.Cmd) {
 func printCompleteBuild(build Build) {
 	y := color.New(color.FgYellow).PrintfFunc()
 	c := color.New(color.FgRed, color.Bold).PrintfFunc()
-	if build.State == "passed" {
+	if build.HasPassed() {
 		c = color.New(color.FgGreen, color.Bold).PrintfFunc()
 	}
 
