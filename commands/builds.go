@@ -19,14 +19,28 @@ type Builds struct {
 }
 
 type Build struct {
-	Number string  `json:"number"`
-	State  string  `json:"state"`
-	Branch *Branch `json:"branch"`
-	Commit *Commit `json:"commit"`
+	Number     string  `json:"number"`
+	State      string  `json:"state"`
+	StartedAt  string  `json:"started_at"`
+	FinishedAt string  `json:"finished_at"`
+	Duration   int     `json:"duration"`
+	EventType  string  `json:"event_type"`
+	Branch     *Branch `json:"branch"`
+	Commit     *Commit `json:"commit"`
+	Jobs       Jobs    `json:"jobs"`
 }
 
 type Commit struct {
 	Message string `json:"message"`
+}
+
+type Jobs struct {
+	Jobs []Job `json:"jobs"`
+}
+
+type Job struct {
+	Number string `json:"number"`
+	State  string `json:"state"`
 }
 
 func buildsCmd(cmd *cli.Cmd) {
