@@ -83,7 +83,8 @@ func buildsCmd(cmd *cli.Cmd) {
 
 	res, err := client.Travis().PerformAction("builds", "find", params)
 	if err != nil {
-		panic(err)
+		cmd.Stderr.Println(err.Error())
+		cmd.Exit(1)
 	}
 	if res.StatusCode > 299 {
 		cmd.Stderr.Printf("Unexpected HTTP status: %d\n", res.StatusCode)
@@ -96,6 +97,7 @@ func buildsCmd(cmd *cli.Cmd) {
 	for _, build := range builds.Builds {
 		printBuild(build, cmd)
 	}
+	cmd.Exit(0)
 }
 
 func printBuild(build Build, cmd *cli.Cmd) {

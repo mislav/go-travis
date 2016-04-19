@@ -20,6 +20,7 @@ func whatsupCmd(cmd *cli.Cmd) {
 			printRepoStatus(repo, cmd)
 		}
 	}
+	cmd.Exit(0)
 }
 
 func printRepoStatus(repo Repository, cmd *cli.Cmd) {

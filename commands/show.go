@@ -24,7 +24,7 @@ func showCmd(cmd *cli.Cmd) {
 	res, err := client.Travis().PerformAction("builds", "find", params)
 	if err != nil {
 		cmd.Stderr.Println("Build not found.")
-		return
+		cmd.Exit(1)
 	}
 	if res.StatusCode > 299 {
 		cmd.Stderr.Printf("Unexpected HTTP status: %d \n", res.StatusCode)
@@ -38,6 +38,7 @@ func showCmd(cmd *cli.Cmd) {
 	} else {
 		cmd.Stderr.Println("This repository has no builds yet.")
 	}
+	cmd.Exit(0)
 }
 
 func printCompleteBuild(build Build, cmd *cli.Cmd) {

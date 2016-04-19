@@ -19,7 +19,9 @@ func tokenCmd(cmd *cli.Cmd) {
 		cmd.Stdout.Cprint("yellow", endpoint)
 		cmd.Stdout.Print(" is ")
 		cmd.Stdout.Cprintln("boldgreen", os.Getenv("TRAVIS_TOKEN"))
+		cmd.Exit(0)
 	} else {
 		cmd.Stderr.Println("Not logged in for " + endpoint + ", please run travis login.")
+		cmd.Exit(1)
 	}
 }

@@ -19,8 +19,10 @@ func enableCmd(cmd *cli.Cmd) {
 
 	res, err := client.Travis().PerformAction("repository", "enable", params)
 	if err != nil {
-		panic(err)
+		cmd.Stderr.Println(err.Error())
+		cmd.Exit(1)
 	}
 	defer res.Body.Close()
 	io.Copy(cmd.Stdout, res.Body)
+	cmd.Exit(0)
 }

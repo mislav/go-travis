@@ -38,12 +38,13 @@ type Owner struct {
 func reposCmd(cmd *cli.Cmd) {
 	repositories, err := GetAllRepositories(nil)
 	if err != nil {
-		cmd.Stderr.Printf("Error: Could not get Repositories.")
+		cmd.Stderr.Println("Error: Could not get Repositories.")
 		cmd.Exit(1)
 	}
 	for _, repo := range repositories.Repositories {
 		printRepo(repo, cmd)
 	}
+	cmd.Exit(0)
 }
 
 //GetAllRepositories returns all the repositories (also those not active in travis)

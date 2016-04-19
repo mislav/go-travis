@@ -13,7 +13,6 @@ import (
 	"github.com/HPI-BP2015H/go-travis/commands/helper"
 	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
-	"github.com/fatih/color"
 	"github.com/google/go-github/github"
 	"github.com/howeyc/gopass"
 	"golang.org/x/oauth2"
@@ -89,7 +88,7 @@ func loginCmd(cmd *cli.Cmd) {
 		cmd.Stderr.Println("Error:\n" + err.Error())
 		return
 	}
-	color.Green(message, user)
+	cmd.Stdout.Cprintln("green", message, user)
 }
 
 // LoginToGitHub takes a GitHub token to log into GitHub. If an empty string is

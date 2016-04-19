@@ -5,7 +5,6 @@ import (
 
 	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
-	"github.com/fatih/color"
 )
 
 func init() {
@@ -21,14 +20,14 @@ func endpointCmd(cmd *cli.Cmd) {
 
 	if setDefaultFlag.IsProvided() {
 		configuration.StoreDefaultTravisEndpoint(endpoint)
-		color.Green("Stored default Travis endpoint" + "\n")
+		cmd.Stdout.Cprintln("green", "Stored default Travis endpoint")
 	}
 
 	if dropDefaultFlag.IsProvided() {
 		configuration.DeleteDefaultTravisEndpoint()
-		color.Green("Deleted default Travis endpoint" + "\n")
+		cmd.Stdout.Cprintln("green", "Deleted default Travis endpoint")
 	}
 
 	println("API endpoint: " + endpoint)
-
+	cmd.Exit(0)
 }
