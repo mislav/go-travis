@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/HPI-BP2015H/go-utils/cli"
-	"github.com/fatih/color"
 )
 
 func init() {
@@ -35,7 +34,7 @@ func helpCmd(cmd *cli.Cmd) {
 	for _, name := range cmdNames {
 		format := "\t%-" + strconv.Itoa(maxLength+3) + "s"
 		fmt.Printf(format, name)
-		color.Yellow(cli.LookupHelp(name))
+		cmd.Stdout.Cprintln("yellow", cli.LookupHelp(name))
 	}
 	println("\nrun travis help COMMAND for more infos")
 }
