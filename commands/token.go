@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"github.com/HPI-BP2015H/go-utils/cli"
-	"github.com/fatih/color"
 )
 
 func init() {
@@ -16,8 +15,11 @@ func tokenCmd(cmd *cli.Cmd) {
 	endpoint := os.Getenv("TRAVIS_ENDPOINT")
 
 	if len(token) > 0 {
-		println("Your access token for " + endpoint + " is " + os.Getenv("TRAVIS_TOKEN"))
+		cmd.Stdout.Print("Your access token for ")
+		cmd.Stdout.Cprint("yellow", endpoint)
+		cmd.Stdout.Print(" is ")
+		cmd.Stdout.Cprintln("boldgreen", os.Getenv("TRAVIS_TOKEN"))
 	} else {
-		color.Red("Not logged in for " + endpoint + ", please run travis login")
+		cmd.Stderr.Println("Not logged in for " + endpoint + ", please run travis login.")
 	}
 }
