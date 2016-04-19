@@ -73,7 +73,7 @@ func apiCmd(cmd *cli.Cmd) {
 	}
 	defer res.Body.Close()
 
-	if cmd.Flags.Bool("--include-headers") {
+	if cmd.Parameters.Bool("--include-headers") {
 		cmd.Stdout.Printf("%s %s\r\n", res.Proto, res.Status)
 		for name, values := range res.Header {
 			value := strings.Join(values, ",")

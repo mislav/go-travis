@@ -19,8 +19,7 @@ func init() {
 func logoutCmd(cmd *cli.Cmd) {
 	env := cmd.Env.(config.TravisCommandConfig)
 	user, _ := user.CurrentUser(env.Client)
-	config := config.DefaultConfiguration()
-	config.DeleteTravisTokenForEndpoint(env.Endpoint)
+	env.Config.DeleteTravisTokenForEndpoint(env.Endpoint)
 	cmd.Stdout.Cprint("green", "%s is now logged out.", user)
 	cmd.Exit(0)
 }

@@ -57,8 +57,8 @@ func loginCmd(cmd *cli.Cmd) {
 	if env.Token == "" {
 		var gitHubAuthorization *github.Authorization
 
-		gitHubToken := cmd.Flags.String("--github-token")
-		github, err := LoginToGitHub(gitHubToken, cmd.Flags.String("--user"), cmd)
+		gitHubToken := cmd.Parameters.String("--github-token", "")
+		github, err := LoginToGitHub(gitHubToken, cmd.Parameters.String("--user", ""), cmd)
 		if err != nil {
 			if strings.Contains(err.Error(), "401") {
 				cmd.Stderr.Println("Error: The given credentials are not valid.")

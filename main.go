@@ -85,44 +85,30 @@ func main() {
 	app.Before = func(cmd *cli.Cmd) {
 		configuration := config.DefaultConfiguration()
 
-		repo := ""
-		if cmd.Flags.IsProvided("--repo") {
-			repo = cmd.Flags.String("--repo")
-		} else {
-			repo = config.RepoSlugFromGit()
-		}
-
 		endpoint := configuration.GetDefaultTravisEndpoint()
-		if cmd.Flags.IsProvided("--org") {
+		if cmd.Parameters.IsProvided("--org") {
 			endpoint = config.TravisOrgEndpoint
 		}
-		if cmd.Flags.IsProvided("--pro") {
+		if cmd.Parameters.IsProvided("--pro") {
 			endpoint = config.TravisProEndpoint
 		}
-		if cmd.Flags.IsProvided("--staging") {
+		if cmd.Parameters.IsProvided("--staging") {
 			endpoint = config.TravisStagingEndpoint
 		}
-		if cmd.Flags.IsProvided("--api-endpoint") {
-			endpoint = cmd.Flags.String("--api-endpoint")
-		}
+		endpoint = cmd.Parameters.String("--api-endpoint", endpoint)
 
-		debug := cmd.Flags.IsProvided("--debug")
-
-		token := configuration.GetTravisTokenForEndpoint(endpoint)
-		if cmd.Flags.IsProvided("--token") {
-			token = cmd.Flags.String("--token")
-		}
+		debug := cmd.Parameters.IsProvided("--debug")
+		token := cmd.Parameters.String("--token", configuration.GetTravisTokenForEndpoint(endpoint))
 
 		commandConfig := config.TravisCommandConfig{
 			Config:   configuration,
-			Repo:     repo,
+			Repo:     cmd.Parameters.String("--repo", config.RepoSlugFromGit()),
 			Endpoint: endpoint,
 			Token:    token,
 			Client:   client.Travis(endpoint, token, debug),
 			Debug:    debug,
 		}
 		cmd.Env = commandConfig
-
 	}
 
 	app.Fallback = func(cmd *cli.Cmd, cmdName string) {
@@ -156,5 +142,4 @@ func main() {
 	}
 
 	app.Run(os.Args)
-
 }
