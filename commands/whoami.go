@@ -3,7 +3,6 @@ package commands
 import (
 	"github.com/HPI-BP2015H/go-travis/commands/helper"
 	"github.com/HPI-BP2015H/go-utils/cli"
-	"github.com/fatih/color"
 )
 
 func init() {
@@ -13,20 +12,19 @@ func init() {
 func whoamiCmd(cmd *cli.Cmd) {
 	user, err := user.CurrentUser()
 	if err != nil {
-		color.Red("Error: Could not get the current user! \n" + err.Error())
+		cmd.Stderr.Cprintln("red", "Error: Could not get the current user! \n"+err.Error())
 		return
 	}
-	printUser(user)
+	printUser(user, cmd)
 }
 
-func printUser(user user.User) {
-	g := color.New(color.FgGreen).PrintfFunc()
-	gb := color.New(color.FgGreen, color.Bold).PrintfFunc()
-	g("You are ")
-	gb(user.Login)
+func printUser(user user.User, cmd *cli.Cmd) {
+	cmd.Stdout.PushColor("green")
+	cmd.Stdout.Printf("You are ")
+	cmd.Stdout.Cprintf("boldgreen", user.Login)
 	if (user.Name != user.Login) && (user.Name != "") {
-		color.Green(" (%s).", user.Name)
-	} else {
-		color.Green(".")
+		cmd.Stdout.Printf(" (%s)", user.Name)
 	}
+	cmd.Stdout.Printf(".")
+	cmd.Stdout.PopColor()
 }
