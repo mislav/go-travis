@@ -15,12 +15,14 @@ func init() {
 		cli.Flag{
 			Long:  "--set-default",
 			Ftype: false,
+			Help:  "store endpoint as global default",
 		},
 	)
 	cmd.RegisterFlag(
 		cli.Flag{
 			Long:  "--drop-default",
 			Ftype: false,
+			Help:  "delete stored default endpoint",
 		},
 	)
 	cli.AppInstance().RegisterCommand(cmd)

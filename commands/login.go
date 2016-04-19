@@ -29,6 +29,7 @@ func init() {
 			Short: "-g",
 			Long:  "--github-token",
 			Ftype: "GITHUBTOKEN",
+			Help:  "identify by GitHub token",
 		},
 	)
 	cmd.RegisterFlag(
@@ -36,6 +37,7 @@ func init() {
 			Short: "-u",
 			Long:  "--user",
 			Ftype: "LOGIN",
+			Help:  "user to log in as",
 		},
 	)
 	cli.AppInstance().RegisterCommand(cmd)

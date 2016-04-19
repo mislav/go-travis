@@ -24,6 +24,7 @@ func init() {
 		Short: "-i",
 		Long:  "--include-headers",
 		Ftype: false,
+		Help:  "Include the response headers in the output",
 	}
 
 	cmd1.RegisterFlag(flag)

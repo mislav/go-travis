@@ -33,14 +33,16 @@ func main() {
 		cli.Flag{
 			Short: "-r",
 			Long:  "--repo",
-			Ftype: "REPOSITORY",
+			Ftype: "REPOSITORY_SLUG",
+			Help:  "the repository on GitHub",
 		},
 	)
 	app.RegisterFlag(
 		cli.Flag{
 			Short: "-t",
 			Long:  "--token",
-			Ftype: "TOKEN",
+			Ftype: "ACCESS_TOKEN",
+			Help:  "access token to use",
 		},
 	)
 	app.RegisterFlag(
@@ -48,30 +50,35 @@ func main() {
 			Short: "-e",
 			Long:  "--api-endpoint",
 			Ftype: "URL",
+			Help:  "Travis API server to talk to",
 		},
 	)
 	app.RegisterFlag(
 		cli.Flag{
 			Long:  "--org",
 			Ftype: false,
+			Help:  "short-cut for --api-endpoint 'https://api.travis-ci.com/'",
 		},
 	)
 	app.RegisterFlag(
 		cli.Flag{
 			Long:  "--pro",
 			Ftype: false,
+			Help:  "short-cut for --api-endpoint 'https://api.travis-ci.com/'",
 		},
 	)
 	app.RegisterFlag(
 		cli.Flag{
 			Long:  "--staging",
 			Ftype: false,
+			Help:  "short-cut for --api-endpoint 'https://api-staging.travis-ci.org/'",
 		},
 	)
 	app.RegisterFlag(
 		cli.Flag{
 			Long:  "--debug",
 			Ftype: false,
+			Help:  "show API requests",
 		},
 	)
 
