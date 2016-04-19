@@ -98,7 +98,8 @@ func (c *Client) PerformRequest(method, path string, body io.Reader, configure f
 }
 
 func (c *Client) PerformAction(resourceName, actionName string, params map[string]string) (*Response, error) {
-	manifest, _ := c.Manifest()
+	manifest, err := c.Manifest()
+	fmt.Println(err.Error())
 	resource := manifest.Resource(resourceName)
 	if resource == nil {
 		return nil, fmt.Errorf("could not find %q resource", resourceName)
