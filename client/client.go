@@ -9,7 +9,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/api"
 	"github.com/HPI-BP2015H/go-utils/cli"
 	"github.com/HPI-BP2015H/go-utils/pathname"
@@ -28,26 +27,26 @@ var ignoredHeaders = []string{
 	"via",
 }
 
-func Travis() *Client {
+func Travis(endpoint, token string, debug bool) *Client {
 	var logger *os.File
-	if os.Getenv("TRAVIS_DEBUG") != "" {
+	if debug {
 		logger = os.Stderr
 	}
 
 	tmpdir := pathname.TempDir().Join("travis")
-	return NewClient(logger, tmpdir.String())
+	return NewClient(endpoint, token, logger, tmpdir.String())
 }
 
 type Client struct {
 	cacheDir string
 	manifest *Manifest
 	http     *api.Client
-	config   *config.Configuration
+	Token    string
 }
 
-func NewClient(logger *os.File, cacheDir string) *Client {
-	rootUrl, _ := url.Parse(os.Getenv("TRAVIS_ENDPOINT"))
-	http := api.NewClient(rootUrl, func(t *api.Transport) {
+func NewClient(endpoint, token string, logger *os.File, cacheDir string) *Client {
+	rootURL, _ := url.Parse(endpoint)
+	http := api.NewClient(rootURL, func(t *api.Transport) {
 		if logger != nil {
 			debugStream := cli.NewColoredWriter(logger)
 			debugStream.PushColor("magenta")
@@ -70,20 +69,18 @@ func NewClient(logger *os.File, cacheDir string) *Client {
 		}
 	})
 
-	config := config.DefaultConfiguration()
-
 	return &Client{
 		http:     http,
 		cacheDir: cacheDir,
-		config:   config,
+		Token:    token,
 	}
 }
 
 func (c *Client) PerformRequest(method, path string, body io.Reader, configure func(*http.Request)) (*Response, error) {
 	res, err := c.http.PerformRequest(method, path, nil, func(req *http.Request) {
 		req.Header.Set("Travis-API-Version", "3")
-		if token := os.Getenv("TRAVIS_TOKEN"); token != "" {
-			req.Header.Set("Authorization", "token "+token)
+		if c.Token != "" {
+			req.Header.Set("Authorization", "token "+c.Token)
 		}
 		if configure != nil {
 			configure(req)

@@ -1,11 +1,10 @@
 package commands
 
 import (
-	"os"
 	"sort"
 	"strconv"
 
-	"github.com/HPI-BP2015H/go-travis/client"
+	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
 )
 
@@ -43,17 +42,17 @@ func (b byBuildNumber) Less(i, j int) bool {
 	m, _ := strconv.Atoi(b[j].LastBuild.Number)
 	if b[j].DefaultBranch {
 		return m > n
-	} else {
-		return n > m
 	}
+	return n > m
 }
 
 func branchesCmd(cmd *cli.Cmd) {
+	env := cmd.Env.(config.TravisCommandConfig)
 	params := map[string]string{
-		"repository.slug": os.Getenv("TRAVIS_REPO"),
+		"repository.slug": env.Repo,
 		"include":         "repository.default_branch",
 	}
-	res, err := client.Travis().PerformAction("branches", "find", params)
+	res, err := env.Client.PerformAction("branches", "find", params)
 	if err != nil {
 		cmd.Stderr.Println(err.Error())
 		cmd.Exit(1)

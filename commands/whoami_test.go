@@ -18,9 +18,9 @@ func TestWhoAmI(t *testing.T) {
 	}
 	configuration := config.DefaultConfiguration()
 	endpoint := configuration.GetDefaultTravisEndpoint()
-	os.Setenv("TRAVIS_ENDPOINT", endpoint)
+	os.Setenv("TRAVIS_ENDPOINT", endpoint) // TODO: Set in cmd Env
 	//os.Setenv("TRAVIS_TOKEN", configuration.GetTravisTokenForEndpoint(endpoint) )
-	os.Setenv("TRAVIS_TOKEN", "wrongToken")
+	os.Setenv("TRAVIS_TOKEN", "wrongToken") // TODO: Set in cmd Env
 	whoamiCmd(&cmd)
 
 	if !strings.Contains(errBuffer.String(), "Error") {

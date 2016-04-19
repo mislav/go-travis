@@ -1,6 +1,9 @@
 package commands
 
-import "github.com/HPI-BP2015H/go-utils/cli"
+import (
+	"github.com/HPI-BP2015H/go-travis/config"
+	"github.com/HPI-BP2015H/go-utils/cli"
+)
 
 func init() {
 	cli.AppInstance().RegisterCommand(
@@ -13,10 +16,12 @@ func init() {
 }
 
 func whatsupCmd(cmd *cli.Cmd) {
+	env := cmd.Env.(config.TravisCommandConfig)
+
 	params := map[string]string{
 		"include": "branch.last_build",
 	}
-	repositories, err := GetAllRepositories(params)
+	repositories, err := GetAllRepositories(params, env.Client)
 	if err != nil {
 		cmd.Stderr.Println("Error: Could not get Repositories.")
 		cmd.Exit(1)

@@ -15,9 +15,9 @@ type User struct {
 }
 
 // CurrentUser returns the user currently logged in into Travis
-func CurrentUser() (User, error) {
+func CurrentUser(client *client.Client) (User, error) {
 	user := User{}
-	res, err := client.Travis().PerformAction("user", "current", map[string]string{})
+	res, err := client.PerformAction("user", "current", map[string]string{})
 	if err != nil {
 		return user, fmt.Errorf("Error: Could not get current user! \n%s", err.Error())
 	}

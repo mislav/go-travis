@@ -27,20 +27,18 @@ func init() {
 }
 
 func endpointCmd(cmd *cli.Cmd) {
-
-	configuration := config.DefaultConfiguration()
-	endpoint := cmd.Env["TRAVIS_ENDPOINT"]
+	env := cmd.Env.(config.TravisCommandConfig)
 
 	if cmd.Flags.IsProvided("--set-default") {
-		configuration.StoreDefaultTravisEndpoint(endpoint)
+		env.Config.StoreDefaultTravisEndpoint(env.Endpoint)
 		cmd.Stdout.Cprintln("green", "Stored default Travis endpoint")
 	}
 
 	if cmd.Flags.IsProvided("--drop-default") {
-		configuration.DeleteDefaultTravisEndpoint()
+		env.Config.DeleteDefaultTravisEndpoint()
 		cmd.Stdout.Cprintln("green", "Deleted default Travis endpoint")
 	}
 
-	println("API endpoint: " + endpoint)
+	println("API endpoint: " + env.Endpoint)
 	cmd.Exit(0)
 }

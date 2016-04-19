@@ -2,6 +2,7 @@ package commands
 
 import (
 	"github.com/HPI-BP2015H/go-travis/commands/helper"
+	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
 )
 
@@ -16,7 +17,9 @@ func init() {
 }
 
 func whoamiCmd(cmd *cli.Cmd) {
-	user, err := user.CurrentUser()
+	env := cmd.Env.(config.TravisCommandConfig)
+
+	user, err := user.CurrentUser(env.Client)
 	if err != nil {
 		cmd.Stderr.Println("Error: Could not get the current user!")
 		cmd.Exit(1)

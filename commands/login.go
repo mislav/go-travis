@@ -49,12 +49,10 @@ func init() {
 //     --list-github-token          instead of actually logging in, list found GitHub tokens
 //     --skip-token-check           don't verify the token with github
 func loginCmd(cmd *cli.Cmd) {
-
-	travisToken := cmd.Env["TRAVIS_TOKEN"]
-	config := config.DefaultConfiguration()
+	env := cmd.Env.(config.TravisCommandConfig)
 	message := "Successfully logged in as %s!"
 
-	if travisToken == "" {
+	if env.Token == "" {
 		var gitHubAuthorization *github.Authorization
 
 		gitHubToken := cmd.Flags.String("--github-token")
@@ -75,7 +73,7 @@ func loginCmd(cmd *cli.Cmd) {
 			}
 			gitHubToken = *gitHubAuthorization.Token
 		}
-		travisToken, err = getTravisTokenFromGitHubToken(gitHubToken)
+		env.Token, err = getTravisTokenFromGitHubToken(gitHubToken)
 		if err != nil {
 			cmd.Stderr.Println("Error:\n" + err.Error())
 			return
@@ -84,9 +82,9 @@ func loginCmd(cmd *cli.Cmd) {
 			github.Authorizations.Delete(*gitHubAuthorization.ID)
 		}
 	} else {
-		if travisToken != config.GetTravisTokenForEndpoint(os.Getenv("TRAVIS_ENDPOINT")) {
+		if env.Token != env.Config.GetTravisTokenForEndpoint(env.Endpoint) {
 			// test travis token if a new one should be set
-			_, err := user.CurrentUser()
+			_, err := user.CurrentUser(env.Client)
 			if err != nil {
 				if strings.Contains(err.Error(), "403") {
 					cmd.Stderr.Println("Error: The given token is not valid.")
@@ -99,9 +97,9 @@ func loginCmd(cmd *cli.Cmd) {
 			message = "You are currently already logged in as %s! To logout run travis logout."
 		}
 	}
-	config.StoreTravisTokenForEndpoint(travisToken, os.Getenv("TRAVIS_ENDPOINT"))
-	os.Setenv("TRAVIS_TOKEN", travisToken)
-	user, err := user.CurrentUser()
+	env.Config.StoreTravisTokenForEndpoint(env.Token, env.Endpoint)
+	env.Client.Token = env.Token
+	user, err := user.CurrentUser(env.Client)
 	if err != nil {
 		cmd.Stderr.Println("Error:\n" + err.Error())
 		return

@@ -1,10 +1,9 @@
 package commands
 
 import (
-	"os"
 	"strings"
 
-	"github.com/HPI-BP2015H/go-travis/client"
+	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
 )
 
@@ -87,13 +86,15 @@ type Job struct {
 }
 
 func buildsCmd(cmd *cli.Cmd) {
+	env := cmd.Env.(config.TravisCommandConfig)
+
 	params := map[string]string{
-		"repository.slug":  os.Getenv("TRAVIS_REPO"),
+		"repository.slug":  env.Repo,
 		"build.event_type": "push",
 		"limit":            "10",
 	}
 
-	res, err := client.Travis().PerformAction("builds", "find", params)
+	res, err := env.Client.PerformAction("builds", "find", params)
 	if err != nil {
 		cmd.Stderr.Println(err.Error())
 		cmd.Exit(1)

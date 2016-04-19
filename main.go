@@ -6,6 +6,7 @@ import (
 	"strings"
 	"syscall"
 
+	"github.com/HPI-BP2015H/go-travis/client"
 	_ "github.com/HPI-BP2015H/go-travis/commands"
 	"github.com/HPI-BP2015H/go-travis/config"
 
@@ -77,10 +78,11 @@ func main() {
 	app.Before = func(cmd *cli.Cmd) {
 		configuration := config.DefaultConfiguration()
 
+		repo := ""
 		if cmd.Flags.IsProvided("--repo") {
-			cmd.Env["TRAVIS_REPO"] = cmd.Flags.String("--repo")
+			repo = cmd.Flags.String("--repo")
 		} else {
-			cmd.Env["TRAVIS_REPO"] = config.RepoSlugFromGit()
+			repo = config.RepoSlugFromGit()
 		}
 
 		endpoint := configuration.GetDefaultTravisEndpoint()
@@ -96,31 +98,44 @@ func main() {
 		if cmd.Flags.IsProvided("--api-endpoint") {
 			endpoint = cmd.Flags.String("--api-endpoint")
 		}
-		cmd.Env["TRAVIS_ENDPOINT"] = endpoint
+
+		debug := cmd.Flags.IsProvided("--debug")
 
 		token := configuration.GetTravisTokenForEndpoint(endpoint)
 		if cmd.Flags.IsProvided("--token") {
 			token = cmd.Flags.String("--token")
 		}
-		cmd.Env["TRAVIS_TOKEN"] = token
 
-		if cmd.Flags.IsProvided("--debug") {
-			cmd.Env["TRAVIS_DEBUG"] = "true"
+		commandConfig := config.TravisCommandConfig{
+			Config:   configuration,
+			Repo:     repo,
+			Endpoint: endpoint,
+			Token:    token,
+			Client:   client.Travis(endpoint, token, debug),
+			Debug:    debug,
 		}
+		cmd.Env = commandConfig
+
 	}
 
-	app.Fallback = func(c *cli.Cmd, cmdName string) {
-		for key, value := range c.Env {
-			os.Setenv(key, value)
+	app.Fallback = func(cmd *cli.Cmd, cmdName string) {
+		env := cmd.Env.(config.TravisCommandConfig)
+
+		os.Setenv("TRAVIS_REPO", env.Repo)
+		os.Setenv("TRAVIS_TOKEN", env.Token)
+		os.Setenv("TRAVIS_ENDPOINT", env.Endpoint)
+		if env.Debug {
+			os.Setenv("TRAVIS_DEBUG", "true")
 		}
-		exeName := c.Args.ProgramName() + "-" + cmdName
+
+		exeName := cmd.Args.ProgramName() + "-" + cmdName
 		results := pathname.FindInPath(exeName, strings.Split(os.Getenv("PATH"), ":"))
 
 		if len(results) > 0 {
 			exeCmd := results[0]
 
 			argv := []string{exeName}
-			argv = append(argv, c.Args.Slice(1)...)
+			argv = append(argv, cmd.Args.Slice(1)...)
 
 			err := syscall.Exec(exeCmd.String(), argv, os.Environ())
 			if err != nil {

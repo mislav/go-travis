@@ -1,8 +1,7 @@
 package commands
 
 import (
-	"os"
-
+	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
 )
 
@@ -17,17 +16,15 @@ func init() {
 }
 
 func tokenCmd(cmd *cli.Cmd) {
-	token := os.Getenv("TRAVIS_TOKEN")
-	endpoint := os.Getenv("TRAVIS_ENDPOINT")
-
-	if len(token) > 0 {
+	env := cmd.Env.(config.TravisCommandConfig)
+	if len(env.Token) > 0 {
 		cmd.Stdout.Print("Your access token for ")
-		cmd.Stdout.Cprint("yellow", endpoint)
+		cmd.Stdout.Cprint("yellow", env.Endpoint)
 		cmd.Stdout.Print(" is ")
-		cmd.Stdout.Cprintln("boldgreen", os.Getenv("TRAVIS_TOKEN"))
+		cmd.Stdout.Cprintln("boldgreen", env.Token)
 		cmd.Exit(0)
 	} else {
-		cmd.Stderr.Println("Not logged in for " + endpoint + ", please run travis login.")
+		cmd.Stderr.Println("Not logged in for " + env.Endpoint + ", please run travis login.")
 		cmd.Exit(1)
 	}
 }

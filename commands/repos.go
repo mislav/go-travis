@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/HPI-BP2015H/go-travis/client"
+	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
 )
 
@@ -42,7 +43,8 @@ type Owner struct {
 }
 
 func reposCmd(cmd *cli.Cmd) {
-	repositories, err := GetAllRepositories(nil)
+	env := cmd.Env.(config.TravisCommandConfig)
+	repositories, err := GetAllRepositories(nil, env.Client)
 	if err != nil {
 		cmd.Stderr.Println("Error: Could not get Repositories.")
 		cmd.Exit(1)
@@ -55,12 +57,12 @@ func reposCmd(cmd *cli.Cmd) {
 
 //GetAllRepositories returns all the repositories (also those not active in travis)
 //of the currently logged in user. also takes params
-func GetAllRepositories(params map[string]string) (Repositories, error) {
+func GetAllRepositories(params map[string]string, client *client.Client) (Repositories, error) {
 	if params == nil {
 		params = map[string]string{}
 	}
 	repositories := Repositories{}
-	res, err := client.Travis().PerformAction("repositories", "for_current_user", params)
+	res, err := client.PerformAction("repositories", "for_current_user", params)
 	defer res.Body.Close()
 	if err != nil {
 		return repositories, err

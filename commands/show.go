@@ -1,10 +1,9 @@
 package commands
 
 import (
-	"os"
 	"strconv"
 
-	"github.com/HPI-BP2015H/go-travis/client"
+	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
 )
 
@@ -19,15 +18,17 @@ func init() {
 }
 
 func showCmd(cmd *cli.Cmd) {
+	env := cmd.Env.(config.TravisCommandConfig)
+
 	params := map[string]string{
-		"repository.slug": os.Getenv("TRAVIS_REPO"),
+		"repository.slug": env.Repo,
 		// "include":         "jobs.job",
 		// "include":         "jobs.job.Number",
 		"limit":   "1",
 		"sort_by": "id:desc",
 	}
 
-	res, err := client.Travis().PerformAction("builds", "find", params)
+	res, err := env.Client.PerformAction("builds", "find", params)
 	if err != nil {
 		cmd.Stderr.Println("Build not found.")
 		cmd.Exit(1)

@@ -4,7 +4,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/HPI-BP2015H/go-travis/client"
+	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
 	"github.com/HPI-BP2015H/go-utils/utils"
 )
@@ -42,6 +42,7 @@ func checkUnusedArgs(cmd *cli.Cmd, args *cli.Args) {
 }
 
 func apiCmd(cmd *cli.Cmd) {
+	env := cmd.Env.(config.TravisCommandConfig)
 	path := ""
 	args := cmd.Args
 	if args.Length() > 0 {
@@ -64,7 +65,7 @@ func apiCmd(cmd *cli.Cmd) {
 		checkUnusedArgs(cmd, args)
 	}
 
-	res, err := client.Travis().PerformRequest("GET", path, nil, nil)
+	res, err := env.Client.PerformRequest("GET", path, nil, nil)
 	if err != nil {
 		cmd.Stderr.Println(err.Error())
 		cmd.Exit(1)
@@ -89,7 +90,9 @@ func apiCmd(cmd *cli.Cmd) {
 }
 
 func showManifest(cmd *cli.Cmd, showResource string) {
-	manifest, _ := client.Travis().Manifest()
+	env := cmd.Env.(config.TravisCommandConfig)
+
+	manifest, _ := env.Client.Manifest()
 
 	if showResource == "" {
 		for _, resource := range manifest.AllResources() {

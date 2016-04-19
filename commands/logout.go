@@ -1,8 +1,6 @@
 package commands
 
 import (
-	"os"
-
 	"github.com/HPI-BP2015H/go-travis/commands/helper"
 	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
@@ -19,9 +17,10 @@ func init() {
 }
 
 func logoutCmd(cmd *cli.Cmd) {
-	user, _ := user.CurrentUser()
+	env := cmd.Env.(config.TravisCommandConfig)
+	user, _ := user.CurrentUser(env.Client)
 	config := config.DefaultConfiguration()
-	config.DeleteTravisTokenForEndpoint(os.Getenv("TRAVIS_ENDPOINT"))
+	config.DeleteTravisTokenForEndpoint(env.Endpoint)
 	cmd.Stdout.Cprint("green", "%s is now logged out.", user)
 	cmd.Exit(0)
 }
