@@ -6,7 +6,6 @@ import (
 
 	"github.com/HPI-BP2015H/go-travis/client"
 	"github.com/HPI-BP2015H/go-utils/cli"
-	"github.com/fatih/color"
 )
 
 func init() {
@@ -42,6 +41,38 @@ type Build struct {
 	Jobs       Jobs    `json:"jobs"`
 }
 
+func (b *Build) HasPassed() bool {
+	return b.State == "passed"
+}
+
+func (b *Build) IsNotYetFinished() bool {
+	return ((b.State == "created") || (b.State == "started"))
+}
+
+func PushColorAccordingToBuildStatusBold(build Build, cmd *cli.Cmd) {
+	if build.HasPassed() {
+		cmd.Stdout.PushColor("boldgreen")
+	} else {
+		if build.IsNotYetFinished() {
+			cmd.Stdout.PushColor("boldyellow")
+		} else {
+			cmd.Stdout.PushColor("boldred")
+		}
+	}
+}
+
+func PushColorAccordingToBuildStatus(build Build, cmd *cli.Cmd) {
+	if build.HasPassed() {
+		cmd.Stdout.PushColor("green")
+	} else {
+		if build.IsNotYetFinished() {
+			cmd.Stdout.PushColor("yellow")
+		} else {
+			cmd.Stdout.PushColor("red")
+		}
+	}
+}
+
 type Commit struct {
 	Message string `json:"message"`
 }
@@ -64,10 +95,11 @@ func buildsCmd(cmd *cli.Cmd) {
 
 	res, err := client.Travis().PerformAction("builds", "find", params)
 	if err != nil {
-		panic(err)
+		cmd.Stderr.Println(err.Error())
+		cmd.Exit(1)
 	}
 	if res.StatusCode > 299 {
-		color.Red("Unexpected HTTP status: %d\n", res.StatusCode)
+		cmd.Stderr.Printf("Unexpected HTTP status: %d\n", res.StatusCode)
 		cmd.Exit(1)
 	}
 
@@ -75,18 +107,20 @@ func buildsCmd(cmd *cli.Cmd) {
 	res.Unmarshal(&builds)
 
 	for _, build := range builds.Builds {
-		printBuild(build)
+		printBuild(build, cmd)
 	}
+	cmd.Exit(0)
 }
 
-func printBuild(build Build) {
+func printBuild(build Build, cmd *cli.Cmd) {
 	commitMessage := strings.Replace(build.Commit.Message, "\n", " ", -1)
-	y := color.New(color.FgYellow).PrintfFunc()
-	c := color.New(color.FgRed, color.Bold).PrintfFunc()
-	if build.State == "passed" {
-		c = color.New(color.FgGreen, color.Bold).PrintfFunc()
+	if build.HasPassed() {
+		cmd.Stdout.PushColor("boldgreen")
+	} else {
+		cmd.Stdout.PushColor("boldred")
 	}
-	c("#%s %s ", build.Number, build.State)
-	y("(%s) ", build.Branch.Name)
-	print(commitMessage + "\n")
+	cmd.Stdout.Print("#" + build.Number + " " + build.State)
+	cmd.Stdout.PopColor()
+	cmd.Stdout.Cprint("yellow", "(%s) ", build.Branch.Name)
+	cmd.Stdout.Println(commitMessage)
 }

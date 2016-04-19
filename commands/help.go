@@ -41,7 +41,8 @@ func helpCmd(cmd *cli.Cmd) {
 		cmd.Stdout.Printf(format, name)
 		cmd.Stdout.Cprintln("yellow", lookUpHelp(name))
 	}
-	println("\nrun travis help COMMAND for more infos")
+	cmd.Stdout.Println("\nrun travis help COMMAND for more infos.")
+	cmd.Exit(0)
 }
 
 func commandNames() []string {

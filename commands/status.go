@@ -5,7 +5,6 @@ import (
 
 	"github.com/HPI-BP2015H/go-travis/client"
 	"github.com/HPI-BP2015H/go-utils/cli"
-	"github.com/fatih/color"
 )
 
 func init() {
@@ -27,31 +26,27 @@ func statusCmd(cmd *cli.Cmd) {
 
 	res, err := client.Travis().PerformAction("builds", "find", params)
 	if err != nil {
-		color.Red("Build not found.")
+		cmd.Stderr.Println("Build not found.")
 		return
 	}
 	if res.StatusCode > 299 {
-		color.Red("Unexpected HTTP status: %d\n", res.StatusCode)
+		cmd.Stderr.Printf("Unexpected HTTP status: %d\n", res.StatusCode)
 		cmd.Exit(1)
 	}
 
 	builds := Builds{}
 	res.Unmarshal(&builds)
 	if len(builds.Builds) > 0 {
-		printStatus(builds.Builds[0])
+		printStatus(builds.Builds[0], cmd)
 	} else {
-		color.Red("This repository has no builds yet.")
+		cmd.Stderr.Println("This repository has no builds yet.")
 	}
+	cmd.Exit(0)
 }
 
-func printStatus(build Build) {
-
-	c := color.New(color.FgRed, color.Bold).PrintfFunc()
-	if build.State == "passed" {
-		c = color.New(color.FgGreen, color.Bold).PrintfFunc()
-	}
-
-	print("build #" + build.Number)
-	c(" %s \n", build.State)
-
+func printStatus(build Build, cmd *cli.Cmd) {
+	cmd.Stdout.Print("Build #" + build.Number)
+	PushColorAccordingToBuildStatusBold(build, cmd)
+	cmd.Stdout.Printf(" %s \n", build.State)
+	cmd.Stdout.PopColor()
 }

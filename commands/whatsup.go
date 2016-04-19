@@ -1,9 +1,6 @@
 package commands
 
-import (
-	"github.com/HPI-BP2015H/go-utils/cli"
-	"github.com/fatih/color"
-)
+import "github.com/HPI-BP2015H/go-utils/cli"
 
 func init() {
 	cli.AppInstance().RegisterCommand(
@@ -21,24 +18,23 @@ func whatsupCmd(cmd *cli.Cmd) {
 	}
 	repositories, err := GetAllRepositories(params)
 	if err != nil {
-		color.Red("Error: Could not get Repositories.")
+		cmd.Stderr.Println("Error: Could not get Repositories.")
 		cmd.Exit(1)
 	}
 	for _, repo := range repositories.Repositories {
 		if repo.Active && (repo.DefaultBranch.LastBuild != nil) {
-			printRepoStatus(repo)
+			printRepoStatus(repo, cmd)
 		}
 	}
+	cmd.Exit(0)
 }
 
-func printRepoStatus(repo Repository) {
-	c := color.New(color.FgRed).PrintfFunc()
-	cb := color.New(color.FgRed, color.Bold).PrintfFunc()
+func printRepoStatus(repo Repository, cmd *cli.Cmd) {
 	build := repo.DefaultBranch.LastBuild
-	if build.State == "passed" {
-		c = color.New(color.FgGreen).PrintfFunc()
-		cb = color.New(color.FgGreen, color.Bold).PrintfFunc()
-	}
-	cb("%s ", repo.Slug)
-	c(build.State+": #%s \n", build.Number)
+	PushColorAccordingToBuildStatusBold(*build, cmd)
+	cmd.Stdout.Printf("%s ", repo.Slug)
+	cmd.Stdout.PopColor()
+	PushColorAccordingToBuildStatus(*build, cmd)
+	cmd.Stdout.Printf(build.State+": #%s \n", build.Number)
+	cmd.Stdout.PopColor()
 }

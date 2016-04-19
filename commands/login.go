@@ -13,7 +13,6 @@ import (
 	"github.com/HPI-BP2015H/go-travis/commands/helper"
 	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
-	"github.com/fatih/color"
 	"github.com/google/go-github/github"
 	"github.com/howeyc/gopass"
 	"golang.org/x/oauth2"
@@ -59,26 +58,26 @@ func loginCmd(cmd *cli.Cmd) {
 		var gitHubAuthorization *github.Authorization
 
 		gitHubToken := cmd.Flags.String("--github-token")
-		github, err := LoginToGitHub(gitHubToken, cmd.Flags.String("--user"))
+		github, err := LoginToGitHub(gitHubToken, cmd.Flags.String("--user"), cmd)
 		if err != nil {
 			if strings.Contains(err.Error(), "401") {
-				color.Red("Error: The given credentials are not valid.\n")
+				cmd.Stderr.Println("Error: The given credentials are not valid.")
 				return
 			}
-			color.Red("Error: Could not connect to GitHub!\n" + err.Error())
+			cmd.Stderr.Println("Error: Could not connect to GitHub!\n" + err.Error())
 			return
 		}
 		if gitHubToken == "" {
 			gitHubAuthorization, err = getGitHubAuthorization(github)
 			if err != nil {
-				color.Red("Error:\n" + err.Error())
+				cmd.Stderr.Println("Error:\n" + err.Error())
 				return
 			}
 			gitHubToken = *gitHubAuthorization.Token
 		}
 		travisToken, err = getTravisTokenFromGitHubToken(gitHubToken)
 		if err != nil {
-			color.Red("Error:\n" + err.Error())
+			cmd.Stderr.Println("Error:\n" + err.Error())
 			return
 		}
 		if gitHubAuthorization != nil {
@@ -90,10 +89,10 @@ func loginCmd(cmd *cli.Cmd) {
 			_, err := user.CurrentUser()
 			if err != nil {
 				if strings.Contains(err.Error(), "403") {
-					color.Red("Error: The given token is not valid.\n")
+					cmd.Stderr.Println("Error: The given token is not valid.")
 					return
 				}
-				color.Red(err.Error())
+				cmd.Stderr.Println(err.Error())
 				return
 			}
 		} else {
@@ -104,22 +103,22 @@ func loginCmd(cmd *cli.Cmd) {
 	os.Setenv("TRAVIS_TOKEN", travisToken)
 	user, err := user.CurrentUser()
 	if err != nil {
-		color.Red("Error:\n" + err.Error())
+		cmd.Stderr.Println("Error:\n" + err.Error())
 		return
 	}
-	color.Green(message, user)
+	cmd.Stdout.Cprintln("green", message, user)
 }
 
 // LoginToGitHub takes a GitHub token to log into GitHub. If an empty string is
 // provided, the user will be prompted for username and password.
-func LoginToGitHub(token, user string) (*github.Client, error) {
+func LoginToGitHub(token, user string, cmd *cli.Cmd) (*github.Client, error) {
 	var github *github.Client
 	if token == "" {
-		userName, password, err := promptForGitHubCredentials(user)
+		userName, password, err := promptForGitHubCredentials(user, cmd)
 		if err != nil {
 			return nil, err
 		}
-		github = loginToGitHubWithUsernameAndPassword(userName, password)
+		github = loginToGitHubWithUsernameAndPassword(userName, password, cmd)
 	} else {
 		github = loginToGitHubWithToken(token)
 	}
@@ -137,7 +136,7 @@ func loginToGitHubWithToken(token string) *github.Client {
 	return github.NewClient(tc)
 }
 
-func loginToGitHubWithUsernameAndPassword(username string, password string) *github.Client {
+func loginToGitHubWithUsernameAndPassword(username string, password string, cmd *cli.Cmd) *github.Client {
 	tp := github.BasicAuthTransport{
 		Username: strings.TrimSpace(username),
 		Password: strings.TrimSpace(password),
@@ -145,7 +144,7 @@ func loginToGitHubWithUsernameAndPassword(username string, password string) *git
 	client := github.NewClient(tp.Client())
 	_, _, err := client.Users.Get("")
 	if _, ok := err.(*github.TwoFactorAuthError); err != nil && ok {
-		fmt.Print("Two-factor authentication code for " + username + ": ")
+		cmd.Stdout.Print("Two-factor authentication code for " + username + ": ")
 		otp, _ := bufio.NewReader(os.Stdin).ReadString('\n')
 		tp.OTP = strings.TrimSpace(otp)
 	}
@@ -199,30 +198,25 @@ func createTravisTokenRequest(githubToken string) (*http.Request, error) {
 	return travisTokenRequest, nil
 }
 
-func showGitHubLoginDisclaimer() {
-	y := color.New(color.FgYellow).PrintfFunc()
-	b := color.New(color.Bold, color.Underline).PrintfFunc()
-	print("We need your ")
-	b("GitHub login")
-	println(" to identify you.")
-	print("This information will ")
-	b("not be sent to Travis CI")
-	println(", only to api.github.com.")
-	println("The password will not be displayed. \n ")
-	print("Try running with ")
-	y("--github-token")
-	print(" or ")
-	y("--auto")
-	println(" if you do not want to enter your password anyway.\n ")
+func showGitHubLoginDisclaimer(cmd *cli.Cmd) {
+	cmd.Stdout.Print("We need your ")
+	cmd.Stdout.Cprint("bold", "GitHub login")
+	cmd.Stdout.Print(" to identify you. \nThis information will ")
+	cmd.Stdout.Cprint("bold", "not be sent to Travis CI")
+	cmd.Stdout.Print(", only to api.github.com.\nThe password will not be displayed.\n\nTry running with ")
+	cmd.Stdout.Cprint("yellow", "--github-token")
+	cmd.Stdout.Print(" or ")
+	cmd.Stdout.Cprint("yellow", "--auto")
+	cmd.Stdout.Println(" if you do not want to enter your password anyway.\n ")
 }
 
-func promptForGitHubCredentials(userName string) (string, string, error) {
-	showGitHubLoginDisclaimer()
+func promptForGitHubCredentials(userName string, cmd *cli.Cmd) (string, string, error) {
+	showGitHubLoginDisclaimer(cmd)
 	if userName == "" {
-		print("Username: ")
+		cmd.Stdout.Print("Username: ")
 		fmt.Scan(&userName)
 	}
-	print("Password for " + userName + ": ")
+	cmd.Stdout.Print("Password for " + userName + ": ")
 	pw, err := gopass.GetPasswd()
 	if err != nil {
 		return "", "", err

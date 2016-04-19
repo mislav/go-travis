@@ -84,8 +84,21 @@ func (c *Configuration) DeleteTravisTokenForEndpoint(url string) {
 }
 
 func (c *Configuration) loadConfigurationYML() {
+	home, err := homedir.Dir()
+	if err != nil {
+		color.Red("Error: Could not find home directory!")
+		return
+	}
 	token, err := ioutil.ReadFile(c.filePath)
 	if os.IsNotExist(err) {
+		_, err2 := ioutil.ReadDir(home + "/.travis")
+		if err2 != nil {
+			err4 := os.Mkdir(home+"/.travis/", 0777)
+			if err4 != nil {
+				color.Red("Error: could not create '~/.travis/'!" + err4.Error())
+				return
+			}
+		}
 		color.Yellow("Warning: No configuration file found!")
 		c.saveConfigurationYML()
 		return

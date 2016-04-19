@@ -66,7 +66,8 @@ func apiCmd(cmd *cli.Cmd) {
 
 	res, err := client.Travis().PerformRequest("GET", path, nil, nil)
 	if err != nil {
-		panic(err)
+		cmd.Stderr.Println(err.Error())
+		cmd.Exit(1)
 	}
 	defer res.Body.Close()
 

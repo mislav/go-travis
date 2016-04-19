@@ -7,7 +7,6 @@ import (
 
 	"github.com/HPI-BP2015H/go-travis/client"
 	"github.com/HPI-BP2015H/go-utils/cli"
-	"github.com/fatih/color"
 )
 
 func init() {
@@ -56,11 +55,11 @@ func branchesCmd(cmd *cli.Cmd) {
 	}
 	res, err := client.Travis().PerformAction("branches", "find", params)
 	if err != nil {
-		panic(err)
+		cmd.Stderr.Println(err.Error())
+		cmd.Exit(1)
 	}
 	if res.StatusCode > 299 {
 		cmd.Stderr.Printf("Unexpected HTTP status: %d\n", res.StatusCode)
-		cmd.Exit(1)
 	}
 	branches := Branches{}
 	res.Unmarshal(&branches)
@@ -74,16 +73,13 @@ func branchesCmd(cmd *cli.Cmd) {
 	}
 	format := "%-" + strconv.Itoa(maxLengthName+3) + "s"
 	for _, branch := range branches.Branches {
-		printBranch(branch, format, maxLengthNumber)
+		printBranch(branch, format, maxLengthNumber, cmd)
 	}
+	cmd.Exit(0)
 }
 
-func printBranch(branch Branch, format string, maxLengthNumber int) {
-	y := color.New(color.FgYellow, color.Bold).PrintfFunc()
-	y(format, branch.Name)
-	c := color.New(color.FgRed).PrintfFunc()
-	if branch.LastBuild.State == "passed" {
-		c = color.New(color.FgGreen).PrintfFunc()
-	}
-	c("#%-"+strconv.Itoa(maxLengthNumber)+"s %s\n", branch.LastBuild.Number, branch.LastBuild.State)
+func printBranch(branch Branch, format string, maxLengthNumber int, cmd *cli.Cmd) {
+	cmd.Stdout.Cprintf("yellowbold", format, branch.Name)
+	PushColorAccordingToBuildStatus(*branch.LastBuild, cmd)
+	cmd.Stdout.Println("#%-"+strconv.Itoa(maxLengthNumber)+"s %s", branch.LastBuild.Number, branch.LastBuild.State)
 }
