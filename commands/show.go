@@ -6,7 +6,6 @@ import (
 
 	"github.com/HPI-BP2015H/go-travis/client"
 	"github.com/HPI-BP2015H/go-utils/cli"
-	"github.com/fatih/color"
 )
 
 func init() {
@@ -24,54 +23,55 @@ func showCmd(cmd *cli.Cmd) {
 
 	res, err := client.Travis().PerformAction("builds", "find", params)
 	if err != nil {
-		color.Red("Build not found.")
+		cmd.Stderr.Println("Build not found.")
 		return
 	}
 	if res.StatusCode > 299 {
-		color.Red("Unexpected HTTP status: %d\n", res.StatusCode)
+		cmd.Stderr.Printf("Unexpected HTTP status: %d ", res.StatusCode)
 		cmd.Exit(1)
 	}
 
 	builds := Builds{}
 	res.Unmarshal(&builds)
 	if len(builds.Builds) > 0 {
-		printCompleteBuild(builds.Builds[0])
+		printCompleteBuild(builds.Builds[0], cmd)
 	} else {
-		color.Red("This repository has no builds yet.")
+		cmd.Stderr.Println("This repository has no builds yet.")
 	}
 }
 
-func printCompleteBuild(build Build) {
-	y := color.New(color.FgYellow).PrintfFunc()
-	c := color.New(color.FgRed, color.Bold).PrintfFunc()
+func printCompleteBuild(build Build, cmd *cli.Cmd) {
+
+	cmd.Stdout.Println("Build #" + build.Number + ":  " + build.Commit.Message)
 	if build.HasPassed() {
-		c = color.New(color.FgGreen, color.Bold).PrintfFunc()
+		cmd.Stdout.PushColor("boldgreen")
+	} else {
+		cmd.Stdout.PushColor("boldred")
 	}
 
-	println("Build #" + build.Number + ":  " + build.Commit.Message)
-	y("%-"+strconv.Itoa(12)+"s", "State:")
-	c(build.State + "\n")
-	printAttribute("Type", build.EventType)
-	printAttribute("Branch", build.Branch.Name)
-	printAttribute("Duration", formatDuration(build.Duration))
-	printAttribute("Started", build.StartedAt)
-	printAttribute("Finished", build.StartedAt)
-	// println(len(build.Jobs.Jobs))	TODO Jobs still have to be implemented
+	cmd.Stdout.Cprint("yellow", "%-"+strconv.Itoa(12)+"s", "State:")
+	cmd.Stdout.Println(build.State)
+	cmd.Stdout.PopColor()
+	printAttribute("Type", build.EventType, cmd)
+	printAttribute("Branch", build.Branch.Name, cmd)
+	printAttribute("Duration", formatDuration(build.Duration), cmd)
+	printAttribute("Started", build.StartedAt, cmd)
+	printAttribute("Finished", build.StartedAt, cmd)
+	// cmd.Stdout.Println(len(build.Jobs.Jobs))	TODO Jobs still have to be implemented
 	// for _, job := range build.Jobs.Jobs {
-	// 	printJob(job)
+	// 	printJob(job, cmd)
 	// }
 }
 
-func printAttribute(name string, val string) {
-	y := color.New(color.FgYellow).PrintfFunc()
+func printAttribute(name string, val string, cmd *cli.Cmd) {
 	format := "%-" + strconv.Itoa(12) + "s"
 	name += ":"
-	y(format, name)
-	println(val)
+	cmd.Stdout.Cprint("yellow", format, name)
+	cmd.Stdout.Println(val)
 }
 
-func printJob(job Job) {
-	println(job.Number)
+func printJob(job Job, cmd *cli.Cmd) {
+	cmd.Stdout.Println(job.Number)
 }
 
 func formatDuration(duration int) string {
