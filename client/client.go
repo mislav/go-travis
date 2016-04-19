@@ -99,7 +99,9 @@ func (c *Client) PerformRequest(method, path string, body io.Reader, configure f
 
 func (c *Client) PerformAction(resourceName, actionName string, params map[string]string) (*Response, error) {
 	manifest, err := c.Manifest()
-	fmt.Println(err.Error())
+	if err != nil {
+		return nil, fmt.Errorf("could not get manifest: %q", err.Error())
+	}
 	resource := manifest.Resource(resourceName)
 	if resource == nil {
 		return nil, fmt.Errorf("could not find %q resource", resourceName)
@@ -119,7 +121,6 @@ func (c *Client) PerformAction(resourceName, actionName string, params map[strin
 
 	var path string
 	var method string
-	var err error
 
 	for _, action := range matchingActions {
 		path, err = utils.ExpandUriTemplate(action.UriTemplate, params)
