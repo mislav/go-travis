@@ -5,7 +5,6 @@ import (
 
 	"github.com/HPI-BP2015H/go-travis/client"
 	"github.com/HPI-BP2015H/go-utils/cli"
-	"github.com/fatih/color"
 )
 
 func init() {
@@ -39,11 +38,11 @@ type Owner struct {
 func reposCmd(cmd *cli.Cmd) {
 	repositories, err := GetAllRepositories(nil)
 	if err != nil {
-		color.Red("Error: Could not get Repositories.")
+		cmd.Stderr.Printf("Error: Could not get Repositories.")
 		cmd.Exit(1)
 	}
 	for _, repo := range repositories.Repositories {
-		printRepo(repo)
+		printRepo(repo, cmd)
 	}
 }
 
@@ -66,12 +65,11 @@ func GetAllRepositories(params map[string]string) (Repositories, error) {
 	return repositories, nil
 }
 
-func printRepo(repo Repository) {
-	y := color.New(color.FgYellow, color.Bold).PrintfFunc()
-	y(repo.Slug)
-	color.Yellow(" (active: %v, private: %v)", repo.Active, repo.Private)
+func printRepo(repo Repository, cmd *cli.Cmd) {
+	cmd.Stdout.Cprint("boldyellow", repo.Slug)
+	cmd.Stdout.Cprintln("yellow", " (active: %v, private: %v)", repo.Active, repo.Private)
 	if repo.HasDescription() {
-		color.Green("   Description: %s ", repo.Description)
+		cmd.Stdout.Cprint("green", "   Description: %s ", repo.Description)
 	}
 	println("")
 }
