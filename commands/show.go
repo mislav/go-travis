@@ -27,7 +27,7 @@ func showCmd(cmd *cli.Cmd) {
 		return
 	}
 	if res.StatusCode > 299 {
-		cmd.Stderr.Printf("Unexpected HTTP status: %d ", res.StatusCode)
+		cmd.Stderr.Printf("Unexpected HTTP status: %d \n", res.StatusCode)
 		cmd.Exit(1)
 	}
 
@@ -43,12 +43,7 @@ func showCmd(cmd *cli.Cmd) {
 func printCompleteBuild(build Build, cmd *cli.Cmd) {
 
 	cmd.Stdout.Println("Build #" + build.Number + ":  " + build.Commit.Message)
-	if build.HasPassed() {
-		cmd.Stdout.PushColor("boldgreen")
-	} else {
-		cmd.Stdout.PushColor("boldred")
-	}
-
+	PushColorAccordingToBuildStatusBold(build, cmd)
 	cmd.Stdout.Cprint("yellow", "%-"+strconv.Itoa(12)+"s", "State:")
 	cmd.Stdout.Println(build.State)
 	cmd.Stdout.PopColor()

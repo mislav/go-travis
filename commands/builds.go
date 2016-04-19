@@ -33,6 +33,34 @@ func (b *Build) HasPassed() bool {
 	return b.State == "passed"
 }
 
+func (b *Build) IsNotYetFinished() bool {
+	return ((b.State == "created") || (b.State == "started"))
+}
+
+func PushColorAccordingToBuildStatusBold(build Build, cmd *cli.Cmd) {
+	if build.HasPassed() {
+		cmd.Stdout.PushColor("boldgreen")
+	} else {
+		if build.IsNotYetFinished() {
+			cmd.Stdout.PushColor("boldyellow")
+		} else {
+			cmd.Stdout.PushColor("boldred")
+		}
+	}
+}
+
+func PushColorAccordingToBuildStatus(build Build, cmd *cli.Cmd) {
+	if build.HasPassed() {
+		cmd.Stdout.PushColor("green")
+	} else {
+		if build.IsNotYetFinished() {
+			cmd.Stdout.PushColor("yellow")
+		} else {
+			cmd.Stdout.PushColor("red")
+		}
+	}
+}
+
 type Commit struct {
 	Message string `json:"message"`
 }
