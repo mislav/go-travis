@@ -52,8 +52,7 @@ func init() {
 //     --skip-token-check           don't verify the token with github
 func loginCmd(cmd *cli.Cmd) {
 	env := cmd.Env.(config.TravisCommandConfig)
-	message := "Successfully logged in as %s!"
-
+	message := "%C(green)Successfully logged in as %C(boldgreen)%s%C(reset)%C(green)!%C(reset)\n"
 	if env.Token == "" {
 		var gitHubAuthorization *github.Authorization
 
@@ -96,7 +95,7 @@ func loginCmd(cmd *cli.Cmd) {
 				return
 			}
 		} else {
-			message = "You are currently already logged in as %s! To logout run travis logout."
+			message = "%C(green)You are currently already logged in as %C(boldgreen)%s%C(reset)%C(green)! To logout run travis logout.%C(reset)\n"
 		}
 	}
 	env.Config.StoreTravisTokenForEndpoint(env.Token, env.Endpoint)
@@ -106,7 +105,8 @@ func loginCmd(cmd *cli.Cmd) {
 		cmd.Stderr.Println("Error:\n" + err.Error())
 		return
 	}
-	cmd.Stdout.Cprintln("green", message, user)
+	cmd.Stdout.Cprintf(message, user)
+	cmd.Exit(0)
 }
 
 // LoginToGitHub takes a GitHub token to log into GitHub. If an empty string is

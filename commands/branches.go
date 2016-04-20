@@ -70,7 +70,7 @@ func branchesCmd(cmd *cli.Cmd) {
 			maxLengthName = len(branch.Name)
 		}
 	}
-	format := "%-" + strconv.Itoa(maxLengthName+3) + "s"
+	format := "%C(yellowbold)%-" + strconv.Itoa(maxLengthName+3) + "s:%C(reset)"
 	for _, branch := range branches.Branches {
 		printBranch(branch, format, maxLengthNumber, cmd)
 	}
@@ -78,7 +78,7 @@ func branchesCmd(cmd *cli.Cmd) {
 }
 
 func printBranch(branch Branch, format string, maxLengthNumber int, cmd *cli.Cmd) {
-	cmd.Stdout.Cprintf("yellowbold", format, branch.Name)
+	cmd.Stdout.Cprintf(format, branch.Name+":")
 	PushColorAccordingToBuildStatus(*branch.LastBuild, cmd)
 	cmd.Stdout.Println("#%-"+strconv.Itoa(maxLengthNumber)+"s %s", branch.LastBuild.Number, branch.LastBuild.State)
 }
