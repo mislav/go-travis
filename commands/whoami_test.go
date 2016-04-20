@@ -2,29 +2,18 @@ package commands
 
 import (
 	"bytes"
-	"fmt"
-	"os"
 	"os/exec"
 	"strings"
 	"testing"
-
-	"github.com/HPI-BP2015H/go-travis/config"
 )
 
 func TestWhoAmI(t *testing.T) {
 
 	//create cmd and redirect stdout and stderr
-	cmd := exec.Command("go-travis", "whoami")
+	cmd := exec.Command("go-travis", "whoami", "--token", "wrongtoken", "--api-endpoint", "https://api.travis-ci.org")
 	var out, err bytes.Buffer
 	cmd.Stdout = &out
 	cmd.Stderr = &err
-
-	//set cmd's env
-	env := os.Environ()
-	endpoint := config.DefaultConfiguration().GetDefaultTravisEndpoint()
-	env = append(env, fmt.Sprintf("TRAVIS_ENDPOINT=%s", endpoint))
-	env = append(env, fmt.Sprintf("TRAVIS_TOKEN=%s", "wrongToken"))
-	cmd.Env = env
 
 	cmd.Run()
 
