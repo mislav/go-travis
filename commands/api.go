@@ -85,7 +85,6 @@ func apiCmd(cmd *cli.Cmd) int {
 		}
 		cmd.Stdout.Print("\r\n")
 	}
-	cmd.Stderr.Println("ivlizvl")
 	if res.StatusCode < 300 {
 		io.Copy(cmd.Stdout, res.Body)
 	} else {
