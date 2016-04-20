@@ -67,13 +67,39 @@ func (s flagByLength) Less(i, j int) bool {
 }
 
 func helpCmd(cmd *cli.Cmd) {
+	args := cmd.Args.SubcommandArgs("help")
+	cmdName := args.Peek(0)
+	if cmdName == "" {
+		printGlobalHelp(cmd)
+	} else {
+		commands := cli.AppInstance().Commands()
+		if command, ok := commands[cmdName]; ok {
+			printCommandHelp(command, cmd)
+		} else {
+			cmd.Stderr.Println("Command " + cmdName + " not found!")
+			printGlobalHelp(cmd)
+			cmd.Exit(1)
+		}
+	}
+	cmd.Exit(0)
+}
+
+func printGlobalHelp(cmd *cli.Cmd) {
 	cmd.Stdout.Printf("Usage: %s COMMAND [OPTIONS]\n\n", cmd.Args.ProgramName())
 	cmd.Stdout.Println("Available commands:")
 	printCommands(commands(), cmd.Stdout)
-	cmd.Stdout.Println("Available Options:")
+	cmd.Stdout.Println("Available options:")
 	printFlagsHelp(globalOptions(), cmd.Stdout)
 	cmd.Stdout.Println("Run travis help COMMAND for more infos.")
-	cmd.Exit(0)
+}
+
+func printCommandHelp(command cli.Command, cmd *cli.Cmd) {
+	cmd.Stdout.Println(command.Help)
+	cmd.Stdout.Printf("Usage: %s %s [OPTIONS]\n\n", cmd.Args.ProgramName(), command.Name)
+	cmd.Stdout.Println("Available options:")
+	printFlagsHelp(commandOptions(&command), cmd.Stdout)
+	cmd.Stdout.Println("Global options:")
+	printFlagsHelp(globalOptions(), cmd.Stdout)
 }
 
 func printCommands(commands []cli.Command, out *cli.ColoredWriter) {
@@ -91,6 +117,9 @@ func printCommands(commands []cli.Command, out *cli.ColoredWriter) {
 }
 
 func printFlagsHelp(flags []cli.Flag, out *cli.ColoredWriter) {
+	if len(flags) == 0 {
+		return
+	}
 	sort.Sort(flagByLength(flags))
 	maxLength := flagLen(flags[0])
 	sort.Sort(flagByLong(flags))
@@ -127,8 +156,14 @@ func commands() []cli.Command {
 }
 
 func globalOptions() []cli.Flag {
-	app := cli.AppInstance()
-	flags := app.Flags()
+	return flagMapToArray(cli.AppInstance().Flags())
+}
+
+func commandOptions(command *cli.Command) []cli.Flag {
+	return flagMapToArray(command.Flags())
+}
+
+func flagMapToArray(flags map[string]*cli.Flag) []cli.Flag {
 	result := make([]cli.Flag, 0, len(flags))
 	for _, flag := range flags {
 		result = append(result, *flag)
