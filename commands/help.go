@@ -18,16 +18,28 @@ func init() {
 	)
 }
 
-type stringByLength []string
+type commandByLength []cli.Command
 
-func (s stringByLength) Len() int {
+func (s commandByLength) Len() int {
 	return len(s)
 }
-func (s stringByLength) Swap(i, j int) {
+func (s commandByLength) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
-func (s stringByLength) Less(i, j int) bool {
-	return len(s[i]) > len(s[j])
+func (s commandByLength) Less(i, j int) bool {
+	return len(s[i].Name) > len(s[j].Name)
+}
+
+type commandByName []cli.Command
+
+func (s commandByName) Len() int {
+	return len(s)
+}
+func (s commandByName) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s commandByName) Less(i, j int) bool {
+	return s[i].Name > s[j].Name
 }
 
 type flagByLong []cli.Flag
@@ -56,48 +68,60 @@ func (s flagByLength) Less(i, j int) bool {
 
 func helpCmd(cmd *cli.Cmd) {
 	cmd.Stdout.Println("Usage: travis COMMAND [OPTIONS]\n ")
-	cmd.Stdout.Println("Available commands:\n ")
-	cmdNames := commandNames()
-	sort.Sort(stringByLength(cmdNames))
-	maxLength := len(cmdNames[0])
-	sort.Strings(cmdNames)
-	for _, name := range cmdNames {
+	cmd.Stdout.Println("Available commands:")
+	printCommands(commands(), cmd.Stdout)
+	cmd.Stdout.Println("Available Options:")
+	printFlagsHelp(globalOptions(), cmd.Stdout)
+	cmd.Stdout.Println("Run travis help COMMAND for more infos.")
+	cmd.Exit(0)
+}
+
+func printCommands(commands []cli.Command, out *cli.ColoredWriter) {
+	sort.Sort(commandByLength(commands))
+	maxLength := len(commands[0].Name)
+	sort.Sort(commandByName(commands))
+
+	out.Println()
+	for _, command := range commands {
 		format := "\t%-" + strconv.Itoa(maxLength+3) + "s"
-		cmd.Stdout.Printf(format, name)
-		cmd.Stdout.Cprintln("yellow", lookUpHelp(name))
+		out.Printf(format, command.Name)
+		out.Cprintln("yellow", command.Help)
 	}
-	cmd.Stdout.Println("\nAvailable Options:\n ")
-	flags := globalOptions()
+	out.Println()
+}
+
+func printFlagsHelp(flags []cli.Flag, out *cli.ColoredWriter) {
 	sort.Sort(flagByLength(flags))
-	maxLength = flagLen(flags[0])
+	maxLength := flagLen(flags[0])
 	sort.Sort(flagByLong(flags))
+
+	out.Println()
 	for _, flag := range flags {
-		cmd.Stdout.Print("\t")
+		out.Print("\t")
 		if flag.Short != "" {
-			cmd.Stdout.Print(flag.Short + ", ")
+			out.Print(flag.Short + ", ")
 		} else {
-			cmd.Stdout.Print("    ")
+			out.Print("    ")
 		}
 		if flag.Ftype != false {
 			output := fmt.Sprintf("%v [%v]", flag.Long, flag.Ftype)
 			format := "%-" + strconv.Itoa(maxLength+3) + "s"
-			cmd.Stdout.Printf(format, output)
+			out.Printf(format, output)
 		} else {
 			format := "%-" + strconv.Itoa(maxLength+3) + "s"
-			cmd.Stdout.Printf(format, flag.Long)
+			out.Printf(format, flag.Long)
 		}
-		cmd.Stdout.Cprintln("yellow", flag.Help)
+		out.Cprintln("yellow", flag.Help)
 	}
-	cmd.Stdout.Println("\nRun travis help COMMAND for more infos.")
-	cmd.Exit(0)
+	out.Println()
 }
 
-func commandNames() []string {
+func commands() []cli.Command {
 	app := cli.AppInstance()
-	cmds := app.Commands()
-	result := make([]string, 0, len(cmds))
-	for cmdName := range cmds {
-		result = append(result, cmdName)
+	commands := app.Commands()
+	result := make([]cli.Command, 0, len(commands))
+	for _, command := range commands {
+		result = append(result, command)
 	}
 	return result
 }
@@ -110,12 +134,6 @@ func globalOptions() []cli.Flag {
 		result = append(result, *flag)
 	}
 	return result
-}
-
-func lookUpHelp(cmdName string) string {
-	app := cli.AppInstance()
-	cmds := app.Commands()
-	return cmds[cmdName].Help
 }
 
 func flagLen(flag cli.Flag) int {
