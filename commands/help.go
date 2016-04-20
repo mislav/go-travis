@@ -67,7 +67,7 @@ func (s flagByLength) Less(i, j int) bool {
 }
 
 func helpCmd(cmd *cli.Cmd) {
-	cmd.Stdout.Println("Usage: travis COMMAND [OPTIONS]\n ")
+	cmd.Stdout.Printf("Usage: %s COMMAND [OPTIONS]\n\n", cmd.Args.ProgramName())
 	cmd.Stdout.Println("Available commands:")
 	printCommands(commands(), cmd.Stdout)
 	cmd.Stdout.Println("Available Options:")
