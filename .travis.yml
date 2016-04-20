@@ -1,1 +1,4 @@
 language: go
+
+install:
+  - go get github.com/HPI-BP2015H/go-travis
