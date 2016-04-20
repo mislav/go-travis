@@ -17,9 +17,9 @@ func TestWhoAmI(t *testing.T) {
 
 	cmd.Run()
 
-	if !strings.Contains(err.String(), "Error") {
+	if !strings.Contains(err.String(), "You need to be logged in to do this.") {
 		t.Error("Output: " + out.String())
-		t.Error("Error:  " + err.String())
+		t.Error("Error: " + err.String())
 	}
 
 }
