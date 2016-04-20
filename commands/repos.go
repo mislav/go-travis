@@ -19,6 +19,7 @@ func init() {
 }
 
 func reposCmd(cmd *cli.Cmd) {
+	CheckIfLoggedIn(cmd)
 	env := cmd.Env.(config.TravisCommandConfig)
 	repositories, err := GetAllRepositories(nil, env.Client)
 	if err != nil {

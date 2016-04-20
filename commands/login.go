@@ -42,7 +42,7 @@ func init() {
 	cli.AppInstance().RegisterCommand(cmd)
 }
 
-// loginCmd is currently mising the following args of the original travis cli:
+// loginCmd is currently missing the following args of the original travis cli:
 // -T, --auto-token                 try to figure out who you are automatically (might send another apps token to Travis, token will not be stored)
 // -p, --auto-password              try to load password from OSX keychain (will not be stored)
 // -a, --auto                       shorthand for --auto-token --auto-password
@@ -230,4 +230,12 @@ func createGitHubAuthorizationRequest() *github.AuthorizationRequest {
 		Scopes: []github.Scope{github.Scope("user"), github.Scope("user:email"), github.Scope("repo")},
 	}
 	return req
+}
+
+func CheckIfLoggedIn(cmd *cli.Cmd) {
+	user, _ := CurrentUser(cmd.Env.(config.TravisCommandConfig).Client)
+	if user.Name == "" {
+		cmd.Stderr.Println("You need to be logged in to do this. For this please run travis login.")
+		cmd.Exit(1)
+	}
 }

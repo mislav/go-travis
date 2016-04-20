@@ -10,21 +10,22 @@ import (
 func init() {
 	cli.AppInstance().RegisterCommand(
 		cli.Command{
-			Name:     "enable",
-			Help:     "enables a project",
-			Function: enableCmd,
+			Name:     "disable",
+			Help:     "disables a project",
+			Function: disableCmd,
 		},
 	)
 }
 
-func enableCmd(cmd *cli.Cmd) {
+func disableCmd(cmd *cli.Cmd) {
 	CheckIfLoggedIn(cmd)
 	env := cmd.Env.(config.TravisCommandConfig)
+
 	params := map[string]string{
 		"repository.slug": env.Repo,
 	}
 
-	res, err := env.Client.PerformAction("repository", "enable", params)
+	res, err := env.Client.PerformAction("repository", "disable", params)
 	if err != nil {
 		cmd.Stderr.Println(err.Error())
 		cmd.Exit(1)

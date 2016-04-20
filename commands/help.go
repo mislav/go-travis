@@ -39,7 +39,7 @@ func (s commandByName) Swap(i, j int) {
 	s[i], s[j] = s[j], s[i]
 }
 func (s commandByName) Less(i, j int) bool {
-	return s[i].Name > s[j].Name
+	return s[i].Name < s[j].Name
 }
 
 type flagByLong []cli.Flag

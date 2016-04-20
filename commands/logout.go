@@ -16,12 +16,9 @@ func init() {
 }
 
 func logoutCmd(cmd *cli.Cmd) {
+	CheckIfLoggedIn(cmd)
 	env := cmd.Env.(config.TravisCommandConfig)
 	user, _ := CurrentUser(env.Client)
-	if user.Name == "" {
-		cmd.Stderr.Println("There was no user to log out.")
-		cmd.Exit(1)
-	}
 	env.Config.DeleteTravisTokenForEndpoint(env.Endpoint)
 	cmd.Stdout.Cprintf("%C(boldgreen)%s%C(reset)%C(green) is now logged out.%C(reset)\n", user.Name)
 	cmd.Exit(0)

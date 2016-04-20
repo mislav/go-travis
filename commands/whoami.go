@@ -16,13 +16,9 @@ func init() {
 }
 
 func whoamiCmd(cmd *cli.Cmd) {
+	CheckIfLoggedIn(cmd)
 	env := cmd.Env.(config.TravisCommandConfig)
-
-	user, err := CurrentUser(env.Client)
-	if err != nil {
-		cmd.Stderr.Println("Error: Could not get the current user!")
-		cmd.Exit(1)
-	}
+	user, _ := CurrentUser(env.Client)
 	printUser(user, cmd)
 	cmd.Exit(0)
 }

@@ -16,8 +16,8 @@ func init() {
 }
 
 func whatsupCmd(cmd *cli.Cmd) {
+	CheckIfLoggedIn(cmd)
 	env := cmd.Env.(config.TravisCommandConfig)
-
 	params := map[string]string{
 		"include": "branch.last_build",
 	}
