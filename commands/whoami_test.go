@@ -2,30 +2,35 @@ package commands
 
 import (
 	"bytes"
+	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 	"testing"
 
 	"github.com/HPI-BP2015H/go-travis/config"
-	"github.com/HPI-BP2015H/go-utils/cli"
 )
 
 func TestWhoAmI(t *testing.T) {
-	var outBuffer, errBuffer bytes.Buffer
-	cmd := cli.Cmd{
-		Stdout: cli.NewWriter(&outBuffer),
-		Stderr: cli.NewWriter(&errBuffer),
-	}
-	configuration := config.DefaultConfiguration()
-	endpoint := configuration.GetDefaultTravisEndpoint()
-	os.Setenv("TRAVIS_ENDPOINT", endpoint) // TODO: Set in cmd Env
-	//os.Setenv("TRAVIS_TOKEN", configuration.GetTravisTokenForEndpoint(endpoint) )
-	os.Setenv("TRAVIS_TOKEN", "wrongToken") // TODO: Set in cmd Env
-	whoamiCmd(&cmd)
 
-	if !strings.Contains(errBuffer.String(), "Error") {
-		t.Error("Output: " + outBuffer.String())
-		t.Error("Error:  " + errBuffer.String())
+	//create cmd and redirect stdout and stderr
+	cmd := exec.Command("go-travis", "whoami")
+	var out, err bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &err
+
+	//set cmd's env
+	env := os.Environ()
+	endpoint := config.DefaultConfiguration().GetDefaultTravisEndpoint()
+	env = append(env, fmt.Sprintf("TRAVIS_ENDPOINT=%s", endpoint))
+	env = append(env, fmt.Sprintf("TRAVIS_TOKEN=%s", "wrongToken"))
+	cmd.Env = env
+
+	cmd.Run()
+
+	if !strings.Contains(err.String(), "Error") {
+		t.Error("Output: " + out.String())
+		t.Error("Error:  " + err.String())
 	}
 
 }
