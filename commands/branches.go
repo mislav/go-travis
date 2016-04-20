@@ -3,6 +3,7 @@ package commands
 import (
 	"sort"
 	"strconv"
+	"strings"
 
 	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
@@ -50,7 +51,7 @@ func branchesCmd(cmd *cli.Cmd) {
 	env := cmd.Env.(config.TravisCommandConfig)
 	params := map[string]string{
 		"repository.slug": env.Repo,
-		"include":         "repository.default_branch",
+		"include":         "repository.default_branch,build.commit",
 	}
 	res, err := env.Client.PerformAction("branches", "find", params)
 	if err != nil {
@@ -70,15 +71,22 @@ func branchesCmd(cmd *cli.Cmd) {
 			maxLengthName = len(branch.Name)
 		}
 	}
-	format := "%-" + strconv.Itoa(maxLengthName+3) + "s"
+	format := "%C(yellow)%-" + strconv.Itoa(maxLengthName+3) + "s%C(reset)"
 	for _, branch := range branches.Branches {
-		printBranch(branch, format, maxLengthNumber, cmd)
+		if branch.DefaultBranch {
+			printBranch(branch, "%C(boldyellow)%-"+strconv.Itoa(maxLengthName+3)+"s%C(reset)", maxLengthNumber, cmd)
+		} else {
+			printBranch(branch, format, maxLengthNumber, cmd)
+		}
 	}
 	cmd.Exit(0)
 }
 
 func printBranch(branch Branch, format string, maxLengthNumber int, cmd *cli.Cmd) {
-	cmd.Stdout.Cprintf("yellowbold", format, branch.Name)
+	commitMessage := strings.Replace(branch.LastBuild.Commit.Message, "\n", " ", -1)
+	cmd.Stdout.Cprintf(format, branch.Name+":")
 	PushColorAccordingToBuildStatus(*branch.LastBuild, cmd)
-	cmd.Stdout.Println("#%-"+strconv.Itoa(maxLengthNumber)+"s %s", branch.LastBuild.Number, branch.LastBuild.State)
+	cmd.Stdout.Printf("#%-"+strconv.Itoa(maxLengthNumber+1)+"s %s   ", branch.LastBuild.Number, branch.LastBuild.State)
+	cmd.Stdout.PopColor()
+	cmd.Stdout.Println(commitMessage)
 }

@@ -122,6 +122,6 @@ func printBuild(build Build, cmd *cli.Cmd) {
 	}
 	cmd.Stdout.Print("#" + build.Number + " " + build.State)
 	cmd.Stdout.PopColor()
-	cmd.Stdout.Cprint("yellow", "(%s) ", build.Branch.Name)
+	cmd.Stdout.Cprintf(" %C(yellow)(%s) %C(reset)", build.Branch.Name)
 	cmd.Stdout.Println(commitMessage)
 }
