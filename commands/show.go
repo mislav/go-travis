@@ -22,10 +22,9 @@ func showCmd(cmd *cli.Cmd) {
 
 	params := map[string]string{
 		"repository.slug": env.Repo,
-		// "include":         "jobs.job",
-		// "include":         "jobs.job.Number",
-		"limit":   "1",
-		"sort_by": "id:desc",
+		"include":         "job.Number",
+		"limit":           "1",
+		"sort_by":         "id:desc",
 	}
 
 	res, err := env.Client.PerformAction("builds", "find", params)
@@ -50,9 +49,9 @@ func showCmd(cmd *cli.Cmd) {
 
 func printCompleteBuild(build Build, cmd *cli.Cmd) {
 
-	cmd.Stdout.Println("Build #" + build.Number + ":  " + build.Commit.Message)
+	cmd.Stdout.Cprintf("%C(bold)Build #%s:%C(reset)  %s\n", build.Number, build.Commit.Message)
+	cmd.Stdout.Cprintf("%C(yellow)%-"+strconv.Itoa(12)+"s%C(reset)", "State:")
 	PushColorAccordingToBuildStatusBold(build, cmd)
-	cmd.Stdout.Cprint("yellow", "%-"+strconv.Itoa(12)+"s", "State:")
 	cmd.Stdout.Println(build.State)
 	cmd.Stdout.PopColor()
 	printAttribute("Type", build.EventType, cmd)
@@ -60,16 +59,16 @@ func printCompleteBuild(build Build, cmd *cli.Cmd) {
 	printAttribute("Duration", formatDuration(build.Duration), cmd)
 	printAttribute("Started", build.StartedAt, cmd)
 	printAttribute("Finished", build.StartedAt, cmd)
-	// cmd.Stdout.Println(len(build.Jobs.Jobs))	TODO Jobs still have to be implemented
+	//cmd.Stdout.Println(len(build.Jobs.Jobs)) //TODO Jobs still have to be implemented
 	// for _, job := range build.Jobs.Jobs {
 	// 	printJob(job, cmd)
 	// }
 }
 
 func printAttribute(name string, val string, cmd *cli.Cmd) {
-	format := "%-" + strconv.Itoa(12) + "s"
+	format := "%C(yellow)%-" + strconv.Itoa(12) + "s%C(reset)"
 	name += ":"
-	cmd.Stdout.Cprint("yellow", format, name)
+	cmd.Stdout.Cprintf(format, name)
 	cmd.Stdout.Println(val)
 }
 

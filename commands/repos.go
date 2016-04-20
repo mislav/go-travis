@@ -75,10 +75,16 @@ func GetAllRepositories(params map[string]string, client *client.Client) (Reposi
 }
 
 func printRepo(repo Repository, cmd *cli.Cmd) {
-	cmd.Stdout.Cprint("boldyellow", repo.Slug)
-	cmd.Stdout.Cprintln("yellow", " (active: %v, private: %v)", repo.Active, repo.Private)
-	if repo.HasDescription() {
-		cmd.Stdout.Cprint("green", "   Description: %s ", repo.Description)
+	if repo.Active {
+		cmd.Stdout.Cprint("boldgreen", repo.Slug)
+		cmd.Stdout.Cprintf("%C(green) (active: %v, private: %v)%C(reset)\n", repo.Active, repo.Private)
+	} else {
+		cmd.Stdout.Cprint("boldyellow", repo.Slug)
+		cmd.Stdout.Cprintf("%C(yellow) (active: %v, private: %v)%C(reset)\n", repo.Active, repo.Private)
 	}
-	println("")
+	if repo.HasDescription() {
+		cmd.Stdout.Cprint("bold", "Description: ")
+		cmd.Stdout.Println(repo.Description)
+	}
+	cmd.Stdout.Println()
 }
