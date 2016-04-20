@@ -10,7 +10,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/HPI-BP2015H/go-travis/commands/helper"
 	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
 	"github.com/google/go-github/github"
@@ -85,7 +84,7 @@ func loginCmd(cmd *cli.Cmd) {
 	} else {
 		if env.Token != env.Config.GetTravisTokenForEndpoint(env.Endpoint) {
 			// test travis token if a new one should be set
-			_, err := user.CurrentUser(env.Client)
+			_, err := CurrentUser(env.Client)
 			if err != nil {
 				if strings.Contains(err.Error(), "403") {
 					cmd.Stderr.Println("Error: The given token is not valid.")
@@ -100,7 +99,7 @@ func loginCmd(cmd *cli.Cmd) {
 	}
 	env.Config.StoreTravisTokenForEndpoint(env.Token, env.Endpoint)
 	env.Client.Token = env.Token
-	user, err := user.CurrentUser(env.Client)
+	user, err := CurrentUser(env.Client)
 	if err != nil {
 		cmd.Stderr.Println("Error:\n" + err.Error())
 		return

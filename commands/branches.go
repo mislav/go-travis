@@ -19,17 +19,6 @@ func init() {
 	)
 }
 
-type Branches struct {
-	Branches []Branch `json:"branches"`
-}
-
-type Branch struct {
-	Name          string      `json:"name"`
-	LastBuild     *Build      `json:"last_build"`
-	Repository    *Repository `json:"repo"`
-	DefaultBranch bool        `json:"default_branch"`
-}
-
 type byBuildNumber []Branch
 
 func (b byBuildNumber) Len() int {

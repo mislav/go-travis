@@ -1,7 +1,6 @@
 package commands
 
 import (
-	"github.com/HPI-BP2015H/go-travis/commands/helper"
 	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
 )
@@ -18,7 +17,7 @@ func init() {
 
 func logoutCmd(cmd *cli.Cmd) {
 	env := cmd.Env.(config.TravisCommandConfig)
-	user, _ := user.CurrentUser(env.Client)
+	user, _ := CurrentUser(env.Client)
 	if user.Name == "" {
 		cmd.Stderr.Println("There was no user to log out.")
 		cmd.Exit(1)

@@ -18,30 +18,6 @@ func init() {
 	)
 }
 
-type Repositories struct {
-	Repositories []Repository `json:"repositories"`
-}
-
-type Repository struct {
-	ID            int     `json:"id"`
-	Name          string  `json:"name"`
-	Slug          string  `json:"slug"`
-	Description   string  `json:"description"`
-	Active        bool    `json:"active"`
-	Private       bool    `json:"private"`
-	Owner         *Owner  `json:"owner"`
-	DefaultBranch *Branch `json:"default_branch"`
-}
-
-func (r *Repository) HasDescription() bool {
-	return r.Description != ""
-}
-
-type Owner struct {
-	ID   int    `json:"id"`
-	Name string `json:"login"`
-}
-
 func reposCmd(cmd *cli.Cmd) {
 	env := cmd.Env.(config.TravisCommandConfig)
 	repositories, err := GetAllRepositories(nil, env.Client)
