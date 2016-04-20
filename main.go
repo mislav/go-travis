@@ -81,8 +81,16 @@ func main() {
 			Help:  "show API requests",
 		},
 	)
+	app.RegisterFlag(
+		cli.Flag{
+			Short: "-h",
+			Long:  "--help",
+			Ftype: false,
+			Help:  "show help for the command",
+		},
+	)
 
-	app.Before = func(cmd *cli.Cmd) {
+	app.Before = func(cmd *cli.Cmd, cmdName string) string {
 		configuration := config.DefaultConfiguration()
 
 		endpoint := configuration.GetDefaultTravisEndpoint()
@@ -109,6 +117,14 @@ func main() {
 			Debug:    debug,
 		}
 		cmd.Env = commandConfig
+
+		if cmd.Parameters.IsProvided("--help") {
+			args := []string{cmd.Args.ProgramName(), "help", cmdName}
+			args = append(args, cmd.Args.Slice(1)...)
+			cmd.Args = cli.NewArgs(args)
+			return "help"
+		}
+		return ""
 	}
 
 	app.Fallback = func(cmd *cli.Cmd, cmdName string) {
