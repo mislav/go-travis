@@ -66,7 +66,7 @@ func (s flagByLength) Less(i, j int) bool {
 	return flagLen(s[i]) > flagLen(s[j])
 }
 
-func helpCmd(cmd *cli.Cmd) {
+func helpCmd(cmd *cli.Cmd) int {
 	args := cmd.Args.SubcommandArgs("help")
 	cmdName := args.Peek(0)
 	if cmdName == "" {
@@ -78,10 +78,10 @@ func helpCmd(cmd *cli.Cmd) {
 		} else {
 			cmd.Stderr.Println("Command " + cmdName + " not found!")
 			printGlobalHelp(cmd)
-			cmd.Exit(1)
+			return 1
 		}
 	}
-	cmd.Exit(0)
+	return 0
 }
 
 func printGlobalHelp(cmd *cli.Cmd) {

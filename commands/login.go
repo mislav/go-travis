@@ -49,7 +49,7 @@ func init() {
 // -M, --no-manual                  do not use interactive login
 //     --list-github-token          instead of actually logging in, list found GitHub tokens
 //     --skip-token-check           don't verify the token with github
-func loginCmd(cmd *cli.Cmd) {
+func loginCmd(cmd *cli.Cmd) int {
 	env := cmd.Env.(config.TravisCommandConfig)
 	message := "%C(green)Successfully logged in as %C(boldgreen)%s%C(reset)%C(green)!%C(reset)\n"
 	if env.Token == "" {
@@ -60,23 +60,23 @@ func loginCmd(cmd *cli.Cmd) {
 		if err != nil {
 			if strings.Contains(err.Error(), "401") {
 				cmd.Stderr.Println("Error: The given credentials are not valid.")
-				return
+				return 1
 			}
 			cmd.Stderr.Println("Error: Could not connect to GitHub!\n" + err.Error())
-			return
+			return 1
 		}
 		if gitHubToken == "" {
 			gitHubAuthorization, err = getGitHubAuthorization(github)
 			if err != nil {
 				cmd.Stderr.Println("Error:\n" + err.Error())
-				return
+				return 1
 			}
 			gitHubToken = *gitHubAuthorization.Token
 		}
 		env.Token, err = getTravisTokenFromGitHubToken(gitHubToken)
 		if err != nil {
 			cmd.Stderr.Println("Error:\n" + err.Error())
-			return
+			return 1
 		}
 		if gitHubAuthorization != nil {
 			github.Authorizations.Delete(*gitHubAuthorization.ID)
@@ -88,10 +88,10 @@ func loginCmd(cmd *cli.Cmd) {
 			if err != nil {
 				if strings.Contains(err.Error(), "403") {
 					cmd.Stderr.Println("Error: The given token is not valid.")
-					return
+					return 1
 				}
 				cmd.Stderr.Println(err.Error())
-				return
+				return 1
 			}
 		} else {
 			message = "%C(green)You are currently already logged in as %C(boldgreen)%s%C(reset)%C(green)! To logout run travis logout.%C(reset)\n"
@@ -102,10 +102,10 @@ func loginCmd(cmd *cli.Cmd) {
 	user, err := CurrentUser(env.Client)
 	if err != nil {
 		cmd.Stderr.Println("Error:\n" + err.Error())
-		return
+		return 1
 	}
 	cmd.Stdout.Cprintf(message, user)
-	cmd.Exit(0)
+	return 0
 }
 
 // LoginToGitHub takes a GitHub token to log into GitHub. If an empty string is
@@ -232,10 +232,11 @@ func createGitHubAuthorizationRequest() *github.AuthorizationRequest {
 	return req
 }
 
-func CheckIfLoggedIn(cmd *cli.Cmd) {
+func NotLoggedIn(cmd *cli.Cmd) bool {
 	user, _ := CurrentUser(cmd.Env.(config.TravisCommandConfig).Client)
 	if user.Name == "" {
 		cmd.Stderr.Println("You need to be logged in to do this. For this please run travis login.")
-		cmd.Exit(1)
+		return true
 	}
+	return false
 }

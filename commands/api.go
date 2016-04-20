@@ -35,14 +35,15 @@ func init() {
 
 }
 
-func checkUnusedArgs(cmd *cli.Cmd, args *cli.Args) {
+func unrecognizableUnusedArgs(cmd *cli.Cmd, args *cli.Args) bool {
 	if args.Length() > 0 {
-		cmd.Stderr.Printf("error: unrecognized arguments %q\n", args)
-		cmd.Exit(1)
+		cmd.Stderr.Printf("error: unrecognized argument(s) %q\n", args)
+		return false
 	}
+	return true
 }
 
-func apiCmd(cmd *cli.Cmd) {
+func apiCmd(cmd *cli.Cmd) int {
 	env := cmd.Env.(config.TravisCommandConfig)
 	path := ""
 	args := cmd.Args
@@ -55,21 +56,24 @@ func apiCmd(cmd *cli.Cmd) {
 		if args.Length() > 0 {
 			showResource, args = args.Shift()
 		}
-		checkUnusedArgs(cmd, args)
-
+		if unrecognizableUnusedArgs(cmd, args) {
+			return 1
+		}
 		showManifest(cmd, showResource)
-		return
+		return 0
 	} else if path == "" {
 		cmd.Stderr.Println("error: missing PATH argument for request")
-		cmd.Exit(1)
+		return 1
 	} else {
-		checkUnusedArgs(cmd, args)
+		if unrecognizableUnusedArgs(cmd, args) {
+			return 1
+		}
 	}
 
 	res, err := env.Client.PerformRequest("GET", path, nil, nil)
 	if err != nil {
 		cmd.Stderr.Println(err.Error())
-		cmd.Exit(1)
+		return 1
 	}
 	defer res.Body.Close()
 
@@ -81,13 +85,14 @@ func apiCmd(cmd *cli.Cmd) {
 		}
 		cmd.Stdout.Print("\r\n")
 	}
-
+	cmd.Stderr.Println("ivlizvl")
 	if res.StatusCode < 300 {
 		io.Copy(cmd.Stdout, res.Body)
 	} else {
 		io.Copy(cmd.Stderr, res.Body)
-		cmd.Exit(1)
+		return 1
 	}
+	return 0
 }
 
 func showManifest(cmd *cli.Cmd, showResource string) {
@@ -111,7 +116,7 @@ func showManifest(cmd *cli.Cmd, showResource string) {
 		resource := manifest.Resource(showResource)
 		if resource == nil {
 			cmd.Stderr.Printf("error: could not find the %q resource\n", showResource)
-			cmd.Exit(1)
+			return
 		} else {
 			cmd.Stdout.Cprintf("%C(blue)ATTRIBUTES%C(reset) %v\n", resource.Attributes)
 			cmd.Stdout.Cprintf("%C(blue)SORTABLE%C(reset) %v\n", resource.SortableBy)
@@ -123,4 +128,5 @@ func showManifest(cmd *cli.Cmd, showResource string) {
 			}
 		}
 	}
+	return
 }

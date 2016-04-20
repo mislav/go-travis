@@ -127,7 +127,7 @@ func main() {
 		return ""
 	}
 
-	app.Fallback = func(cmd *cli.Cmd, cmdName string) {
+	app.Fallback = func(cmd *cli.Cmd, cmdName string) int {
 		env := cmd.Env.(config.TravisCommandConfig)
 
 		os.Setenv("TRAVIS_REPO", env.Repo)
@@ -149,13 +149,17 @@ func main() {
 			err := syscall.Exec(exeCmd.String(), argv, os.Environ())
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%s: %s\n", exeName, err)
-				os.Exit(1)
+				//os.Exit(1)
+				return 1
 			}
 		} else {
 			fmt.Fprintf(os.Stderr, "%s: command not found\n", exeName)
-			os.Exit(1)
+			//os.Exit(1)
+			return 1
 		}
+		return 0
 	}
 
-	app.Run(os.Args)
+	os.Exit(app.Run(os.Args))
+
 }

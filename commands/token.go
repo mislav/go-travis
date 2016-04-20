@@ -15,18 +15,19 @@ func init() {
 	)
 }
 
-func tokenCmd(cmd *cli.Cmd) {
-	CheckIfLoggedIn(cmd)
+func tokenCmd(cmd *cli.Cmd) int {
+	if NotLoggedIn(cmd) {
+		return 1
+	}
 	env := cmd.Env.(config.TravisCommandConfig)
 	if len(env.Token) > 0 {
 		cmd.Stdout.Print("Your access token for ")
 		cmd.Stdout.Cprint("yellow", env.Endpoint)
 		cmd.Stdout.Print(" is ")
 		cmd.Stdout.Cprintln("boldgreen", env.Token)
-		cmd.Exit(0)
+		return 0
+	} else {
+		// cmd.Stderr.Println("Not logged in for " + env.Endpoint + ", please run travis login.")
+		return 1
 	}
-	// else {
-	// 	cmd.Stderr.Println("Not logged in for " + env.Endpoint + ", please run travis login.")
-	// 	cmd.Exit(1)
-	// }
 }

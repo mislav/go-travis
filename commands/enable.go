@@ -17,8 +17,10 @@ func init() {
 	)
 }
 
-func enableCmd(cmd *cli.Cmd) {
-	CheckIfLoggedIn(cmd)
+func enableCmd(cmd *cli.Cmd) int {
+	if NotLoggedIn(cmd) {
+		return 1
+	}
 	env := cmd.Env.(config.TravisCommandConfig)
 	params := map[string]string{
 		"repository.slug": env.Repo,
@@ -27,9 +29,9 @@ func enableCmd(cmd *cli.Cmd) {
 	res, err := env.Client.PerformAction("repository", "enable", params)
 	if err != nil {
 		cmd.Stderr.Println(err.Error())
-		cmd.Exit(1)
+		return 1
 	}
 	defer res.Body.Close()
 	io.Copy(cmd.Stdout, res.Body)
-	cmd.Exit(0)
+	return 0
 }

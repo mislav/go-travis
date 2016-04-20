@@ -15,8 +15,10 @@ func init() {
 	)
 }
 
-func whatsupCmd(cmd *cli.Cmd) {
-	CheckIfLoggedIn(cmd)
+func whatsupCmd(cmd *cli.Cmd) int {
+	if NotLoggedIn(cmd) {
+		return 1
+	}
 	env := cmd.Env.(config.TravisCommandConfig)
 	params := map[string]string{
 		"include": "branch.last_build",
@@ -24,14 +26,14 @@ func whatsupCmd(cmd *cli.Cmd) {
 	repositories, err := GetAllRepositories(params, env.Client)
 	if err != nil {
 		cmd.Stderr.Println("Error: Could not get Repositories.")
-		cmd.Exit(1)
+		return 1
 	}
 	for _, repo := range repositories.Repositories {
 		if repo.Active && (repo.DefaultBranch.LastBuild != nil) {
 			printRepoStatus(repo, cmd)
 		}
 	}
-	cmd.Exit(0)
+	return 0
 }
 
 func printRepoStatus(repo Repository, cmd *cli.Cmd) {

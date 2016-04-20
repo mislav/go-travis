@@ -36,7 +36,7 @@ func (b byBuildNumber) Less(i, j int) bool {
 	return n > m
 }
 
-func branchesCmd(cmd *cli.Cmd) {
+func branchesCmd(cmd *cli.Cmd) int {
 	env := cmd.Env.(config.TravisCommandConfig)
 	params := map[string]string{
 		"repository.slug": env.Repo,
@@ -45,10 +45,11 @@ func branchesCmd(cmd *cli.Cmd) {
 	res, err := env.Client.PerformAction("branches", "find", params)
 	if err != nil {
 		cmd.Stderr.Println(err.Error())
-		cmd.Exit(1)
+		return 1
 	}
 	if res.StatusCode > 299 {
 		cmd.Stderr.Printf("Unexpected HTTP status: %d\n", res.StatusCode)
+		return 1
 	}
 	branches := Branches{}
 	res.Unmarshal(&branches)
@@ -68,7 +69,7 @@ func branchesCmd(cmd *cli.Cmd) {
 			printBranch(branch, format, maxLengthNumber, cmd)
 		}
 	}
-	cmd.Exit(0)
+	return 0
 }
 
 func printBranch(branch Branch, format string, maxLengthNumber int, cmd *cli.Cmd) {

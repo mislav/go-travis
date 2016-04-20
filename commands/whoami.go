@@ -15,12 +15,14 @@ func init() {
 	)
 }
 
-func whoamiCmd(cmd *cli.Cmd) {
-	CheckIfLoggedIn(cmd)
+func whoamiCmd(cmd *cli.Cmd) int {
+	if NotLoggedIn(cmd) {
+		return 1
+	}
 	env := cmd.Env.(config.TravisCommandConfig)
 	user, _ := CurrentUser(env.Client)
 	printUser(user, cmd)
-	cmd.Exit(0)
+	return 0
 }
 
 func printUser(user User, cmd *cli.Cmd) {
