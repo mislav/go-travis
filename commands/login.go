@@ -231,12 +231,3 @@ func createGitHubAuthorizationRequest() *github.AuthorizationRequest {
 	}
 	return req
 }
-
-func NotLoggedIn(cmd *cli.Cmd) bool {
-	user, _ := CurrentUser(cmd.Env.(config.TravisCommandConfig).Client)
-	if user.Name == "" {
-		cmd.Stderr.Println("You need to be logged in to do this. For this please run travis login.")
-		return true
-	}
-	return false
-}
