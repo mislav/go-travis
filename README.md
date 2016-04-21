@@ -10,20 +10,26 @@ Goals:
 
 Current design:
 
-* Each `commands/*.go` file registers a subcommand.
-* A command generally uses `client.Travis()` to perform API actions.
+* Each `commands/*.go` file registers a subcommand
+* A command get a ```TravisCommandConfig```
+* You can register global and command specific flags which than will be parsed and passed automatically
 * This Travis HTTP client fetches the API manifest once and performs subsequent
   actions by expanding the URI templates found within.
 * Calls to unregistered subcommands are dispatched to `travis-<foo>` executables
-  in PATH. The following environment is provided: `TRAVIS_REPO`, `TRAVIS_TOKEN`.
+  in PATH. The following environment is provided: `TRAVIS_REPO`, `TRAVIS_TOKEN` and `TRAVIS_ENDPOINT`. If the `--debug` flag is provided `TRAVIS_DEBUG` will also be set.
 * The custom `travis-<foo>` scripts can be implemented in any scripting language
-  and consume the `travis api` subcommand to dispatch manual API requests.
+  and may consume the `travis api` subcommand to dispatch manual API requests.
 
-Current supported inputs:
+Compatibility with travis.rb:
 
-* Global flags: `-r/--repo SLUG`, `-t/--token TOKEN`, `--debug`.
-* If repo slug isn't explicitly provided, `git remote` configuration is consulted.
-* If token isn't explicitly provided, `~/.travis/config.yml` is consulted.
+* Commands and Flags are the same unless noted below
+* Outputs are close to the original one
+* The same configuration file is used and the stored tokens and endpoint configuration are taken into account
+* A configuration written by go-travis is not in all cases compatible with the old client
+
+Differences in usage compared to travis.rb:
+
+* The `-i, --[no-]interactive` flag has been replaced by the `--no-color` flag
 
 The following global flags exist:
 ```
