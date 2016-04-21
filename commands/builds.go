@@ -48,7 +48,7 @@ func PushColorAccordingToBuildStatus(build Build, cmd *cli.Cmd) {
 	}
 }
 
-func buildsCmd(cmd *cli.Cmd) int {
+func buildsCmd(cmd *cli.Cmd) cli.ExitValue {
 	env := cmd.Env.(config.TravisCommandConfig)
 
 	params := map[string]string{
@@ -60,11 +60,11 @@ func buildsCmd(cmd *cli.Cmd) int {
 	res, err := env.Client.PerformAction("builds", "find", params)
 	if err != nil {
 		cmd.Stderr.Println(err.Error())
-		return 1
+		return cli.Failure
 	}
 	if res.StatusCode > 299 {
 		cmd.Stderr.Printf("Unexpected HTTP status: %d\n", res.StatusCode)
-		return 1
+		return cli.Failure
 	}
 
 	builds := Builds{}
@@ -73,7 +73,7 @@ func buildsCmd(cmd *cli.Cmd) int {
 	for _, build := range builds.Builds {
 		printBuild(build, cmd)
 	}
-	return 0
+	return cli.Success
 }
 
 func printBuild(build Build, cmd *cli.Cmd) {

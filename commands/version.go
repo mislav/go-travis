@@ -12,8 +12,8 @@ func init() {
 	)
 }
 
-func versionCmd(cmd *cli.Cmd) int {
+func versionCmd(cmd *cli.Cmd) cli.ExitValue {
 	app := cli.AppInstance()
 	cmd.Stdout.Println(app.Version)
-	return 0
+	return cli.Success
 }

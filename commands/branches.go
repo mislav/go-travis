@@ -36,7 +36,7 @@ func (b byBuildNumber) Less(i, j int) bool {
 	return n > m
 }
 
-func branchesCmd(cmd *cli.Cmd) int {
+func branchesCmd(cmd *cli.Cmd) cli.ExitValue {
 	env := cmd.Env.(config.TravisCommandConfig)
 	params := map[string]string{
 		"repository.slug": env.Repo,

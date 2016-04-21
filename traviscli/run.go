@@ -136,7 +136,7 @@ func Run(clientConstructor func(string, string, bool) *client.Client) int {
 		return ""
 	}
 
-	app.Fallback = func(cmd *cli.Cmd, cmdName string) int {
+	app.Fallback = func(cmd *cli.Cmd, cmdName string) cli.ExitValue {
 		env := cmd.Env.(config.TravisCommandConfig)
 
 		os.Setenv("TRAVIS_REPO", env.Repo)
@@ -159,16 +159,16 @@ func Run(clientConstructor func(string, string, bool) *client.Client) int {
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "%s: %s\n", exeName, err)
 				//os.Exit(1)
-				return 1
+				return cli.Failure
 			}
 		} else {
 			fmt.Fprintf(os.Stderr, "%s: command not found\n", exeName)
 			//os.Exit(1)
-			return 1
+			return cli.Failure
 		}
-		return 0
+		return cli.Success
 	}
 
-	return app.Run(os.Args)
+	return int(app.Run(os.Args))
 
 }

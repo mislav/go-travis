@@ -42,7 +42,7 @@ func init() {
 	cli.AppInstance().RegisterCommand(cmd)
 }
 
-func loginCmd(cmd *cli.Cmd) int {
+func loginCmd(cmd *cli.Cmd) cli.ExitValue {
 	env := cmd.Env.(config.TravisCommandConfig)
 	message := "%C(green)Successfully logged in as %C(boldgreen)%s%C(reset)%C(green)!%C(reset)\n"
 	if env.Token == "" {
@@ -53,23 +53,23 @@ func loginCmd(cmd *cli.Cmd) int {
 		if err != nil {
 			if strings.Contains(err.Error(), "401") {
 				cmd.Stderr.Println("Error: The given credentials are not valid.")
-				return 1
+				return cli.Failure
 			}
 			cmd.Stderr.Println("Error: Could not connect to GitHub!\n" + err.Error())
-			return 1
+			return cli.Failure
 		}
 		if gitHubToken == "" {
 			gitHubAuthorization, err = getGitHubAuthorization(github)
 			if err != nil {
 				cmd.Stderr.Println("Error:\n" + err.Error())
-				return 1
+				return cli.Failure
 			}
 			gitHubToken = *gitHubAuthorization.Token
 		}
 		env.Token, err = getTravisTokenFromGitHubToken(gitHubToken)
 		if err != nil {
 			cmd.Stderr.Println("Error:\n" + err.Error())
-			return 1
+			return cli.Failure
 		}
 		if gitHubAuthorization != nil {
 			github.Authorizations.Delete(*gitHubAuthorization.ID)
@@ -81,10 +81,10 @@ func loginCmd(cmd *cli.Cmd) int {
 			if err != nil {
 				if strings.Contains(err.Error(), "403") {
 					cmd.Stderr.Println("Error: The given token is not valid.")
-					return 1
+					return cli.Failure
 				}
 				cmd.Stderr.Println(err.Error())
-				return 1
+				return cli.Failure
 			}
 		} else {
 			message = "%C(green)You are currently already logged in as %C(boldgreen)%s%C(reset)%C(green)! To logout run travis logout.%C(reset)\n"
@@ -95,10 +95,10 @@ func loginCmd(cmd *cli.Cmd) int {
 	user, err := CurrentUser(env.Client)
 	if err != nil {
 		cmd.Stderr.Println("Error:\n" + err.Error())
-		return 1
+		return cli.Failure
 	}
 	cmd.Stdout.Cprintf(message, user)
-	return 0
+	return cli.Success
 }
 
 // LoginToGitHub takes a GitHub token to log into GitHub. If an empty string is

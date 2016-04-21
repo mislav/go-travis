@@ -28,7 +28,7 @@ func init() {
 	cli.AppInstance().RegisterCommand(cmd)
 }
 
-func endpointCmd(cmd *cli.Cmd) int {
+func endpointCmd(cmd *cli.Cmd) cli.ExitValue {
 	env := cmd.Env.(config.TravisCommandConfig)
 
 	if cmd.Parameters.IsProvided("--set-default") {
@@ -42,5 +42,5 @@ func endpointCmd(cmd *cli.Cmd) int {
 	}
 
 	println("API endpoint: " + env.Endpoint)
-	return 0
+	return cli.Success
 }

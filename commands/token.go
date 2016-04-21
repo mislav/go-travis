@@ -15,9 +15,9 @@ func init() {
 	)
 }
 
-func tokenCmd(cmd *cli.Cmd) int {
+func tokenCmd(cmd *cli.Cmd) cli.ExitValue {
 	if NotLoggedIn(cmd) {
-		return 1
+		return cli.Failure
 	}
 	env := cmd.Env.(config.TravisCommandConfig)
 	if len(env.Token) > 0 {
@@ -25,9 +25,9 @@ func tokenCmd(cmd *cli.Cmd) int {
 		cmd.Stdout.Cprint("yellow", env.Endpoint)
 		cmd.Stdout.Print(" is ")
 		cmd.Stdout.Cprintln("boldgreen", env.Token)
-		return 0
+		return cli.Success
 	} else {
 		// cmd.Stderr.Println("Not logged in for " + env.Endpoint + ", please run travis login.")
-		return 1
+		return cli.Failure
 	}
 }

@@ -17,9 +17,9 @@ func init() {
 	)
 }
 
-func disableCmd(cmd *cli.Cmd) int {
+func disableCmd(cmd *cli.Cmd) cli.ExitValue {
 	if NotLoggedIn(cmd) || NoRepoSpecified(cmd) {
-		return 1
+		return cli.Failure
 	}
 	env := cmd.Env.(config.TravisCommandConfig)
 
@@ -30,9 +30,9 @@ func disableCmd(cmd *cli.Cmd) int {
 	res, err := env.Client.PerformAction("repository", "disable", params)
 	if err != nil {
 		cmd.Stderr.Println(err.Error())
-		return 1
+		return cli.Failure
 	}
 	defer res.Body.Close()
 	io.Copy(cmd.Stdout, res.Body)
-	return 0
+	return cli.Success
 }
