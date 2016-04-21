@@ -20,16 +20,6 @@ func Execute() {
 
 // Run executes the command specified via os.Args.
 // Takes a API client constructor as argument to enable passing a fake API.
-//
-// main the current implementation is not respection the debug flag
-// The following arguments from the original travis cli are missing:
-// -i, --[no-]interactive           be interactive and colorful
-// -E, --[no-]explode               don't rescue exceptions
-//     --skip-version-check         don't check if travis client is up to date
-//     --skip-completion-check      don't check if auto-completion is set up
-// -I, --[no-]insecure              do not verify SSL certificate of API endpoint
-//     --debug-http                 show HTTP(S) exchange
-// -X, --enterprise [NAME]          use enterprise setup (optionally takes name for multiple setups)
 func Run(clientConstructor func(string, string, bool) *client.Client) int {
 
 	app := cli.AppInstance()

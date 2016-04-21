@@ -42,13 +42,6 @@ func init() {
 	cli.AppInstance().RegisterCommand(cmd)
 }
 
-// loginCmd is currently missing the following args of the original travis cli:
-// -T, --auto-token                 try to figure out who you are automatically (might send another apps token to Travis, token will not be stored)
-// -p, --auto-password              try to load password from OSX keychain (will not be stored)
-// -a, --auto                       shorthand for --auto-token --auto-password
-// -M, --no-manual                  do not use interactive login
-//     --list-github-token          instead of actually logging in, list found GitHub tokens
-//     --skip-token-check           don't verify the token with github
 func loginCmd(cmd *cli.Cmd) int {
 	env := cmd.Env.(config.TravisCommandConfig)
 	message := "%C(green)Successfully logged in as %C(boldgreen)%s%C(reset)%C(green)!%C(reset)\n"
