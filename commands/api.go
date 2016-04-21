@@ -43,7 +43,7 @@ func unrecognizableUnusedArgs(cmd *cli.Cmd, args *cli.Args) bool {
 	return true
 }
 
-func apiCmd(cmd *cli.Cmd) int {
+func apiCmd(cmd *cli.Cmd) cli.ExitValue {
 	env := cmd.Env.(config.TravisCommandConfig)
 	path := ""
 	args := cmd.Args
@@ -57,23 +57,23 @@ func apiCmd(cmd *cli.Cmd) int {
 			showResource, args = args.Shift()
 		}
 		if unrecognizableUnusedArgs(cmd, args) {
-			return 1
+			return cli.Failure
 		}
 		showManifest(cmd, showResource)
-		return 0
+		return cli.Success
 	} else if path == "" {
 		cmd.Stderr.Println("error: missing PATH argument for request")
-		return 1
+		return cli.Failure
 	} else {
 		if unrecognizableUnusedArgs(cmd, args) {
-			return 1
+			return cli.Failure
 		}
 	}
 
 	res, err := env.Client.PerformRequest("GET", path, nil, nil)
 	if err != nil {
 		cmd.Stderr.Println(err.Error())
-		return 1
+		return cli.Failure
 	}
 	defer res.Body.Close()
 
@@ -89,9 +89,9 @@ func apiCmd(cmd *cli.Cmd) int {
 		io.Copy(cmd.Stdout, res.Body)
 	} else {
 		io.Copy(cmd.Stderr, res.Body)
-		return 1
+		return cli.Failure
 	}
-	return 0
+	return cli.Success
 }
 
 func showManifest(cmd *cli.Cmd, showResource string) {

@@ -17,9 +17,9 @@ func init() {
 	)
 }
 
-func showCmd(cmd *cli.Cmd) int {
+func showCmd(cmd *cli.Cmd) cli.ExitValue {
 	if NoRepoSpecified(cmd) {
-		return 1
+		return cli.Failure
 	}
 	env := cmd.Env.(config.TravisCommandConfig)
 
@@ -33,21 +33,21 @@ func showCmd(cmd *cli.Cmd) int {
 	res, err := env.Client.PerformAction("builds", "find", params)
 	if err != nil {
 		cmd.Stderr.Println("Build not found.")
-		return 1
+		return cli.Failure
 	}
 	if res.StatusCode > 299 {
 		cmd.Stderr.Printf("Unexpected HTTP status: %d \n", res.StatusCode)
-		return 1
+		return cli.Failure
 	}
 
 	builds := Builds{}
 	res.Unmarshal(&builds)
 	if len(builds.Builds) == 0 {
 		cmd.Stderr.Println("This repository has no builds yet.")
-		return 1
+		return cli.Failure
 	}
 	printCompleteBuild(builds.Builds[0], cmd)
-	return 0
+	return cli.Success
 }
 
 func printCompleteBuild(build Build, cmd *cli.Cmd) {

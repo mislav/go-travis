@@ -18,20 +18,20 @@ func init() {
 	)
 }
 
-func reposCmd(cmd *cli.Cmd) int {
+func reposCmd(cmd *cli.Cmd) cli.ExitValue {
 	if NotLoggedIn(cmd) {
-		return 1
+		return cli.Failure
 	}
 	env := cmd.Env.(config.TravisCommandConfig)
 	repositories, err := GetAllRepositories(nil, env.Client)
 	if err != nil {
 		cmd.Stderr.Println("Error: Could not get Repositories.")
-		return 1
+		return cli.Failure
 	}
 	for _, repo := range repositories.Repositories {
 		printRepo(repo, cmd)
 	}
-	return 0
+	return cli.Success
 }
 
 //GetAllRepositories returns all the repositories (also those not active in travis)
