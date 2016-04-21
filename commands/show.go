@@ -18,6 +18,9 @@ func init() {
 }
 
 func showCmd(cmd *cli.Cmd) int {
+	if NoRepoSpecified(cmd) {
+		return 1
+	}
 	env := cmd.Env.(config.TravisCommandConfig)
 
 	params := map[string]string{

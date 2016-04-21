@@ -44,3 +44,13 @@ func NotLoggedIn(cmd *cli.Cmd) bool {
 	}
 	return false
 }
+
+// NoRepoSpecified checks if a repo is specified and prints an error message if not
+func NoRepoSpecified(cmd *cli.Cmd) bool {
+	env := cmd.Env.(config.TravisCommandConfig)
+	if env.Repo == "" {
+		cmd.Stderr.Println("Can't figure out GitHub repo name. Ensure you're in the repo directory, or specify the repo name via -r <owner>/<repo>")
+		return true
+	}
+	return false
+}

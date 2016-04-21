@@ -18,7 +18,7 @@ func init() {
 }
 
 func disableCmd(cmd *cli.Cmd) int {
-	if NotLoggedIn(cmd) {
+	if NotLoggedIn(cmd) || NoRepoSpecified(cmd) {
 		return 1
 	}
 	env := cmd.Env.(config.TravisCommandConfig)
