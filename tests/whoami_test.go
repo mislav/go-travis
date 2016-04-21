@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/HPI-BP2015H/go-travis/client"
-	"github.com/HPI-BP2015H/go-travis/run"
+	"github.com/HPI-BP2015H/go-travis/traviscli"
 )
 
 func TestWhoAmI(t *testing.T) {
