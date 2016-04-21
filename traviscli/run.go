@@ -33,7 +33,6 @@ func Execute() {
 func Run(clientConstructor func(string, string, bool) *client.Client) int {
 
 	app := cli.AppInstance()
-	app.Name = "go-travis"
 	app.DefaultCommandName = "help"
 
 	app.RegisterFlag(
@@ -96,6 +95,13 @@ func Run(clientConstructor func(string, string, bool) *client.Client) int {
 			Help:  "show help for the command",
 		},
 	)
+	app.RegisterFlag(
+		cli.Flag{
+			Long:  "--no-color",
+			Ftype: false,
+			Help:  "do not format output with colors",
+		},
+	)
 
 	app.Before = func(cmd *cli.Cmd, cmdName string) string {
 		configuration := config.DefaultConfiguration()
@@ -124,6 +130,11 @@ func Run(clientConstructor func(string, string, bool) *client.Client) int {
 			Debug:    debug,
 		}
 		cmd.Env = commandConfig
+
+		if cmd.Parameters.IsProvided("--no-color") {
+			cmd.Stdout.Colorize = false
+			cmd.Stderr.Colorize = false
+		}
 
 		if cmd.Parameters.IsProvided("--help") {
 			args := []string{cmd.Args.ProgramName(), "help", cmdName}
