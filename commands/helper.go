@@ -33,12 +33,12 @@ func CurrentUser(client *client.Client) (User, error) {
 func NotLoggedIn(cmd *cli.Cmd) bool {
 	env := cmd.Env.(config.TravisCommandConfig)
 
-	result := len(env.Token) != 0
-	if result {
+	success := len(env.Token) != 0
+	if success {
 		user, err := CurrentUser(cmd.Env.(config.TravisCommandConfig).Client)
-		result = err == nil && user.Name != ""
+		success = err == nil && user.Name != ""
 	}
-	if result {
+	if !success {
 		cmd.Stderr.Println("You need to be logged in to do this. For this please run travis login.")
 		return true
 	}
