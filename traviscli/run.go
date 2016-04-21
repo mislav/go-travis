@@ -33,6 +33,7 @@ func Execute() {
 func Run(clientConstructor func(string, string, bool) *client.Client) int {
 
 	app := cli.AppInstance()
+	app.Version = "0.0.1"
 	app.DefaultCommandName = "help"
 
 	app.RegisterFlag(
