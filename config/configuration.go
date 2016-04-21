@@ -3,6 +3,7 @@ package config
 import (
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/fatih/color"
 	"github.com/mitchellh/go-homedir"
@@ -14,6 +15,7 @@ import (
 type Configuration struct {
 	configurationYML configurationYML
 	filePath         string
+	fileName         string
 }
 
 type configurationYML struct {
@@ -26,6 +28,7 @@ type accessToken struct {
 }
 
 const configurationFileName = "config.yml"
+const configurationFolderName = ".travis"
 
 // TravisStagingEndpoint is the endpoint of Travis Staging System
 const TravisStagingEndpoint = "https://api-staging.travis-ci.org/"
@@ -84,18 +87,13 @@ func (c *Configuration) DeleteTravisTokenForEndpoint(url string) {
 }
 
 func (c *Configuration) loadConfigurationYML() {
-	home, err := homedir.Dir()
-	if err != nil {
-		color.Red("Error: Could not find home directory!")
-		return
-	}
-	token, err := ioutil.ReadFile(c.filePath)
+	token, err := ioutil.ReadFile(c.filePath + c.fileName)
 	if os.IsNotExist(err) {
-		_, err2 := ioutil.ReadDir(home + "/.travis")
-		if err2 != nil {
-			err4 := os.Mkdir(home+"/.travis/", 0777)
-			if err4 != nil {
-				color.Red("Error: could not create '~/.travis/'!" + err4.Error())
+		_, err = ioutil.ReadDir(c.filePath)
+		if err != nil {
+			err = os.Mkdir(c.filePath, 0777)
+			if err != nil {
+				color.Red("Error: could not create '" + c.filePath + "'!" + err.Error())
 				return
 			}
 		}
@@ -116,7 +114,7 @@ func (c *Configuration) saveConfigurationYML() {
 	if err != nil {
 		color.Red("Error: Could not marshall configuration!")
 	}
-	err = ioutil.WriteFile(c.filePath, out, 0644)
+	err = ioutil.WriteFile(c.filePath+c.fileName, out, 0644)
 	if err != nil {
 		color.Red("Error: Could not save configuration!")
 	}
@@ -126,6 +124,7 @@ func (c *Configuration) saveConfigurationYML() {
 func DefaultConfiguration() *Configuration {
 	c := new(Configuration)
 	c.filePath = defaultConfigurationFilePath()
+	c.fileName = configurationFileName
 	c.loadConfigurationYML()
 	return c
 }
@@ -134,7 +133,7 @@ func defaultConfigurationFilePath() string {
 	home, err := homedir.Dir()
 	if err != nil {
 		color.Red("Error: Could not find home directory!")
-		return "~/.travis/" + configurationFileName
+		return filepath.FromSlash("~/" + configurationFolderName + "/")
 	}
-	return home + "/.travis/" + configurationFileName
+	return filepath.FromSlash(home + "/" + configurationFolderName + "/")
 }
