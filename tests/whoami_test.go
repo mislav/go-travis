@@ -30,15 +30,13 @@ func TestWhoAmI(t *testing.T) {
 	os.Stderr = errPipeWrite
 	os.Stdout = outPipeWrite
 
-	go func() {
-		// CLI call
-		os.Args = []string{"go-travis", "whoami", "--token", "wrongtoken", "--api-endpoint", "https://api.travis-ci.org"}
-		run.Run(client.Travis)
+	// CLI call
+	os.Args = []string{"go-travis", "whoami", "--token", "wrongtoken", "--api-endpoint", "https://api.travis-ci.org"}
+	traviscli.Run(client.Travis)
 
-		// close pipes
-		errPipeWrite.Close()
-		outPipeWrite.Close()
-	}()
+	// close pipes
+	errPipeWrite.Close()
+	outPipeWrite.Close()
 
 	// read from pipes
 	stderrBytes, errErr2 := ioutil.ReadAll(errPipeRead)
