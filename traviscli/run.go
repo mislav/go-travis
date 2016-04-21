@@ -63,7 +63,7 @@ func Run(clientConstructor func(string, string, bool) *client.Client) int {
 		cli.Flag{
 			Long:  "--org",
 			Ftype: false,
-			Help:  "short-cut for --api-endpoint 'https://api.travis-ci.com/'",
+			Help:  "short-cut for --api-endpoint 'https://api.travis-ci.org/'",
 		},
 	)
 	app.RegisterFlag(
