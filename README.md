@@ -1,4 +1,4 @@
-# go-travis
+# go-travis [![Build Status](https://travis-ci.org/HPI-BP2015H/go-travis.svg?branch=master)](https://travis-ci.org/HPI-BP2015H/go-travis)
 
 Travis API v3 command-line client written in Go.
 
@@ -21,13 +21,17 @@ Travis API v3 command-line client written in Go.
 
 ### General
 * Commands and Flags are the same unless noted below
-* Outputs are close to the original one
+* The output is close to the original
 * The same configuration file is used and the stored tokens and endpoint configuration are taken into account
 * A configuration written by go-travis is not in all cases compatible with the old client
 
 ### Differences in usage compared to `travis.rb`:
 
+* Flags like `-r` are available for all commands (see list below)
+* The `raw` command works different
 * The `-i, --[no-]interactive` flag has been replaced by the `--no-color` flag
+* `--adapter` is no longer available
+* For `enable`, `history`, `login`,  `repos`, `show`, `status` and `whatsup` are still some flags missing
 
 ### `travis.rb` functionality (checked means it has been implemented in `go-travis`):
 
@@ -86,12 +90,4 @@ Travis API v3 command-line client written in Go.
 
 * automatic updating including global `--skip-version-check` flag
 * auto-completion including global `--skip-completion-check` flag
-* login flags:
-```
-  -T, --auto-token                 try to figure out who you are automatically (might send another apps token to Travis, token will not be stored)
-  -p, --auto-password              try to load password from OSX keychain (will not be stored)
-  -a, --auto                       shorthand for --auto-token --auto-password
-  -M, --no-manual                  do not use interactive login
-      --list-github-token          instead of actually logging in, list found GitHub tokens
-      --skip-token-check           don't verify the token with github
-```
+* storing a slug for a folder via `--store-repo`
