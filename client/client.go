@@ -27,6 +27,7 @@ var ignoredHeaders = []string{
 	"via",
 }
 
+// Travis is a simplyfied constructor for the TravisClient struct.
 func Travis(endpoint, token string, debug bool) Client {
 	var logger *os.File
 	if debug {
@@ -37,6 +38,7 @@ func Travis(endpoint, token string, debug bool) Client {
 	return NewClient(endpoint, token, logger, tmpdir.String())
 }
 
+// TravisClient implement the Client interface and is used for communication with the Travis API.
 type TravisClient struct {
 	cacheDir string
 	manifest *Manifest
@@ -44,6 +46,8 @@ type TravisClient struct {
 	token    string
 }
 
+// NewClient is the default constructor for TravisClient.
+// For a simplyfied constructor see Travis(endpoint, token string, debug bool).
 func NewClient(endpoint, token string, logger *os.File, cacheDir string) *TravisClient {
 	rootURL, _ := url.Parse(endpoint)
 	http := api.NewClient(rootURL, func(t *api.Transport) {
@@ -89,9 +93,8 @@ func (c *TravisClient) PerformRequest(method, path string, body io.Reader, confi
 
 	if err == nil {
 		return &Response{Response: res}, nil
-	} else {
-		return nil, err
 	}
+	return nil, err
 }
 
 func (c *TravisClient) PerformAction(resourceName, actionName string, params map[string]string) (*Response, error) {
@@ -174,10 +177,12 @@ func (c *TravisClient) Manifest() (*Manifest, error) {
 	return c.manifest, nil
 }
 
+// Token is getter for TravisClient.token.
 func (c *TravisClient) Token() string {
 	return c.token
 }
 
+// SetToken is setter of TravisClient.token
 func (c *TravisClient) SetToken(token string) {
 	c.token = token
 }
