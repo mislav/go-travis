@@ -36,7 +36,7 @@ func reposCmd(cmd *cli.Cmd) int {
 
 //GetAllRepositories returns all the repositories (also those not active in travis)
 //of the currently logged in user. also takes params
-func GetAllRepositories(params map[string]string, client *client.Client) (Repositories, error) {
+func GetAllRepositories(params map[string]string, client client.Client) (Repositories, error) {
 	if params == nil {
 		params = map[string]string{}
 	}

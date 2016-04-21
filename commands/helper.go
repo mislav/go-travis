@@ -10,7 +10,7 @@ import (
 )
 
 // CurrentUser returns the user currently logged in into Travis
-func CurrentUser(client *client.Client) (User, error) {
+func CurrentUser(client client.Client) (User, error) {
 	user := User{}
 	res, err := client.PerformAction("user", "current", map[string]string{})
 	if err != nil {

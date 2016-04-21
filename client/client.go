@@ -27,7 +27,7 @@ var ignoredHeaders = []string{
 	"via",
 }
 
-func Travis(endpoint, token string, debug bool) *Client {
+func Travis(endpoint, token string, debug bool) Client {
 	var logger *os.File
 	if debug {
 		logger = os.Stderr
@@ -37,14 +37,14 @@ func Travis(endpoint, token string, debug bool) *Client {
 	return NewClient(endpoint, token, logger, tmpdir.String())
 }
 
-type Client struct {
+type TravisClient struct {
 	cacheDir string
 	manifest *Manifest
 	http     *api.Client
-	Token    string
+	token    string
 }
 
-func NewClient(endpoint, token string, logger *os.File, cacheDir string) *Client {
+func NewClient(endpoint, token string, logger *os.File, cacheDir string) *TravisClient {
 	rootURL, _ := url.Parse(endpoint)
 	http := api.NewClient(rootURL, func(t *api.Transport) {
 		if logger != nil {
@@ -69,18 +69,18 @@ func NewClient(endpoint, token string, logger *os.File, cacheDir string) *Client
 		}
 	})
 
-	return &Client{
+	return &TravisClient{
 		http:     http,
 		cacheDir: cacheDir,
-		Token:    token,
+		token:    token,
 	}
 }
 
-func (c *Client) PerformRequest(method, path string, body io.Reader, configure func(*http.Request)) (*Response, error) {
+func (c *TravisClient) PerformRequest(method, path string, body io.Reader, configure func(*http.Request)) (*Response, error) {
 	res, err := c.http.PerformRequest(method, path, nil, func(req *http.Request) {
 		req.Header.Set("Travis-API-Version", "3")
-		if c.Token != "" {
-			req.Header.Set("Authorization", "token "+c.Token)
+		if c.token != "" {
+			req.Header.Set("Authorization", "token "+c.token)
 		}
 		if configure != nil {
 			configure(req)
@@ -94,7 +94,7 @@ func (c *Client) PerformRequest(method, path string, body io.Reader, configure f
 	}
 }
 
-func (c *Client) PerformAction(resourceName, actionName string, params map[string]string) (*Response, error) {
+func (c *TravisClient) PerformAction(resourceName, actionName string, params map[string]string) (*Response, error) {
 	manifest, err := c.Manifest()
 	if err != nil {
 		return nil, fmt.Errorf("could not get manifest: %q", err.Error())
@@ -134,7 +134,7 @@ func (c *Client) PerformAction(resourceName, actionName string, params map[strin
 	return c.PerformRequest(method, path, nil, nil)
 }
 
-func (c *Client) Manifest() (*Manifest, error) {
+func (c *TravisClient) Manifest() (*Manifest, error) {
 	if c.manifest != nil {
 		return c.manifest, nil
 	}
@@ -172,6 +172,14 @@ func (c *Client) Manifest() (*Manifest, error) {
 	}
 
 	return c.manifest, nil
+}
+
+func (c *TravisClient) Token() string {
+	return c.token
+}
+
+func (c *TravisClient) SetToken(token string) {
+	c.token = token
 }
 
 type Response struct {

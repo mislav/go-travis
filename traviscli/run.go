@@ -20,7 +20,7 @@ func Execute() {
 
 // Run executes the command specified via os.Args.
 // Takes a API client constructor as argument to enable passing a fake API.
-func Run(clientConstructor func(string, string, bool) *client.Client) int {
+func Run(clientConstructor func(string, string, bool) client.Client) int {
 
 	app := cli.AppInstance()
 	app.Version = "0.0.1"

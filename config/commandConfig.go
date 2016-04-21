@@ -12,6 +12,6 @@ type TravisCommandConfig struct {
 	Token    string
 	Debug    bool
 	Config   *Configuration
-	Client   *client.Client
+	Client   client.Client
 	cli.CommandConfig
 }

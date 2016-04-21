@@ -91,7 +91,7 @@ func loginCmd(cmd *cli.Cmd) int {
 		}
 	}
 	env.Config.StoreTravisTokenForEndpoint(env.Token, env.Endpoint)
-	env.Client.Token = env.Token
+	env.Client.SetToken(env.Token)
 	user, err := CurrentUser(env.Client)
 	if err != nil {
 		cmd.Stderr.Println("Error:\n" + err.Error())
