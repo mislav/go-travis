@@ -91,10 +91,10 @@ func (c *TravisClient) PerformRequest(method, path string, body io.Reader, confi
 		}
 	})
 
-	if err == nil {
-		return &Response{Response: res}, nil
+	if err != nil {
+		return nil, err
 	}
-	return nil, err
+	return &Response{Response: res}, nil
 }
 
 func (c *TravisClient) PerformAction(resourceName, actionName string, params map[string]string) (*Response, error) {
