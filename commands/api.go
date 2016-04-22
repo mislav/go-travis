@@ -38,15 +38,15 @@ func init() {
 func unrecognizableUnusedArgs(cmd *cli.Cmd, args *cli.Args) bool {
 	if args.Length() > 0 {
 		cmd.Stderr.Printf("error: unrecognized argument(s) %q\n", args)
-		return false
+		return true
 	}
-	return true
+	return false
 }
 
 func apiCmd(cmd *cli.Cmd) cli.ExitValue {
 	env := cmd.Env.(config.TravisCommandConfig)
 	path := ""
-	args := cmd.Args
+	_, args := cmd.Args.Shift()
 	if args.Length() > 0 {
 		path, args = args.Shift()
 	}
