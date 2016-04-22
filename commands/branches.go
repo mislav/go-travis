@@ -45,11 +45,11 @@ func branchesCmd(cmd *cli.Cmd) cli.ExitValue {
 	res, err := env.Client.PerformAction("branches", "find", params)
 	if err != nil {
 		cmd.Stderr.Println(err.Error())
-		return 1
+		return cli.Failure
 	}
 	if res.StatusCode > 299 {
 		cmd.Stderr.Printf("Unexpected HTTP status: %d\n", res.StatusCode)
-		return 1
+		return cli.Failure
 	}
 	branches := Branches{}
 	res.Unmarshal(&branches)
@@ -69,7 +69,7 @@ func branchesCmd(cmd *cli.Cmd) cli.ExitValue {
 			printBranch(branch, format, maxLengthNumber, cmd)
 		}
 	}
-	return 0
+	return cli.Success
 }
 
 func printBranch(branch Branch, format string, maxLengthNumber int, cmd *cli.Cmd) {
