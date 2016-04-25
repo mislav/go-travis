@@ -91,3 +91,13 @@ Travis API v3 command-line client written in Go.
 * automatic updating including global `--skip-version-check` flag
 * auto-completion including global `--skip-completion-check` flag
 * storing a slug for a folder via `--store-repo`
+
+### Assets handling:
+
+If you need to change something in the assets folder (e.g. the template .yml files) then afterwards you will need to follow these steps:
+
+* if you have not yet go-bindata installed: `go get -u github.com/jteeuwen/go-bindata/...`
+* delete the old assets/assets.go file (!)
+* in the go-travis/assets folder run: `go-bindata -o assets.go init` (next to init just append all folders inside the assets folder)
+* change the new assets.go file's package from `main` to `assets`
+* run `go install`
