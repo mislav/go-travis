@@ -54,8 +54,8 @@ func TestWhoAmI(t *testing.T) {
 	if !strings.Contains(stderr, "You need to be logged in to do this.") {
 		t.Error("Incorrect error message: " + stderr)
 	}
-	if stdout != "" {
-		t.Error("Output not empty: " + stdout)
+	if strings.Contains(stdout, "You are") {
+		t.Error("Output includes 'You are': " + stdout)
 	}
 
 }
