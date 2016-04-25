@@ -96,7 +96,7 @@ func printGlobalHelp(cmd *cli.Cmd) {
 func printCommandHelp(command cli.Command, cmd *cli.Cmd) {
 	cmd.Stdout.Println(command.Info)
 	if command.Help != "" {
-		cmd.Stdout.Println(command.Help)
+		cmd.Stdout.Cprintf(command.Help + "\n")
 	}
 	cmd.Stdout.Printf("Usage: %s %s [OPTIONS]\n\n", cmd.Args.ProgramName(), command.Name)
 	cmd.Stdout.Println("Available options:")

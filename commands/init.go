@@ -13,7 +13,7 @@ func init() {
 	cmd := cli.Command{
 		Name:     "init",
 		Info:     "generates a .travis.yml and enables the project",
-		Help:     "Available languages: c, clojure, cpp, erlang, go, groovy, haskell, java, node_js, objective-c, perl, php, python, ruby, scala",
+		Help:     "%C(bold)Available languages%C(reset): c, clojure, cpp, erlang, go, groovy, haskell, java, node_js, objective-c, perl, php, python, ruby, scala",
 		Function: initCmd,
 	}
 	cmd.RegisterFlag(
