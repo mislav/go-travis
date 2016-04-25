@@ -12,7 +12,8 @@ import (
 func init() {
 	cmd := cli.Command{
 		Name:     "init",
-		Help:     "generates a .travis.yml and enables the project",
+		Info:     "generates a .travis.yml and enables the project",
+		Help:     "Available languages: c, clojure, cpp, erlang, go, groovy, haskell, java, node_js, objective-c, perl, php, python, ruby, scala",
 		Function: initCmd,
 	}
 	cmd.RegisterFlag(
@@ -22,16 +23,12 @@ func init() {
 			Ftype: false,
 			Help:  "override .travis.yml if it already exists",
 		},
-	)
-	cmd.RegisterFlag(
 		cli.Flag{
 			Short: "-k",
 			Long:  "--skip-enable",
 			Ftype: "LOGIN",
 			Help:  "do not enable project, only add .travis.yml",
 		},
-	)
-	cmd.RegisterFlag(
 		cli.Flag{
 			Short: "-p",
 			Long:  "--print-conf",
