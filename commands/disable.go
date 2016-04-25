@@ -11,7 +11,7 @@ func init() {
 	cli.AppInstance().RegisterCommand(
 		cli.Command{
 			Name:     "disable",
-			Help:     "disables a project",
+			Info:     "disables a project",
 			Function: disableCmd,
 		},
 	)

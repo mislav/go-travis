@@ -13,7 +13,7 @@ func init() {
 	cli.AppInstance().RegisterCommand(
 		cli.Command{
 			Name:     "branches",
-			Help:     "displays the most recent build for each branch",
+			Info:     "displays the most recent build for each branch",
 			Function: branchesCmd,
 		},
 	)

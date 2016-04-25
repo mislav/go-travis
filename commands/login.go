@@ -20,7 +20,7 @@ import (
 func init() {
 	cmd := cli.Command{
 		Name:     "login",
-		Help:     "authenticates against the API and stores the token",
+		Info:     "authenticates against the API and stores the token",
 		Function: loginCmd,
 	}
 	cmd.RegisterFlag(
@@ -30,8 +30,6 @@ func init() {
 			Ftype: "GITHUBTOKEN",
 			Help:  "identify by GitHub token",
 		},
-	)
-	cmd.RegisterFlag(
 		cli.Flag{
 			Short: "-u",
 			Long:  "--user",

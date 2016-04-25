@@ -9,7 +9,7 @@ func init() {
 	cli.AppInstance().RegisterCommand(
 		cli.Command{
 			Name:     "status",
-			Help:     "checks status of the latest build",
+			Info:     "checks status of the latest build",
 			Function: statusCmd,
 		},
 	)

@@ -6,7 +6,7 @@ func init() {
 	cli.AppInstance().RegisterCommand(
 		cli.Command{
 			Name:     "version",
-			Help:     "outputs the client version",
+			Info:     "outputs the client version",
 			Function: versionCmd,
 		},
 	)

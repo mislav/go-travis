@@ -9,7 +9,7 @@ func init() {
 	cli.AppInstance().RegisterCommand(
 		cli.Command{
 			Name:     "token",
-			Help:     "outputs the secret API token",
+			Info:     "outputs the secret API token",
 			Function: tokenCmd,
 		},
 	)

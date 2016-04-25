@@ -9,7 +9,7 @@ func init() {
 	cli.AppInstance().RegisterCommand(
 		cli.Command{
 			Name:     "logout",
-			Help:     "deletes the stored API token",
+			Info:     "deletes the stored API token",
 			Function: logoutCmd,
 		},
 	)

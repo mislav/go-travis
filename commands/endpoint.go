@@ -8,7 +8,7 @@ import (
 func init() {
 	cmd := cli.Command{
 		Name:     "endpoint",
-		Help:     "displays or changes the API endpoint",
+		Info:     "displays or changes the API endpoint",
 		Function: endpointCmd,
 	}
 	cmd.RegisterFlag(
@@ -17,8 +17,6 @@ func init() {
 			Ftype: false,
 			Help:  "store endpoint as global default",
 		},
-	)
-	cmd.RegisterFlag(
 		cli.Flag{
 			Long:  "--drop-default",
 			Ftype: false,

@@ -33,60 +33,44 @@ func Run(clientConstructor func(string, string, bool) client.Client) int {
 			Ftype: "REPOSITORY_SLUG",
 			Help:  "the repository on GitHub",
 		},
-	)
-	app.RegisterFlag(
 		cli.Flag{
 			Short: "-t",
 			Long:  "--token",
 			Ftype: "ACCESS_TOKEN",
 			Help:  "access token to use",
 		},
-	)
-	app.RegisterFlag(
 		cli.Flag{
 			Short: "-e",
 			Long:  "--api-endpoint",
 			Ftype: "URL",
 			Help:  "Travis API server to talk to",
 		},
-	)
-	app.RegisterFlag(
 		cli.Flag{
 			Long:  "--org",
 			Ftype: false,
 			Help:  "short-cut for --api-endpoint 'https://api.travis-ci.org/'",
 		},
-	)
-	app.RegisterFlag(
 		cli.Flag{
 			Long:  "--pro",
 			Ftype: false,
 			Help:  "short-cut for --api-endpoint 'https://api.travis-ci.com/'",
 		},
-	)
-	app.RegisterFlag(
 		cli.Flag{
 			Long:  "--staging",
 			Ftype: false,
 			Help:  "short-cut for --api-endpoint 'https://api-staging.travis-ci.org/'",
 		},
-	)
-	app.RegisterFlag(
 		cli.Flag{
 			Long:  "--debug",
 			Ftype: false,
 			Help:  "show API requests",
 		},
-	)
-	app.RegisterFlag(
 		cli.Flag{
 			Short: "-h",
 			Long:  "--help",
 			Ftype: false,
 			Help:  "show help for the command",
 		},
-	)
-	app.RegisterFlag(
 		cli.Flag{
 			Long:  "--no-color",
 			Ftype: false,
@@ -95,7 +79,7 @@ func Run(clientConstructor func(string, string, bool) client.Client) int {
 	)
 
 	app.Before = func(cmd *cli.Cmd, cmdName string) string {
-		configuration := config.DefaultConfiguration()
+		configuration := config.DefaultConfiguration(cmd)
 
 		endpoint := configuration.GetDefaultTravisEndpoint()
 		if cmd.Parameters.IsProvided("--org") {

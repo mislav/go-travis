@@ -12,7 +12,7 @@ func init() {
 	cli.AppInstance().RegisterCommand(
 		cli.Command{
 			Name:     "repos",
-			Help:     "lists repositories the user has certain permissions on",
+			Info:     "lists repositories the user has certain permissions on",
 			Function: reposCmd,
 		},
 	)

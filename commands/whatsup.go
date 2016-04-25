@@ -9,7 +9,7 @@ func init() {
 	cli.AppInstance().RegisterCommand(
 		cli.Command{
 			Name:     "whatsup",
-			Help:     "lists most recent builds",
+			Info:     "lists most recent builds",
 			Function: whatsupCmd,
 		},
 	)

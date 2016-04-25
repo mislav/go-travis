@@ -12,7 +12,7 @@ func init() {
 	cli.AppInstance().RegisterCommand(
 		cli.Command{
 			Name:     "help",
-			Help:     "helps you out when in dire need of information",
+			Info:     "helps you out when in dire need of information",
 			Function: helpCmd,
 		},
 	)
@@ -94,7 +94,10 @@ func printGlobalHelp(cmd *cli.Cmd) {
 }
 
 func printCommandHelp(command cli.Command, cmd *cli.Cmd) {
-	cmd.Stdout.Println(command.Help)
+	cmd.Stdout.Println(command.Info)
+	if command.Help != "" {
+		cmd.Stdout.Println(command.Help)
+	}
 	cmd.Stdout.Printf("Usage: %s %s [OPTIONS]\n\n", cmd.Args.ProgramName(), command.Name)
 	cmd.Stdout.Println("Available options:")
 	printFlagsHelp(commandOptions(&command), cmd.Stdout)
@@ -111,7 +114,7 @@ func printCommands(commands []cli.Command, out *cli.ColoredWriter) {
 	for _, command := range commands {
 		format := "\t%-" + strconv.Itoa(maxLength+3) + "s"
 		out.Printf(format, command.Name)
-		out.Cprintln("yellow", command.Help)
+		out.Cprintln("yellow", command.Info)
 	}
 	out.Println()
 }
@@ -163,10 +166,10 @@ func commandOptions(command *cli.Command) []cli.Flag {
 	return flagMapToArray(command.Flags())
 }
 
-func flagMapToArray(flags map[string]*cli.Flag) []cli.Flag {
+func flagMapToArray(flags map[string]cli.Flag) []cli.Flag {
 	result := make([]cli.Flag, 0, len(flags))
 	for _, flag := range flags {
-		result = append(result, *flag)
+		result = append(result, flag)
 	}
 	return result
 }

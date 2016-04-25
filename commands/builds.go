@@ -11,14 +11,12 @@ func init() {
 	cli.AppInstance().RegisterCommand(
 		cli.Command{
 			Name:     "builds",
-			Help:     "alias for history",
+			Info:     "alias for history",
 			Function: buildsCmd,
 		},
-	)
-	cli.AppInstance().RegisterCommand(
 		cli.Command{
 			Name:     "history",
-			Help:     "displays a projects build history",
+			Info:     "displays a projects build history",
 			Function: buildsCmd,
 		},
 	)

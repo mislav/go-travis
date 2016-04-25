@@ -9,7 +9,7 @@ func init() {
 	cli.AppInstance().RegisterCommand(
 		cli.Command{
 			Name:     "whoami",
-			Help:     "outputs the current user",
+			Info:     "outputs the current user",
 			Function: whoamiCmd,
 		},
 	)

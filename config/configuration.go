@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/fatih/color"
+	"github.com/HPI-BP2015H/go-utils/cli"
 	"github.com/mitchellh/go-homedir"
 	"gopkg.in/yaml.v2"
 )
@@ -16,6 +16,7 @@ type Configuration struct {
 	configurationYML configurationYML
 	filePath         string
 	fileName         string
+	cmd              *cli.Cmd
 }
 
 type configurationYML struct {
@@ -93,46 +94,47 @@ func (c *Configuration) loadConfigurationYML() {
 		if err != nil {
 			err = os.Mkdir(c.filePath, 0777)
 			if err != nil {
-				color.Red("Error: could not create '" + c.filePath + "'!" + err.Error())
+				c.cmd.Stderr.Println("Error: could not create '" + c.filePath + "'!" + err.Error())
 				return
 			}
 		}
-		color.Yellow("Warning: No configuration file found!")
+		c.cmd.Stdout.Cprintln("yellow", "No configuration file found, creating one!")
 		c.saveConfigurationYML()
 		return
 	} else if err != nil {
-		color.Red("Error: Could not read configuration file!")
+		c.cmd.Stderr.Println("Error: Could not read configuration file!")
 	}
 	err = yaml.Unmarshal(token, &c.configurationYML)
 	if err != nil {
-		color.Red("Error: Could not parse configuration file!")
+		c.cmd.Stderr.Println("Error: Could not parse configuration file!")
 	}
 }
 
 func (c *Configuration) saveConfigurationYML() {
 	out, err := yaml.Marshal(c.configurationYML)
 	if err != nil {
-		color.Red("Error: Could not marshall configuration!")
+		c.cmd.Stderr.Println("Error: Could not marshal configuration!")
 	}
 	err = ioutil.WriteFile(c.filePath+c.fileName, out, 0644)
 	if err != nil {
-		color.Red("Error: Could not save configuration!")
+		c.cmd.Stderr.Println("Error: Could not save configuration!")
 	}
 }
 
 // DefaultConfiguration creates a new configuration from the default file path
-func DefaultConfiguration() *Configuration {
+func DefaultConfiguration(cmd *cli.Cmd) *Configuration {
 	c := new(Configuration)
-	c.filePath = defaultConfigurationFilePath()
+	c.cmd = cmd
+	c.filePath = defaultConfigurationFilePath(cmd)
 	c.fileName = configurationFileName
 	c.loadConfigurationYML()
 	return c
 }
 
-func defaultConfigurationFilePath() string {
+func defaultConfigurationFilePath(cmd *cli.Cmd) string {
 	home, err := homedir.Dir()
 	if err != nil {
-		color.Red("Error: Could not find home directory!")
+		cmd.Stderr.Println("Error: Could not find home directory!")
 		return filepath.FromSlash("~/" + configurationFolderName + "/")
 	}
 	return filepath.FromSlash(home + "/" + configurationFolderName + "/")

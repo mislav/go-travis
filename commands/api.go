@@ -12,12 +12,12 @@ import (
 func init() {
 	cmd1 := cli.Command{
 		Name:     "api",
-		Help:     "makes an (authenticated) API call and prints out the raw result",
+		Info:     "makes an (authenticated) API call and prints out the raw result",
 		Function: apiCmd,
 	}
 	cmd2 := cli.Command{
 		Name:     "raw",
-		Help:     "alias for api",
+		Info:     "alias for api",
 		Function: apiCmd,
 	}
 	flag := cli.Flag{
@@ -29,9 +29,7 @@ func init() {
 
 	cmd1.RegisterFlag(flag)
 	cmd2.RegisterFlag(flag)
-
-	cli.AppInstance().RegisterCommand(cmd1)
-	cli.AppInstance().RegisterCommand(cmd2)
+	cli.AppInstance().RegisterCommand(cmd1, cmd2)
 
 }
 

@@ -11,7 +11,7 @@ func init() {
 	cli.AppInstance().RegisterCommand(
 		cli.Command{
 			Name:     "show",
-			Help:     "displays a build or a job", //TODO a job?
+			Info:     "displays a build or a job", //TODO a job?
 			Function: showCmd,
 		},
 	)
