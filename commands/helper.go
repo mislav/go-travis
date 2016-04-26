@@ -28,6 +28,25 @@ func CurrentUser(client client.Client) (User, error) {
 	return user, nil
 }
 
+// GetAllRepositories returns all the repositories (also those not active in travis)
+// of the currently logged in user. also takes params
+func GetAllRepositories(params map[string]string, client client.Client) (Repositories, error) {
+	if params == nil {
+		params = map[string]string{}
+	}
+	repositories := Repositories{}
+	res, err := client.PerformAction("repositories", "for_current_user", params)
+	defer res.Body.Close()
+	if err != nil {
+		return repositories, err
+	}
+	if res.StatusCode > 299 {
+		return repositories, fmt.Errorf("Error: Unexpected HTTP status: %d\n", res.StatusCode)
+	}
+	res.Unmarshal(&repositories)
+	return repositories, nil
+}
+
 // NotLoggedIn checks if a valid token is stored.
 // Prints error message if the user is not logged in
 func NotLoggedIn(cmd *cli.Cmd) bool {
@@ -53,4 +72,26 @@ func NoRepoSpecified(cmd *cli.Cmd) bool {
 		return true
 	}
 	return false
+}
+
+// PushBoldColorAccordingToBuildStatus pushs a bold green for a passed build,
+// yellow for a running or red for all other builds to the ColoredWriter
+func PushBoldColorAccordingToBuildStatus(build Build, cmd *cli.Cmd) {
+	cmd.Stdout.PushColor("bold" + colorForBuildStatus(build))
+}
+
+// PushColorAccordingToBuildStatus pushs a green for a passed build,
+// yellow for a running or red for all other builds to the ColoredWriter
+func PushColorAccordingToBuildStatus(build Build, cmd *cli.Cmd) {
+	cmd.Stdout.PushColor(colorForBuildStatus(build))
+}
+
+func colorForBuildStatus(build Build) string {
+	if build.HasPassed() {
+		return "green"
+	}
+	if build.IsNotYetFinished() {
+		return "yellow"
+	}
+	return "red"
 }

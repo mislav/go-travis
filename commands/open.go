@@ -42,8 +42,7 @@ func openCmd(cmd *cli.Cmd) cli.ExitValue {
 	}
 	var url string
 	var err error
-	args := cmd.Args.SubcommandArgs("open")
-	number := args.Peek(0)
+	number := cmd.Args.Peek(0)
 	if numberIsInvalid(number) {
 		cmd.Stderr.Println("The given build or job number is invalid.")
 		return cli.Failure
@@ -97,7 +96,7 @@ func getTravisURLForNumber(build string, job string, cmd *cli.Cmd) (string, erro
 	}
 	res, err := env.Client.PerformAction("builds", "find", params)
 	if err != nil {
-		cmd.Stderr.Printf("Could not find job or build" + env.Repo + "#" + build + "#" + job)
+		cmd.Stderr.Printf("Could not find job or build " + env.Repo + "#" + build + "." + job)
 		return fallbackWebsite, errors.New("")
 	}
 	if res.StatusCode > 299 {
@@ -108,7 +107,7 @@ func getTravisURLForNumber(build string, job string, cmd *cli.Cmd) (string, erro
 	builds := Builds{}
 	res.Unmarshal(&builds)
 	if len(builds.Builds) == 0 {
-		cmd.Stderr.Printf("Could not find job or build" + env.Repo + "#" + build + "#" + job)
+		cmd.Stderr.Printf("Could not find job or build " + env.Repo + "#" + build + "." + job)
 		return fallbackWebsite, errors.New("")
 	}
 	if job != "" && len(builds.Builds[0].Jobs.Jobs) > 0 {
@@ -122,6 +121,6 @@ func getTravisURLForNumber(build string, job string, cmd *cli.Cmd) (string, erro
 }
 
 func numberIsInvalid(number string) bool {
-	re := regexp.MustCompile("^(\\d+)(\\.(\\d+))?$")
+	re := regexp.MustCompile(`^(\d+)(\.(\d+))?$`)
 	return !re.MatchString(number)
 }

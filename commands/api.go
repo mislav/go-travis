@@ -114,16 +114,14 @@ func showManifest(cmd *cli.Cmd, showResource string) {
 		if resource == nil {
 			cmd.Stderr.Printf("error: could not find the %q resource\n", showResource)
 			return
-		} else {
-			cmd.Stdout.Cprintf("%C(blue)ATTRIBUTES%C(reset) %v\n", resource.Attributes)
-			cmd.Stdout.Cprintf("%C(blue)SORTABLE%C(reset) %v\n", resource.SortableBy)
-			if resource.DefaultSort != "" {
-				cmd.Stdout.Cprintf("%C(blue)SORTABLE%C(reset) default %1\n", resource.DefaultSort)
-			}
-			for _, action := range resource.AllActions() {
-				cmd.Stdout.Cprintf("%C(blue)ACTION%C(reset) %s %s %s\n", action.Name, action.RequestMethod, action.UriTemplate)
-			}
+		}
+		cmd.Stdout.Cprintf("%C(blue)ATTRIBUTES%C(reset) %v\n", resource.Attributes)
+		cmd.Stdout.Cprintf("%C(blue)SORTABLE%C(reset) %v\n", resource.SortableBy)
+		if resource.DefaultSort != "" {
+			cmd.Stdout.Cprintf("%C(blue)SORTABLE%C(reset) default %1\n", resource.DefaultSort)
+		}
+		for _, action := range resource.AllActions() {
+			cmd.Stdout.Cprintf("%C(blue)ACTION%C(reset) %s %s %s\n", action.Name, action.RequestMethod, action.UriTemplate)
 		}
 	}
-	return
 }

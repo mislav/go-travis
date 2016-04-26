@@ -1,9 +1,6 @@
 package commands
 
 import (
-	"fmt"
-
-	"github.com/HPI-BP2015H/go-travis/client"
 	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
 )
@@ -32,25 +29,6 @@ func reposCmd(cmd *cli.Cmd) cli.ExitValue {
 		printRepo(repo, cmd)
 	}
 	return cli.Success
-}
-
-//GetAllRepositories returns all the repositories (also those not active in travis)
-//of the currently logged in user. also takes params
-func GetAllRepositories(params map[string]string, client client.Client) (Repositories, error) {
-	if params == nil {
-		params = map[string]string{}
-	}
-	repositories := Repositories{}
-	res, err := client.PerformAction("repositories", "for_current_user", params)
-	defer res.Body.Close()
-	if err != nil {
-		return repositories, err
-	}
-	if res.StatusCode > 299 {
-		return repositories, fmt.Errorf("Error: Unexpected HTTP status: %d\n", res.StatusCode)
-	}
-	res.Unmarshal(&repositories)
-	return repositories, nil
 }
 
 func printRepo(repo Repository, cmd *cli.Cmd) {

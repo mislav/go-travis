@@ -38,7 +38,7 @@ func whatsupCmd(cmd *cli.Cmd) cli.ExitValue {
 
 func printRepoStatus(repo Repository, cmd *cli.Cmd) {
 	build := repo.DefaultBranch.LastBuild
-	PushColorAccordingToBuildStatusBold(*build, cmd)
+	PushBoldColorAccordingToBuildStatus(*build, cmd)
 	cmd.Stdout.Printf("%s ", repo.Slug)
 	cmd.Stdout.PopColor()
 	PushColorAccordingToBuildStatus(*build, cmd)

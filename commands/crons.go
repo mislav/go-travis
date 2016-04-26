@@ -68,7 +68,7 @@ func cronsCmd(cmd *cli.Cmd) cli.ExitValue {
 	for _, crons := range responses {
 		repo := crons.Crons[0].Repository
 		if repo.DefaultBranch.LastBuild != nil {
-			PushColorAccordingToBuildStatusBold(*repo.DefaultBranch.LastBuild, cmd)
+			PushBoldColorAccordingToBuildStatus(*repo.DefaultBranch.LastBuild, cmd)
 			cmd.Stdout.Println(repo.Slug)
 			cmd.Stdout.PopColor()
 		} else {

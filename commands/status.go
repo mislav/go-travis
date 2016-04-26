@@ -49,7 +49,7 @@ func statusCmd(cmd *cli.Cmd) cli.ExitValue {
 
 func printStatus(build Build, cmd *cli.Cmd) {
 	cmd.Stdout.Print("Build #" + build.Number)
-	PushColorAccordingToBuildStatusBold(build, cmd)
+	PushBoldColorAccordingToBuildStatus(build, cmd)
 	cmd.Stdout.Printf(" %s \n", build.State)
 	cmd.Stdout.PopColor()
 }

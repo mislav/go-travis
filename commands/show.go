@@ -54,7 +54,7 @@ func printCompleteBuild(build Build, cmd *cli.Cmd) {
 
 	cmd.Stdout.Cprintf("%C(bold)Build #%s:%C(reset)  %s\n", build.Number, build.Commit.Message)
 	cmd.Stdout.Cprintf("%C(yellow)%-"+strconv.Itoa(12)+"s%C(reset)", "State:")
-	PushColorAccordingToBuildStatusBold(build, cmd)
+	PushBoldColorAccordingToBuildStatus(build, cmd)
 	cmd.Stdout.Println(build.State)
 	cmd.Stdout.PopColor()
 	printAttribute("Type", build.EventType, cmd)

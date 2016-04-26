@@ -22,30 +22,6 @@ func init() {
 	)
 }
 
-func PushColorAccordingToBuildStatusBold(build Build, cmd *cli.Cmd) {
-	if build.HasPassed() {
-		cmd.Stdout.PushColor("boldgreen")
-	} else {
-		if build.IsNotYetFinished() {
-			cmd.Stdout.PushColor("boldyellow")
-		} else {
-			cmd.Stdout.PushColor("boldred")
-		}
-	}
-}
-
-func PushColorAccordingToBuildStatus(build Build, cmd *cli.Cmd) {
-	if build.HasPassed() {
-		cmd.Stdout.PushColor("green")
-	} else {
-		if build.IsNotYetFinished() {
-			cmd.Stdout.PushColor("yellow")
-		} else {
-			cmd.Stdout.PushColor("red")
-		}
-	}
-}
-
 func buildsCmd(cmd *cli.Cmd) cli.ExitValue {
 	env := cmd.Env.(config.TravisCommandConfig)
 

@@ -47,7 +47,7 @@ func loginCmd(cmd *cli.Cmd) cli.ExitValue {
 		var gitHubAuthorization *github.Authorization
 
 		gitHubToken := cmd.Parameters.String("--github-token", "")
-		github, err := LoginToGitHub(gitHubToken, cmd.Parameters.String("--user", ""), cmd)
+		github, err := loginToGitHub(gitHubToken, cmd.Parameters.String("--user", ""), cmd)
 		if err != nil {
 			if strings.Contains(err.Error(), "401") {
 				cmd.Stderr.Println("Error: The given credentials are not valid.")
@@ -99,9 +99,9 @@ func loginCmd(cmd *cli.Cmd) cli.ExitValue {
 	return cli.Success
 }
 
-// LoginToGitHub takes a GitHub token to log into GitHub. If an empty string is
+// loginToGitHub takes a GitHub token to log into GitHub. If an empty string is
 // provided, the user will be prompted for username and password.
-func LoginToGitHub(token, user string, cmd *cli.Cmd) (*github.Client, error) {
+func loginToGitHub(token, user string, cmd *cli.Cmd) (*github.Client, error) {
 	var github *github.Client
 	if token == "" {
 		userName, password, err := promptForGitHubCredentials(user, cmd)

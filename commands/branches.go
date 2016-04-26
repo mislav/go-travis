@@ -19,23 +19,6 @@ func init() {
 	)
 }
 
-type byBuildNumber []Branch
-
-func (b byBuildNumber) Len() int {
-	return len(b)
-}
-func (b byBuildNumber) Swap(i, j int) {
-	b[i], b[j] = b[j], b[i]
-}
-func (b byBuildNumber) Less(i, j int) bool {
-	n, _ := strconv.Atoi(b[i].LastBuild.Number)
-	m, _ := strconv.Atoi(b[j].LastBuild.Number)
-	if b[j].DefaultBranch {
-		return m > n
-	}
-	return n > m
-}
-
 func branchesCmd(cmd *cli.Cmd) cli.ExitValue {
 	env := cmd.Env.(config.TravisCommandConfig)
 	params := map[string]string{
@@ -79,4 +62,21 @@ func printBranch(branch Branch, format string, maxLengthNumber int, cmd *cli.Cmd
 	cmd.Stdout.Printf("#%-"+strconv.Itoa(maxLengthNumber+1)+"s %s   ", branch.LastBuild.Number, branch.LastBuild.State)
 	cmd.Stdout.PopColor()
 	cmd.Stdout.Println(commitMessage)
+}
+
+type byBuildNumber []Branch
+
+func (b byBuildNumber) Len() int {
+	return len(b)
+}
+func (b byBuildNumber) Swap(i, j int) {
+	b[i], b[j] = b[j], b[i]
+}
+func (b byBuildNumber) Less(i, j int) bool {
+	n, _ := strconv.Atoi(b[i].LastBuild.Number)
+	m, _ := strconv.Atoi(b[j].LastBuild.Number)
+	if b[j].DefaultBranch {
+		return m > n
+	}
+	return n > m
 }
