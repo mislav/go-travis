@@ -23,9 +23,10 @@ func init() {
 
 	cmd1.RegisterCommand(
 		cli.Command{
-			Name:     "delete",
-			Info:     "Deletes an existing cron job.",
-			Function: deleteCmd,
+			Name:      "delete",
+			Info:      "Deletes an existing cron job.",
+			Function:  deleteCmd,
+			Parameter: "CRON_ID",
 		},
 	)
 
