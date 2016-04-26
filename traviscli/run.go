@@ -120,6 +120,8 @@ func Run(clientConstructor func(string, string, bool) client.Client) int {
 			Execute()
 		}
 
+		cmd.Stdout.Cprintln("yellow", "Unrecognized flag(s): "+strings.Join(cmd.Args.RemoveUnusedFlags(), ", "))
+
 	}
 
 	app.Fallback = func(cmd *cli.Cmd, cmdName string) cli.ExitValue {
