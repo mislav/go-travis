@@ -19,7 +19,6 @@ func init() {
 }
 
 func cronsCmd(cmd *cli.Cmd) cli.ExitValue {
-	//login
 	if NotLoggedIn(cmd) {
 		return cli.Failure
 	}
