@@ -48,7 +48,7 @@ Travis API v3 command-line client written in Go.
 * [ ] `travis env`
 * [x] `travis help`
 * [x] `travis history`
-* [ ] `travis init`
+* [x] `travis init`
 * [ ] `travis lint`
 * [x] `travis login`
 * [x] `travis logout`

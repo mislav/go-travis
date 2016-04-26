@@ -18,6 +18,7 @@ type Builds struct {
 }
 
 type Build struct {
+	ID         int     `json:"id"`
 	Number     string  `json:"number"`
 	State      string  `json:"state"`
 	StartedAt  string  `json:"started_at"`
@@ -46,6 +47,7 @@ type Jobs struct {
 }
 
 type Job struct {
+	ID     int    `json:"id"`
 	Number string `json:"number"`
 	State  string `json:"state"`
 }
