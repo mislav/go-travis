@@ -10,12 +10,14 @@ Travis API v3 command-line client written in Go.
 
 ## Current design:
 
-* Each `commands/*.go` file registers a subcommand
-* You can register global and command specific flags which than will be parsed and passed automatically
-* Each subcommand get a ```TravisCommandConfig```
+* Each `commands/*.go` file registers a command
+* Commands can have subcommands
+* You can register global and (sub)command specific flags which than will be parsed and passed automatically
+* A help for all (sub)commands with the registered flags is created automatically
+* Each (sub)command gets a ```TravisCommandConfig```
 * This Travis HTTP client fetches the API manifest once and performs subsequent actions by expanding the URI templates found within.
-* Calls to unregistered subcommands are dispatched to `travis-<foo>` executables in PATH. The following environment is provided: `TRAVIS_REPO`, `TRAVIS_TOKEN` and `TRAVIS_ENDPOINT`. If the `--debug` flag is provided `TRAVIS_DEBUG` will also be set.
-* The custom `travis-<foo>` scripts can be implemented in any scripting language  and may consume the `travis api` subcommand to dispatch manual API requests.
+* Calls to unregistered commands are dispatched to `travis-<foo>` executables in PATH. The following environment is provided: `TRAVIS_REPO`, `TRAVIS_TOKEN` and `TRAVIS_ENDPOINT`. If the `--debug` flag is provided `TRAVIS_DEBUG` will also be set.
+* The custom `travis-<foo>` scripts can be implemented in any scripting language  and may consume the `travis api` command to dispatch manual API requests.
 
 ## Compatibility with `travis.rb`:
 
@@ -40,6 +42,7 @@ Travis API v3 command-line client written in Go.
 * [ ] `travis cache`
 * [ ] `travis cancel`
 * [ ] `travis console`
+* [x] `travis crons` *(not yet merged into the old client)*
 * [x] `travis disable`
 * [x] `travis enable`
 * [ ] `travis encrypt`
