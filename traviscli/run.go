@@ -78,7 +78,7 @@ func Run(clientConstructor func(string, string, bool) client.Client) int {
 		},
 	)
 
-	app.Before = func(cmd *cli.Cmd, cmdName string) string {
+	app.Before = func(cmd *cli.Cmd, cmdName string) {
 		configuration := config.DefaultConfiguration(cmd)
 
 		endpoint := configuration.GetDefaultTravisEndpoint()
@@ -111,13 +111,15 @@ func Run(clientConstructor func(string, string, bool) client.Client) int {
 			cmd.Stderr.Colorize = false
 		}
 
-		if cmd.Parameters.IsProvided("--help") {
-			args := []string{cmd.Args.ProgramName(), "help", cmdName}
-			args = append(args, cmd.Args.Slice(1)...)
-			cmd.Args = cli.NewArgs(args)
-			return "help"
+		if cmd.Parameters.IsProvided("--help") && cmdName != "help" {
+			var newArgs []string
+			newArgs = append(newArgs, os.Args[:1]...)
+			newArgs = append(newArgs, "help")
+			newArgs = append(newArgs, os.Args[1:]...)
+			os.Args = newArgs
+			Execute()
 		}
-		return ""
+
 	}
 
 	app.Fallback = func(cmd *cli.Cmd, cmdName string) cli.ExitValue {

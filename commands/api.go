@@ -44,7 +44,7 @@ func unrecognizableUnusedArgs(cmd *cli.Cmd, args *cli.Args) bool {
 func apiCmd(cmd *cli.Cmd) cli.ExitValue {
 	env := cmd.Env.(config.TravisCommandConfig)
 	path := ""
-	_, args := cmd.Args.Shift()
+	args := cmd.Args
 	if args.Length() > 0 {
 		path, args = args.Shift()
 	}

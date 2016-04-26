@@ -18,57 +18,8 @@ func init() {
 	)
 }
 
-type commandByLength []cli.Command
-
-func (s commandByLength) Len() int {
-	return len(s)
-}
-func (s commandByLength) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-func (s commandByLength) Less(i, j int) bool {
-	return len(s[i].Name) > len(s[j].Name)
-}
-
-type commandByName []cli.Command
-
-func (s commandByName) Len() int {
-	return len(s)
-}
-func (s commandByName) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-func (s commandByName) Less(i, j int) bool {
-	return s[i].Name < s[j].Name
-}
-
-type flagByLong []cli.Flag
-
-func (s flagByLong) Len() int {
-	return len(s)
-}
-func (s flagByLong) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-func (s flagByLong) Less(i, j int) bool {
-	return len(s[i].Long) > len(s[j].Long)
-}
-
-type flagByLength []cli.Flag
-
-func (s flagByLength) Len() int {
-	return len(s)
-}
-func (s flagByLength) Swap(i, j int) {
-	s[i], s[j] = s[j], s[i]
-}
-func (s flagByLength) Less(i, j int) bool {
-	return flagLen(s[i]) > flagLen(s[j])
-}
-
 func helpCmd(cmd *cli.Cmd) cli.ExitValue {
-	args := cmd.Args.SubcommandArgs("help")
-	cmdName := args.Peek(0)
+	cmdName := cmd.Args.Peek(0)
 	if cmdName == "" {
 		printGlobalHelp(cmd)
 	} else {
@@ -94,18 +45,46 @@ func printGlobalHelp(cmd *cli.Cmd) {
 }
 
 func printCommandHelp(command cli.Command, cmd *cli.Cmd) {
+	printSubcommandHelp(subcommandHelp(command, make([]cli.Flag, 0), cmd))
+}
+
+func subcommandHelp(command cli.Command, cmdOptions []cli.Flag, cmd *cli.Cmd) (cli.Command, []cli.Flag, *cli.Cmd) {
+	cmdOptions = append(cmdOptions, commandOptions(&command)...)
+	cmd.Args = cmd.Args.SubcommandArgs(command.Name)
+	subcommands := command.Commands()
+	if subcommands != nil {
+		subCommandName := cmd.Args.Peek(0)
+		if subCommand, ok := subcommands[subCommandName]; ok {
+			return subcommandHelp(subCommand, cmdOptions, cmd)
+		}
+	}
+	return command, cmdOptions, cmd
+}
+
+func printSubcommandHelp(command cli.Command, cmdOptions []cli.Flag, cmd *cli.Cmd) {
 	cmd.Stdout.Println(command.Info)
 	if command.Help != "" {
 		cmd.Stdout.Cprintf(command.Help + "\n")
 	}
-	cmd.Stdout.Printf("Usage: %s %s [OPTIONS]\n\n", cmd.Args.ProgramName(), command.Name)
-	cmdOptions := commandOptions(&command)
+	subCommands := commandMapToArray(command.Commands())
+	commandsUsage := ""
+	if len(subCommands) > 0 {
+		commandsUsage = "[COMMAND] "
+	}
+	cmd.Stdout.Printf("Usage: %s %s %s[OPTIONS]\n\n", cmd.Args.ProgramName(), cmd.Args.CommandName[len("help "):], commandsUsage)
+	if len(subCommands) > 0 {
+		cmd.Stdout.Println("Available commands:")
+		printCommands(subCommands, cmd.Stdout)
+	}
 	if len(cmdOptions) > 0 {
 		cmd.Stdout.Println("Available options:")
 		printFlagsHelp(cmdOptions, cmd.Stdout)
 	}
 	cmd.Stdout.Println("Global options:")
 	printFlagsHelp(globalOptions(), cmd.Stdout)
+	if len(subCommands) > 0 {
+		cmd.Stdout.Printf("Run %s %s COMMAND for more infos.\n", cmd.Args.ProgramName(), cmd.Args.CommandName)
+	}
 }
 
 func printCommands(commands []cli.Command, out *cli.ColoredWriter) {
@@ -152,13 +131,7 @@ func printFlagsHelp(flags []cli.Flag, out *cli.ColoredWriter) {
 }
 
 func commands() []cli.Command {
-	app := cli.AppInstance()
-	commands := app.Commands()
-	result := make([]cli.Command, 0, len(commands))
-	for _, command := range commands {
-		result = append(result, command)
-	}
-	return result
+	return commandMapToArray(cli.AppInstance().Commands())
 }
 
 func globalOptions() []cli.Flag {
@@ -167,6 +140,14 @@ func globalOptions() []cli.Flag {
 
 func commandOptions(command *cli.Command) []cli.Flag {
 	return flagMapToArray(command.Flags())
+}
+
+func commandMapToArray(commands map[string]cli.Command) []cli.Command {
+	result := make([]cli.Command, 0, len(commands))
+	for _, command := range commands {
+		result = append(result, command)
+	}
+	return result
 }
 
 func flagMapToArray(flags map[string]cli.Flag) []cli.Flag {
@@ -183,4 +164,52 @@ func flagLen(flag cli.Flag) int {
 		result += len(fmt.Sprintf(" [%v]", flag.Ftype))
 	}
 	return result
+}
+
+type commandByLength []cli.Command
+
+func (s commandByLength) Len() int {
+	return len(s)
+}
+func (s commandByLength) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s commandByLength) Less(i, j int) bool {
+	return len(s[i].Name) > len(s[j].Name)
+}
+
+type commandByName []cli.Command
+
+func (s commandByName) Len() int {
+	return len(s)
+}
+func (s commandByName) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s commandByName) Less(i, j int) bool {
+	return s[i].Name < s[j].Name
+}
+
+type flagByLong []cli.Flag
+
+func (s flagByLong) Len() int {
+	return len(s)
+}
+func (s flagByLong) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s flagByLong) Less(i, j int) bool {
+	return len(s[i].Long) > len(s[j].Long)
+}
+
+type flagByLength []cli.Flag
+
+func (s flagByLength) Len() int {
+	return len(s)
+}
+func (s flagByLength) Swap(i, j int) {
+	s[i], s[j] = s[j], s[i]
+}
+func (s flagByLength) Less(i, j int) bool {
+	return flagLen(s[i]) > flagLen(s[j])
 }
