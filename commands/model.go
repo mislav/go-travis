@@ -42,6 +42,19 @@ type Commit struct {
 	Message string `json:"message"`
 }
 
+type Crons struct {
+	Crons []Cron `json:"crons"`
+}
+
+type Cron struct {
+	ID             int         `json:"id"`
+	Repository     *Repository `json:"repository"`
+	Branch         *Branch     `json:"branch"`
+	Interval       string      `json:"interval"`
+	DisableByBuild bool        `json:"disable_by_build"`
+	NextEnqueuing  string      `json:"next_enqueuing"`
+}
+
 type Jobs struct {
 	Jobs []Job `json:"jobs"`
 }
