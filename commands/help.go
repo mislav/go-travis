@@ -99,8 +99,11 @@ func printCommandHelp(command cli.Command, cmd *cli.Cmd) {
 		cmd.Stdout.Cprintf(command.Help + "\n")
 	}
 	cmd.Stdout.Printf("Usage: %s %s [OPTIONS]\n\n", cmd.Args.ProgramName(), command.Name)
-	cmd.Stdout.Println("Available options:")
-	printFlagsHelp(commandOptions(&command), cmd.Stdout)
+	cmdOptions := commandOptions(&command)
+	if len(cmdOptions) > 0 {
+		cmd.Stdout.Println("Available options:")
+		printFlagsHelp(cmdOptions, cmd.Stdout)
+	}
 	cmd.Stdout.Println("Global options:")
 	printFlagsHelp(globalOptions(), cmd.Stdout)
 }
