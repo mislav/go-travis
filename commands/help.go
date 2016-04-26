@@ -71,7 +71,11 @@ func printSubcommandHelp(command cli.Command, cmdOptions []cli.Flag, cmd *cli.Cm
 	if len(subCommands) > 0 {
 		commandsUsage = "[COMMAND] "
 	}
-	cmd.Stdout.Printf("Usage: %s %s %s[OPTIONS]\n\n", cmd.Args.ProgramName(), cmd.Args.CommandName[len("help "):], commandsUsage)
+	parameter := ""
+	if len(command.Parameter) > 0 {
+		parameter = command.Parameter + " "
+	}
+	cmd.Stdout.Printf("Usage: %s %s %s%s[OPTIONS]\n\n", cmd.Args.ProgramName(), cmd.Args.CommandName[len("help "):], commandsUsage, parameter)
 	if len(subCommands) > 0 {
 		cmd.Stdout.Println("Available commands:")
 		printCommands(subCommands, cmd.Stdout)

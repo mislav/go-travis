@@ -11,14 +11,16 @@ import (
 
 func init() {
 	cmd1 := cli.Command{
-		Name:     "api",
-		Info:     "makes an (authenticated) API call and prints out the raw result",
-		Function: apiCmd,
+		Name:      "api",
+		Info:      "makes an (authenticated) API call and prints out the raw result",
+		Function:  apiCmd,
+		Parameter: "PATH",
 	}
 	cmd2 := cli.Command{
-		Name:     "raw",
-		Info:     "alias for api",
-		Function: apiCmd,
+		Name:      "raw",
+		Info:      "alias for api",
+		Function:  apiCmd,
+		Parameter: "PATH",
 	}
 	flag := cli.Flag{
 		Short: "-i",
