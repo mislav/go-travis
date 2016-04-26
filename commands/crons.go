@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"sort"
+
 	"github.com/HPI-BP2015H/go-travis/client"
 	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
@@ -33,43 +35,72 @@ func cronsCmd(cmd *cli.Cmd) cli.ExitValue {
 		return cli.Failure
 	}
 
-	var c chan *client.Response = make(chan *client.Response)
+	//asyncronously fetch all cons for every repo
+	var cRes chan *client.Response = make(chan *client.Response)
+	var cErr chan error = make(chan error)
 	for _, repo := range repositories.Repositories {
-		go getCronsForRepo(repo, c, cmd)
+		go getCronsForRepo(repo, cRes, cErr, cmd)
 	}
 
+	//handle responses
+	var responses cronsArray
 	for range repositories.Repositories {
-		res := <-c
+		res := <-cRes
+		err := <-cErr
+		if err != nil {
+			cmd.Stderr.Println("Error: Could not get crons!")
+			cmd.Stderr.Println(err.Error())
+			return cli.Failure
+		}
 		crons := Crons{}
 		res.Unmarshal(&crons)
-
 		if len(crons.Crons) != 0 {
-			repo := crons.Crons[0].Repository
-			if repo.DefaultBranch.LastBuild != nil {
-				PushColorAccordingToBuildStatusBold(*repo.DefaultBranch.LastBuild, cmd)
-				cmd.Stdout.Println(repo.Slug)
-				cmd.Stdout.PopColor()
+			responses = append(responses, crons)
+		}
+	}
+	if len(responses) == 0 {
+		cmd.Stdout.Cprintln("yellow", "None of your repositories has crons!")
+		return cli.Success
+	}
 
-				for _, cron := range crons.Crons {
-					cmd.Stdout.Printf("Cron %d builds %s on %s \n", cron.ID, cron.Interval, cron.Branch.Name)
-				}
-			}
+	//print each repo with crons
+	sort.Sort(responses)
+	for _, crons := range responses {
+		repo := crons.Crons[0].Repository
+		if repo.DefaultBranch.LastBuild != nil {
+			PushColorAccordingToBuildStatusBold(*repo.DefaultBranch.LastBuild, cmd)
+			cmd.Stdout.Println(repo.Slug)
+			cmd.Stdout.PopColor()
+		} else {
+			cmd.Stdout.Println(repo.Slug)
+		}
+		for _, cron := range crons.Crons {
+			cmd.Stdout.Printf("Cron builds %s on %s \n", cron.Interval, cron.Branch.Name)
 		}
 	}
 
 	return cli.Success
 }
 
-func getCronsForRepo(repo Repository, c chan *client.Response, cmd *cli.Cmd) {
+func getCronsForRepo(repo Repository, cRes chan *client.Response, cErr chan error, cmd *cli.Cmd) {
 	env := cmd.Env.(config.TravisCommandConfig)
 	params := map[string]string{
 		"repository.slug": repo.Slug,
 		"include":         "repository.default_branch,branch.last_build",
 	}
 	res, err := env.Client.PerformAction("crons", "for_repository", params)
-	if err != nil {
-		cmd.Stderr.Println("Error: Could not get crons for " + repo.Slug + err.Error())
-		//i might want to exit the crons cmd now ... but i cant
-	}
-	c <- res
+	cRes <- res
+	cErr <- err
+}
+
+type cronsArray []Crons
+
+func (c cronsArray) Len() int {
+	return len(c)
+}
+func (c cronsArray) Swap(i, j int) {
+	c[i], c[j] = c[j], c[i]
+}
+func (c cronsArray) Less(i, j int) bool {
+	return c[i].Crons[0].Repository.Slug > c[j].Crons[0].Repository.Slug
 }
