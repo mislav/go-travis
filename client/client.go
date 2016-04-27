@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -58,6 +59,11 @@ func NewClient(endpoint, token string, logger *os.File, cacheDir string) *Travis
 
 			t.RequestCallback = func(req *http.Request) {
 				debugStream.Cprintf("> %s %C(bold)%s://%s%s%C(reset)\n", req.Method, req.URL.Scheme, req.Host, req.URL.RequestURI())
+				if req.Body != nil {
+					body, _ := ioutil.ReadAll(req.Body)
+					debugStream.Cprintf("> %s\n", body)
+					req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+				}
 			}
 
 			t.ResponseCallback = func(res *http.Response) {
@@ -70,6 +76,13 @@ func NewClient(endpoint, token string, logger *os.File, cacheDir string) *Travis
 					value := strings.Join(values, ",")
 					fmt.Fprintf(debugStream, "< %s: %s\n", name, value)
 				}
+				/* Output recived body
+				if res.Body != nil {
+					body, _ := ioutil.ReadAll(res.Body)
+					debugStream.Cprintf("< %s\n", body)
+					res.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+				}
+				*/
 			}
 		}
 	})
@@ -136,6 +149,8 @@ func (c *TravisClient) PerformAction(resourceName, actionName string, params map
 	}
 
 	var bodyReader io.Reader
+	var configure func(*http.Request)
+	configure = nil
 	bodyReader = nil
 	if body != nil {
 		jsonString, err := json.Marshal(body)
@@ -143,9 +158,12 @@ func (c *TravisClient) PerformAction(resourceName, actionName string, params map
 			return nil, err
 		}
 		bodyReader = bytes.NewReader(jsonString)
+		configure = func(req *http.Request) {
+			req.Header.Set("Content-Type", "application/json")
+		}
 	}
 
-	return c.PerformRequest(method, path, bodyReader, nil)
+	return c.PerformRequest(method, path, bodyReader, configure)
 }
 
 func (c *TravisClient) Manifest() (*Manifest, error) {
