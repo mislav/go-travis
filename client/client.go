@@ -1,9 +1,11 @@
 package client
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -57,6 +59,11 @@ func NewClient(endpoint, token string, logger *os.File, cacheDir string) *Travis
 
 			t.RequestCallback = func(req *http.Request) {
 				debugStream.Cprintf("> %s %C(bold)%s://%s%s%C(reset)\n", req.Method, req.URL.Scheme, req.Host, req.URL.RequestURI())
+				if req.Body != nil {
+					body, _ := ioutil.ReadAll(req.Body)
+					debugStream.Cprintf("> %s\n", body)
+					req.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+				}
 			}
 
 			t.ResponseCallback = func(res *http.Response) {
@@ -69,6 +76,13 @@ func NewClient(endpoint, token string, logger *os.File, cacheDir string) *Travis
 					value := strings.Join(values, ",")
 					fmt.Fprintf(debugStream, "< %s: %s\n", name, value)
 				}
+				/* Output recived body
+				if res.Body != nil {
+					body, _ := ioutil.ReadAll(res.Body)
+					debugStream.Cprintf("< %s\n", body)
+					res.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+				}
+				*/
 			}
 		}
 	})
@@ -81,7 +95,7 @@ func NewClient(endpoint, token string, logger *os.File, cacheDir string) *Travis
 }
 
 func (c *TravisClient) PerformRequest(method, path string, body io.Reader, configure func(*http.Request)) (*Response, error) {
-	res, err := c.http.PerformRequest(method, path, nil, func(req *http.Request) {
+	res, err := c.http.PerformRequest(method, path, body, func(req *http.Request) {
 		req.Header.Set("Travis-API-Version", "3")
 		if c.token != "" {
 			req.Header.Set("Authorization", "token "+c.token)
@@ -97,7 +111,7 @@ func (c *TravisClient) PerformRequest(method, path string, body io.Reader, confi
 	return &Response{Response: res}, nil
 }
 
-func (c *TravisClient) PerformAction(resourceName, actionName string, params map[string]string) (*Response, error) {
+func (c *TravisClient) PerformAction(resourceName, actionName string, params map[string]string, body map[string]string) (*Response, error) {
 	manifest, err := c.Manifest()
 	if err != nil {
 		return nil, fmt.Errorf("could not get manifest: %q", err.Error())
@@ -134,7 +148,22 @@ func (c *TravisClient) PerformAction(resourceName, actionName string, params map
 		return nil, err
 	}
 
-	return c.PerformRequest(method, path, nil, nil)
+	var bodyReader io.Reader
+	var configure func(*http.Request)
+	configure = nil
+	bodyReader = nil
+	if body != nil {
+		jsonString, err := json.Marshal(body)
+		if err != nil {
+			return nil, err
+		}
+		bodyReader = bytes.NewReader(jsonString)
+		configure = func(req *http.Request) {
+			req.Header.Set("Content-Type", "application/json")
+		}
+	}
+
+	return c.PerformRequest(method, path, bodyReader, configure)
 }
 
 func (c *TravisClient) Manifest() (*Manifest, error) {

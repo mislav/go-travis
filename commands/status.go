@@ -27,7 +27,7 @@ func statusCmd(cmd *cli.Cmd) cli.ExitValue {
 		"sort_by":         "id:desc",
 	}
 
-	res, err := env.Client.PerformAction("builds", "find", params)
+	res, err := env.Client.PerformAction("builds", "find", params, nil)
 	if err != nil {
 		cmd.Stderr.Println("Build not found.")
 		return cli.Failure

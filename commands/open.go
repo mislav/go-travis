@@ -94,7 +94,7 @@ func getTravisURLForNumber(build string, job string, cmd *cli.Cmd) (string, erro
 	if job != "" {
 		params["job.Number"] = job
 	}
-	res, err := env.Client.PerformAction("builds", "find", params)
+	res, err := env.Client.PerformAction("builds", "find", params, nil)
 	if err != nil {
 		cmd.Stderr.Printf("Could not find job or build " + env.Repo + "#" + build + "." + job)
 		return fallbackWebsite, errors.New("")

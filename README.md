@@ -42,6 +42,7 @@ Travis API v3 command-line client written in Go.
 * [ ] `travis cache`
 * [ ] `travis cancel`
 * [ ] `travis console`
+* [x] `travis cron` *(not yet merged into the old client)*
 * [x] `travis crons` *(not yet merged into the old client)*
 * [x] `travis disable`
 * [x] `travis enable`
