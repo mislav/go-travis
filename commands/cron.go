@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"io/ioutil"
+
 	"github.com/HPI-BP2015H/go-travis/config"
 	"github.com/HPI-BP2015H/go-utils/cli"
 )
@@ -29,6 +31,14 @@ func init() {
 		},
 	)
 
+	cmd1.RegisterCommand(
+		cli.Command{
+			Name:     "create",
+			Info:     "Creates new cron jobs.",
+			Function: createCmd,
+		},
+	)
+
 	cli.AppInstance().RegisterCommand(cmd1)
 }
 
@@ -37,7 +47,7 @@ func listCmd(cmd *cli.Cmd) cli.ExitValue {
 	params := map[string]string{
 		"repository.slug": env.Repo,
 	}
-	res, err := env.Client.PerformAction("crons", "for_repository", params)
+	res, err := env.Client.PerformAction("crons", "for_repository", params, nil)
 	if err != nil {
 		cmd.Stderr.Println("Error: Could not get crons! \n" + err.Error())
 		return cli.Failure
@@ -69,7 +79,7 @@ func deleteCmd(cmd *cli.Cmd) cli.ExitValue {
 	params := map[string]string{
 		"cron.id": cronID,
 	}
-	res, err := env.Client.PerformAction("cron", "delete", params)
+	res, err := env.Client.PerformAction("cron", "delete", params, nil)
 	if err != nil {
 		cmd.Stderr.Println("Error: Request failed! \n" + err.Error())
 		return cli.Failure
@@ -81,6 +91,44 @@ func deleteCmd(cmd *cli.Cmd) cli.ExitValue {
 	cron := Cron{}
 	res.Unmarshal(&cron)
 	cmd.Stdout.Cprintf("Cron with ID %C(boldgreen)%d%C(reset) deleted. \n", cron.ID)
+	return cli.Success
+}
+
+func createCmd(cmd *cli.Cmd) cli.ExitValue {
+	if NotLoggedIn(cmd) {
+		return cli.Failure
+	}
+	branch := cmd.Args.Peek(0)
+	interval := cmd.Args.Peek(1)
+	disableByBuild := cmd.Args.Peek(2)
+	if disableByBuild == "" {
+		disableByBuild = "false"
+	}
+	env := cmd.Env.(config.TravisCommandConfig)
+	params := map[string]string{
+		"repository.slug": env.Repo,
+		"branch.name":     branch,
+	}
+	body := map[string]string{
+		"interval":         interval,
+		"disable_by_build": disableByBuild,
+	}
+	res, err := env.Client.PerformAction("cron", "create", params, body)
+	if err != nil {
+		cmd.Stderr.Println("Error: Request failed! \n" + err.Error())
+		return cli.Failure
+	}
+	if res.StatusCode > 299 {
+		cmd.Stderr.Printf("Error: Unexpected HTTP status: %d\n", res.StatusCode)
+
+		st, _ := ioutil.ReadAll(res.Body)
+		cmd.Stdout.Println(string(st))
+
+		return cli.Failure
+	}
+	cron := Cron{}
+	res.Unmarshal(&cron)
+	cmd.Stdout.Cprintf("Cron with ID %C(boldgreen)%d%C(reset) created. \n", cron.ID)
 	return cli.Success
 }
 

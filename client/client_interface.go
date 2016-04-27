@@ -11,7 +11,7 @@ import (
 // and one for using a fake API for testing purposes.
 type Client interface {
 	PerformRequest(string, string, io.Reader, func(*http.Request)) (*Response, error)
-	PerformAction(string, string, map[string]string) (*Response, error)
+	PerformAction(string, string, map[string]string, map[string]string) (*Response, error)
 	Manifest() (*Manifest, error)
 
 	// getters

@@ -31,7 +31,7 @@ func buildsCmd(cmd *cli.Cmd) cli.ExitValue {
 		"limit":            "10",
 	}
 
-	res, err := env.Client.PerformAction("builds", "find", params)
+	res, err := env.Client.PerformAction("builds", "find", params, nil)
 	if err != nil {
 		cmd.Stderr.Println(err.Error())
 		return cli.Failure

@@ -27,7 +27,7 @@ func disableCmd(cmd *cli.Cmd) cli.ExitValue {
 		"repository.slug": env.Repo,
 	}
 
-	res, err := env.Client.PerformAction("repository", "disable", params)
+	res, err := env.Client.PerformAction("repository", "disable", params, nil)
 	if err != nil {
 		cmd.Stderr.Println(err.Error())
 		return cli.Failure

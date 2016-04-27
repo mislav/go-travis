@@ -25,7 +25,7 @@ func branchesCmd(cmd *cli.Cmd) cli.ExitValue {
 		"repository.slug": env.Repo,
 		"include":         "repository.default_branch,build.commit",
 	}
-	res, err := env.Client.PerformAction("branches", "find", params)
+	res, err := env.Client.PerformAction("branches", "find", params, nil)
 	if err != nil {
 		cmd.Stderr.Println(err.Error())
 		return cli.Failure

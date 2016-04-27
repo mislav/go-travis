@@ -87,7 +87,7 @@ func getCronsForRepo(repo Repository, cRes chan *client.Response, cErr chan erro
 		"repository.slug": repo.Slug,
 		"include":         "repository.default_branch,branch.last_build",
 	}
-	res, err := env.Client.PerformAction("crons", "for_repository", params)
+	res, err := env.Client.PerformAction("crons", "for_repository", params, nil)
 	cRes <- res
 	cErr <- err
 }

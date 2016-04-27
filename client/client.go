@@ -1,6 +1,7 @@
 package client
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -81,7 +82,7 @@ func NewClient(endpoint, token string, logger *os.File, cacheDir string) *Travis
 }
 
 func (c *TravisClient) PerformRequest(method, path string, body io.Reader, configure func(*http.Request)) (*Response, error) {
-	res, err := c.http.PerformRequest(method, path, nil, func(req *http.Request) {
+	res, err := c.http.PerformRequest(method, path, body, func(req *http.Request) {
 		req.Header.Set("Travis-API-Version", "3")
 		if c.token != "" {
 			req.Header.Set("Authorization", "token "+c.token)
@@ -97,7 +98,7 @@ func (c *TravisClient) PerformRequest(method, path string, body io.Reader, confi
 	return &Response{Response: res}, nil
 }
 
-func (c *TravisClient) PerformAction(resourceName, actionName string, params map[string]string) (*Response, error) {
+func (c *TravisClient) PerformAction(resourceName, actionName string, params map[string]string, body map[string]string) (*Response, error) {
 	manifest, err := c.Manifest()
 	if err != nil {
 		return nil, fmt.Errorf("could not get manifest: %q", err.Error())
@@ -134,7 +135,17 @@ func (c *TravisClient) PerformAction(resourceName, actionName string, params map
 		return nil, err
 	}
 
-	return c.PerformRequest(method, path, nil, nil)
+	var bodyReader io.Reader
+	bodyReader = nil
+	if body != nil {
+		jsonString, err := json.Marshal(body)
+		if err != nil {
+			return nil, err
+		}
+		bodyReader = bytes.NewReader(jsonString)
+	}
+
+	return c.PerformRequest(method, path, bodyReader, nil)
 }
 
 func (c *TravisClient) Manifest() (*Manifest, error) {

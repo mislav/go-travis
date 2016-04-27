@@ -12,7 +12,7 @@ import (
 // CurrentUser returns the user currently logged in into Travis
 func CurrentUser(client client.Client) (User, error) {
 	user := User{}
-	res, err := client.PerformAction("user", "current", map[string]string{})
+	res, err := client.PerformAction("user", "current", map[string]string{}, nil)
 	if err != nil {
 		return user, fmt.Errorf("Error: Could not get current user! \n%s", err.Error())
 	}
@@ -35,7 +35,7 @@ func GetAllRepositories(params map[string]string, client client.Client) (Reposit
 		params = map[string]string{}
 	}
 	repositories := Repositories{}
-	res, err := client.PerformAction("repositories", "for_current_user", params)
+	res, err := client.PerformAction("repositories", "for_current_user", params, nil)
 	defer res.Body.Close()
 	if err != nil {
 		return repositories, err
