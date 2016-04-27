@@ -33,9 +33,10 @@ func init() {
 
 	cmd1.RegisterCommand(
 		cli.Command{
-			Name:     "create",
-			Info:     "Creates new cron jobs.",
-			Function: createCmd,
+			Name:      "create",
+			Info:      "Creates new cron jobs.",
+			Function:  createCmd,
+			Parameter: "BRANCH INTERVAL [DISABLE_BY_BUILD]",
 		},
 	)
 
