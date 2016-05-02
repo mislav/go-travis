@@ -41,7 +41,7 @@ func printGlobalHelp(cmd *cli.Cmd) {
 	printCommands(commands(), cmd.Stdout)
 	cmd.Stdout.Println("Available options:")
 	printFlagsHelp(globalOptions(), cmd.Stdout)
-	cmd.Stdout.Println("Run travis help COMMAND for more infos.")
+	cmd.Stdout.Printf("Run %s help COMMAND for more infos.\n", cmd.Args.ProgramName())
 }
 
 func printCommandHelp(command cli.Command, cmd *cli.Cmd) {

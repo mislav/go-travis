@@ -85,7 +85,7 @@ func loginCmd(cmd *cli.Cmd) cli.ExitValue {
 				return cli.Failure
 			}
 		} else {
-			message = "%C(green)You are currently already logged in as %C(boldgreen)%s%C(reset)%C(green)! To logout run travis logout.%C(reset)\n"
+			message = "%C(green)You are currently already logged in as %C(boldgreen)%s%C(reset)%C(green)! To logout run " + cmd.Args.ProgramName() + " logout.%C(reset)\n"
 		}
 	}
 	env.Config.StoreTravisTokenForEndpoint(env.Token, env.Endpoint)

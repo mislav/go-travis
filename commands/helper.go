@@ -58,7 +58,7 @@ func NotLoggedIn(cmd *cli.Cmd) bool {
 		success = err == nil && user.Name != ""
 	}
 	if !success {
-		cmd.Stderr.Println("You need to be logged in to do this. For this please run travis login.")
+		cmd.Stderr.Printf("You need to be logged in to do this. For this please run %s login.\n", cmd.Args.ProgramName())
 		return true
 	}
 	return false

@@ -8,7 +8,8 @@ import (
 )
 
 func TestHelpCmd(t *testing.T) {
-	cmd := exec.Command("go-travis", "help")
+	cmdName := "go-travis"
+	cmd := exec.Command(cmdName, "help")
 	//cmd.Stdin = strings.NewReader("some input") //if we need to supply input to the command
 	var out, err bytes.Buffer
 	cmd.Stdout = &out
@@ -18,7 +19,7 @@ func TestHelpCmd(t *testing.T) {
 		t.Error("Help exited not with 0. \nError:" + exitError.Error())
 	}
 
-	if !strings.Contains(out.String(), "Run travis help COMMAND for more infos.") {
+	if !strings.Contains(out.String(), "Run "+cmdName+" help COMMAND for more infos.") {
 		t.Error(out.String())
 		t.Error(err.String())
 	}
