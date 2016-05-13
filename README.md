@@ -37,17 +37,14 @@ Travis API v3 command-line client written in Go.
 
 ### `travis.rb` functionality (checked means it has been implemented in `go-travis`):
 
-* [ ] `travis accounts` displays accounts and their subscription status
 * [x] `travis branches` displays the most recent build for each branch
 * [ ] `travis cache` lists or deletes repository caches  **Needs v3 Endpoint**
 * [ ] `travis cancel` cancels a job or build
-* [ ] `travis console` interactive shell
 * [x] `travis cron` *(not yet merged into the old client)*
 * [x] `travis crons` *(not yet merged into the old client)*
 * [x] `travis disable` disables a project
 * [x] `travis enable` enables a project
 * [ ] `travis encrypt` encrypts values for the .travis.yml
-* [ ] `travis encrypt-file` encrypts a file and adds decryption steps to .travis.yml
 * [x] `travis endpoint` displays or changes the API endpoint
 * [ ] `travis env` show or modify build environment variables
 * [x] `travis help` helps you out when in dire need of information
@@ -57,7 +54,6 @@ Travis API v3 command-line client written in Go.
 * [x] `travis login` authenticates against the API and stores the token
 * [x] `travis logout` deletes the stored API token
 * [ ] `travis logs` streams test logs
-* [ ] `travis monitor` live monitor for what's going on
 * [ ] `travis open` opens a build or job in the browser
 * [ ] `travis pubkey` prints out a repository's public key  **Needs v3 Endpoint**
 * [x] `travis raw` makes an (authenticated) API call and prints out the result
@@ -97,7 +93,14 @@ Travis API v3 command-line client written in Go.
 * auto-completion including global `--skip-completion-check` flag
 * storing a slug for a folder via `--store-repo`
 
-### Assets handling:
+### `travis.rb` commands which are not going to be implemented in `go-travis`
+
+* `travis accounts` displays accounts and their subscription status
+* `travis console` interactive shell
+* `travis encrypt-file` encrypts a file and adds decryption steps to .travis.yml
+* `travis monitor` live monitor for what's going on
+
+## Assets handling:
 
 If you need to change something in the assets folder (e.g. the template .yml files) then afterwards you will need to follow these steps:
 
