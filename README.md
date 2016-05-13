@@ -37,43 +37,44 @@ Travis API v3 command-line client written in Go.
 
 ### `travis.rb` functionality (checked means it has been implemented in `go-travis`):
 
-* [ ] `travis accounts`
-* [x] `travis branches`
-* [ ] `travis cache`
-* [ ] `travis cancel`
-* [ ] `travis console`
+* [ ] `travis accounts` displays accounts and their subscription status.
+* [x] `travis branches` displays the most recent build for each branch
+* [ ] `travis cache` lists or deletes repository caches
+* [ ] `travis cancel` cancels a job or build
+* [ ] `travis console` interactive shell
 * [x] `travis cron` *(not yet merged into the old client)*
 * [x] `travis crons` *(not yet merged into the old client)*
-* [x] `travis disable`
-* [x] `travis enable`
-* [ ] `travis encrypt`
-* [ ] `travis encrypt-file`
-* [x] `travis endpoint`
-* [ ] `travis env`
-* [x] `travis help`
-* [x] `travis history`
-* [x] `travis init`
-* [ ] `travis lint`
-* [x] `travis login`
-* [x] `travis logout`
-* [ ] `travis logs`
-* [ ] `travis monitor`
-* [ ] `travis open`
-* [ ] `travis pubkey`
-* [x] `travis raw`
-* [ ] `travis report`
-* [x] `travis repos`
-* [ ] `travis restart`
-* [ ] `travis settings`
-* [ ] `travis setup`
-* [x] `travis show`
-* [ ] `travis sshkey`
-* [x] `travis status`
-* [ ] `travis sync`
-* [x] `travis token`
-* [x] `travis version`
-* [x] `travis whatsup`
-* [x] `travis whoami`
+* [x] `travis disable` disables a project
+* [x] `travis enable` enables a project
+* [ ] `travis encrypt` encrypts values for the .travis.yml
+* [ ] `travis encrypt-file` encrypts a file and adds decryption steps to .travis.yml
+* [x] `travis endpoint` displays or changes the API endpoint
+* [ ] `travis env` show or modify build environment variables
+* [x] `travis help` helps you out when in dire need of information
+* [x] `travis history` displays a projects build history
+* [x] `travis init` generates a .travis.yml and enables the project
+* [ ] `travis lint` display warnings for a .travis.yml
+* [x] `travis login` authenticates against the API and stores the token
+* [x] `travis logout` deletes the stored API token
+* [ ] `travis logs` streams test logs
+* [ ] `travis monitor` live monitor for what's going on
+* [ ] `travis open` opens a build or job in the browser
+* [ ] `travis pubkey` prints out a repository's public key
+* [x] `travis raw` makes an (authenticated) API call and prints out the result
+* [ ] `travis report` generates a report useful for filing issues
+* [x] `travis repos` lists repositories the user has certain permissions on
+* [ ] `travis requests` lists recent requests
+* [ ] `travis restart` restarts a build or job
+* [ ] `travis settings` access repository settings
+* [ ] `travis setup` sets up an addon or deploy target
+* [x] `travis show` displays a build or job
+* [ ] `travis sshkey` checks, updates or deletes an SSH key
+* [x] `travis status` checks status of the latest build
+* [ ] `travis sync` triggers a new sync with GitHub
+* [x] `travis token` outputs the secret API token
+* [x] `travis version` outputs the client version
+* [x] `travis whatsup` lists most recent builds
+* [x] `travis whoami` outputs the current user
 
 ### `travis.rb` global flags:
 
