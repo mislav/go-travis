@@ -37,9 +37,9 @@ Travis API v3 command-line client written in Go.
 
 ### `travis.rb` functionality (checked means it has been implemented in `go-travis`):
 
-* [ ] `travis accounts` displays accounts and their subscription status.
+* [ ] `travis accounts` displays accounts and their subscription status
 * [x] `travis branches` displays the most recent build for each branch
-* [ ] `travis cache` lists or deletes repository caches
+* [ ] `travis cache` lists or deletes repository caches  **Needs v3 Endpoint**
 * [ ] `travis cancel` cancels a job or build
 * [ ] `travis console` interactive shell
 * [x] `travis cron` *(not yet merged into the old client)*
@@ -59,18 +59,18 @@ Travis API v3 command-line client written in Go.
 * [ ] `travis logs` streams test logs
 * [ ] `travis monitor` live monitor for what's going on
 * [ ] `travis open` opens a build or job in the browser
-* [ ] `travis pubkey` prints out a repository's public key
+* [ ] `travis pubkey` prints out a repository's public key  **Needs v3 Endpoint**
 * [x] `travis raw` makes an (authenticated) API call and prints out the result
 * [ ] `travis report` generates a report useful for filing issues
 * [x] `travis repos` lists repositories the user has certain permissions on
 * [ ] `travis requests` lists recent requests
 * [ ] `travis restart` restarts a build or job
-* [ ] `travis settings` access repository settings
+* [ ] `travis settings` access repository settings  **Needs v3 Endpoint**
 * [ ] `travis setup` sets up an addon or deploy target
 * [x] `travis show` displays a build or job
-* [ ] `travis sshkey` checks, updates or deletes an SSH key
+* [ ] `travis sshkey` checks, updates or deletes an SSH key  **Needs v3 Endpoint**
 * [x] `travis status` checks status of the latest build
-* [ ] `travis sync` triggers a new sync with GitHub
+* [ ] `travis sync` triggers a new sync with GitHub **Needs v3 Endpoint**
 * [x] `travis token` outputs the secret API token
 * [x] `travis version` outputs the client version
 * [x] `travis whatsup` lists most recent builds
